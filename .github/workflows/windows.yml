@@ -1,0 +1,65 @@
+name: Windows Build
+
+on:
+  release:
+    types: [ published ]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release Tag'
+        required: true
+      upload:
+        description: 'Upload to release?'
+        required: true
+        default: true
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2.8.0
+        with:
+          channel: stable
+          cache: true
+      - name: Flutter version
+        run: flutter --version
+      - name: Install dependencies
+        run: flutter pub get
+      # <-------- START: Utility scripts -------->
+      - name: Get Tag
+        id: GetTag
+        shell: bash
+        run: echo "tag=$(dart scripts/get_tag.dart ${{ github.event.inputs.tag }} ${{ github.ref }})" >> $GITHUB_OUTPUT
+      - name: Get Pubspec Version
+        id: GetPubspecVersion
+        shell: bash
+        run: echo "version=$(dart scripts/pubspec_version.dart)" >> $GITHUB_OUTPUT
+      - name: Should upload?
+        id: GetUpload
+        shell: bash
+        run: echo "upload=${{ github.event.inputs.upload == true || github.event_name == 'release' }}" >> $GITHUB_OUTPUT
+      # <-------- END: Utility scripts -------->
+      - name: Build
+        run: flutter build windows
+      - name: Setup MSIX configs
+        run: dart installers\msix\setup.dart installers\msix\ci.yaml ${{ secrets.WIN_CERT_PASSWORD }}
+      - name: Create MSIX Installer
+        run: flutter pub run msix:create
+      - name: Rename file
+        run: ren PocketJenna.msix PocketJenna-windows-${{ steps.GetTag.outputs.tag }}.msix
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          path: PocketJenna-windows-${{ steps.GetTag.outputs.tag }}.msix
+          if-no-files-found: error
+          retention-days: 5
+      - name: Upload binaries to Release
+        if: ${{ steps.GetUpload.outputs.upload }}
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: PocketJenna-windows-${{ steps.GetTag.outputs.tag }}.msix
+          tag: refs/tags/${{ github.event.inputs.tag }}
+          file_glob: true

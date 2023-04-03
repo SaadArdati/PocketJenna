@@ -1,0 +1,111 @@
+name: pocketjenna
+description: A pocket-sized GPT assistant
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+version: 0.2.1
+
+environment:
+  sdk: '>=2.19.2 <3.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  dart_openai: ^1.9.1
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  go_router: ^6.5.1
+  bubble: ^1.2.1
+  equatable: ^2.0.5
+  uuid: ^3.0.7
+  provider: ^6.0.5
+  flutter_markdown:
+    git:
+      url: https://github.com/SaadArdati/packages.git
+      path: packages/flutter_markdown
+  flutter_highlighter: ^0.1.1
+  google_fonts: ^4.0.3
+  markdown: ^7.0.1
+  highlighter: ^0.1.1
+  url_launcher: ^6.1.10
+  system_tray: ^2.0.2
+  window_manager: ^0.3.1
+  screen_retriever: ^0.1.6
+  json_annotation: ^4.8.0
+  package_info_plus: ^3.0.3
+  pub_semver: ^2.1.3
+  http: ^0.13.5
+  url_strategy: ^0.2.0
+  launch_at_startup: ^0.2.2
+  collection: ^1.17.0
+  universal_io: ^2.2.0
+  encrypted_shared_preferences: ^3.0.1
+  bitsdojo_window: ^0.1.5
+  adaptive_theme: ^3.2.0
+  msix: ^3.9.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^2.0.1
+  build_runner: ^2.3.3
+  extra_pedantic: ^3.0.0
+  json_serializable: ^6.6.1
+  dart_code_metrics: ^5.7.0
+  dart_code_metrics_presets: ^1.5.0
+#  flutter_launcher_icons: ^0.12.0
+#  flutter_native_splash: ^2.2.19
+
+flutter_native_splash:
+  color: "#FBFCFE"
+  color_dark: "#191C1E"
+  image: "assets/logo_bg_light_256x.png"
+  image_dark: "assets/logo_bg_dark_256x.png"
+  fullscreen: true
+
+flutter_icons:
+  image_path: "assets/app_logo_1000x.png"
+  adaptive_icon_background: "#191C1E"
+  adaptive_icon_foreground: "assets/app_logo_1000x.png"
+  android: true
+  image_path_ios: "assets/app_icons/ios_app_icon.png"
+  ios: true
+  web:
+    generate: true
+    background_color: "#191C1E"
+    theme_color: "#191C1E"
+  windows:
+    generate: true
+    image_path: "assets/app_icons/windows_app_icon.png"
+  macos:
+    generate: true
+    image_path: "assets/app_icons/macos_app_icon.png"
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/app_logo_1000x.png
+    - assets/app_icon.png
+    - assets/app_icon.ico
+    - assets/openai_256.png
+    - assets/discord_256x.png
+    - assets/twitter_256x.png
+    - assets/instagram_256x.png
+    - assets/linked_in_256x.png
+    - assets/github_dark_256x.png
+    - assets/github_light_256x.png
+    - assets/profile_256x.png
+    - assets/logo_bg_dark_256x.png
+    - assets/logo_bg_light_256x.png
+    - assets/logo_bg_dark_1000x.png
+    - assets/logo_bg_light_1000x.png
+    - assets/logo_bg_dark_padded_1024x.png
+    - assets/logo_bg_light_padded_1024x.png
+    - assets/instructions/windows_arrow_1.png
+    - assets/instructions/windows_arrow_2.png
+    - assets/instructions/macos_arrow.png
+    - assets/app_icons/windows_app_icon.png
+    - assets/app_icons/macos_app_icon.png
+    - assets/app_icons/ios_app_icon.png
+
+scripts: scripts.yaml

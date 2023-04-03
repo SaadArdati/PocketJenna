@@ -1,0 +1,68 @@
+name: MacOS Build
+
+on:
+  release:
+    types: [ published ]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release Tag'
+        required: true
+      upload:
+        description: 'Upload to release?'
+        required: true
+        default: true
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+      - name: Flutter version
+        run: flutter --version
+      - name: Set Up XCode
+        uses: devbotsxyz/xcode-select@v1.1.0
+      - name: Install create-dmg
+        run: brew install create-dmg
+      - name: Install dependencies
+        run: flutter pub get
+      # <-------- START: Utility scripts -------->
+      - name: Get Tag
+        id: GetTag
+        run: echo "tag=$(dart scripts/get_tag.dart ${{ github.event.inputs.tag }} ${{ github.ref }})" >> $GITHUB_OUTPUT
+      - name: Get Pubspec Version
+        id: GetPubspecVersion
+        run: echo "version=$(dart scripts/pubspec_version.dart)" >> $GITHUB_OUTPUT
+      - name: Should upload?
+        id: GetUpload
+        run: echo "upload=${{ github.event.inputs.upload == true || github.event_name == 'release' }}" >> $GITHUB_OUTPUT
+      # <-------- END: Utility scripts -------->
+      - name: Build App
+        run: flutter build macos
+      - name: Verify Build
+        run: test -d build/macos/Build/Products/Release/PocketJenna.app
+      - name: Create dmg
+        run: |
+          ./installers/dmg/create.sh
+      - name: list files
+        run: ls -la build/macos/Build/Products/Release/
+      - name: Rename file
+        run: mv "PocketJenna.dmg" "PocketJenna-macos-${{ steps.GetTag.outputs.tag }}.dmg"
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          path: PocketJenna-macos-${{ steps.GetTag.outputs.tag }}.dmg
+          if-no-files-found: error
+          retention-days: 5
+      - name: Upload binaries to Release
+        if: ${{ steps.GetUpload.outputs.upload }}
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: PocketJenna-macos-${{ steps.GetTag.outputs.tag }}.dmg
+          tag: refs/tags/${{ github.event.inputs.tag }}
+          file_glob: true
