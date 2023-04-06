@@ -10,6 +10,8 @@ import '../models/chat.dart';
 import '../models/chat_message.dart';
 import '../models/chat_type.dart';
 import '../models/message_status.dart';
+import '../models/prompt.dart';
+import 'prompt_manager.dart';
 
 class GPTManager extends ChangeNotifier {
   List<ChatMessage> get messages => currentChat!.messages;
@@ -69,12 +71,15 @@ class GPTManager extends ChangeNotifier {
     };
   }
 
-  void openChat({String? id, required bool notify, ChatType? type}) {
-    if (id == null) {
-      currentChat = Chat.simple(messages: [], type: type!);
+  void openChat({String? chatID, required bool notify, Prompt? prompt}) {
+    assert(chatID != null || prompt != null,
+        'Either chatID or prompt must be provided');
+
+    if (chatID == null) {
+      currentChat = Chat.simple(prompt: prompt!);
       chatHistory[currentChat!.id] = currentChat!;
     } else {
-      currentChat = chatHistory[id];
+      currentChat = chatHistory[chatID];
       purgeEmptyChats();
     }
     if (notify) {
@@ -107,55 +112,11 @@ class GPTManager extends ChangeNotifier {
     notifyListeners();
   }
 
-  ChatMessage? buildTypePrompt() {
-    switch (currentChat!.type) {
-      case ChatType.general:
-        return null;
-      case ChatType.email:
-        return ChatMessage.simple(
-          text: 'Anything the user sends should be converted to a formal email.'
-              ' Feel free to ask them for any information you need to complete'
-              ' the email. Try to be short, concise, and to the point rather'
-              ' than verbose.',
-          role: OpenAIChatMessageRole.system,
-        );
-      case ChatType.scientific:
-        return ChatMessage.simple(
-          text: 'Be as precise, objective, and scientific as possible. Do not'
-              ' use any colloquialisms or slang. Do not hesitate to admit lack of'
-              ' knowledge on anything.',
-          role: OpenAIChatMessageRole.system,
-        );
-      case ChatType.analyze:
-        return ChatMessage.simple(
-          text:
-              'Be as objective as possible. Try to summarize whatever the user'
-              ' sends in a few sentences. Ask the user about what to look for'
-              ' specifically if there is nothing obvious.',
-          role: OpenAIChatMessageRole.system,
-        );
-      case ChatType.documentCode:
-        return ChatMessage.simple(
-          text: 'Try to embed high quality and concise code documentation '
-              'into any code the user sends. If the programming language is not'
-              'obvious, ask the user for it. Do not modify the code itself '
-              'under any circumstances.',
-          role: OpenAIChatMessageRole.system,
-        );
-      case ChatType.readMe:
-        return ChatMessage.simple(
-          text: 'Analyze all of the user\'s code and try to write a README.md.'
-              'Ask the user for a template. If there is no template, try to do it'
-              ' yourself.',
-          role: OpenAIChatMessageRole.system,
-        );
-    }
-  }
-
   bool needsExtendedContext() {
-    return currentChat!.type == ChatType.documentCode ||
-        currentChat!.type == ChatType.scientific ||
-        currentChat!.type == ChatType.readMe;
+    return false;
+    // return currentChat!.type == ChatType.documentCode ||
+    //     currentChat!.type == ChatType.scientific ||
+    //     currentChat!.type == ChatType.readMe;
   }
 
   /// Not clean. But it's the most optimized way to do it.
@@ -184,25 +145,12 @@ class GPTManager extends ChangeNotifier {
   }
 
   void _generate() {
-    final ChatMessage? typePrompt = buildTypePrompt();
-
     final Stream<OpenAIStreamChatCompletionModel> stream =
         OpenAI.instance.chat.createStream(
       model: findTailoredModel(),
       messages: [
-        ChatMessage.simple(
-          text: 'You are PocketJenna, an assistant gpt app powered by OpenAI.'
-              '\nThe app in which you live in is created by Saad Ardati.'
-              '\n - Twitter: @SaadArdati.'
-              '\n - Website: https://saad-ardati.dev/.'
-              '\n - Github: https://github.com/SaadArdati.'
-              '\n - Description: Self-taught software developer with 8+ years'
-              ' of experience in game modding and 4+ years of experience'
-              ' in Flutter development. Currently pursuing a degree in'
-              ' Computer Science.',
-          role: OpenAIChatMessageRole.system,
-        ).toOpenAI(),
-        if (typePrompt != null) typePrompt.toOpenAI(),
+        ...currentChat!.prompt.toChatMessages
+            .map((chatMessage) => chatMessage.toOpenAI()),
         ...messages.map((msg) => msg.toOpenAI())
       ],
     );

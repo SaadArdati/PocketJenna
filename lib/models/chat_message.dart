@@ -30,8 +30,9 @@ class ChatMessage with EquatableMixin {
     required this.text,
     required this.role,
     this.status = MessageStatus.waiting,
+    DateTime? timestamp,
   })  : id = const Uuid().v4(),
-        timestamp = DateTime.now();
+        timestamp = timestamp ?? DateTime.now();
 
   OpenAIChatCompletionChoiceMessageModel toOpenAI() {
     return OpenAIChatCompletionChoiceMessageModel(

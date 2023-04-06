@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -6,6 +8,8 @@ import 'package:hive/hive.dart';
 import '../constants.dart';
 import '../main.dart';
 import '../models/chat_type.dart';
+import '../models/prompt.dart';
+import '../screens/auth/auth_screen.dart';
 import '../screens/chat_screen.dart';
 import '../screens/home_screen.dart';
 import '../screens/onboarding/onboarding_screen.dart';
@@ -13,6 +17,8 @@ import '../screens/onboarding/macos_onboarding_screen.dart';
 import '../screens/open_ai_key_screen.dart';
 import '../screens/settings_screen.dart';
 import '../ui/window_drag_handle.dart';
+import 'auth/auth_manager.dart';
+import 'prompt_manager.dart';
 
 class NavigationManager {
   NavigationManager._();
@@ -33,6 +39,14 @@ class NavigationManager {
     routes: [baseRoute],
   );
 
+  FutureOr<String?> authGuard(BuildContext context, GoRouterState state) {
+    if (!AuthManager.instance.isAuthenticated) {
+      return '/auth';
+    }
+
+    return null;
+  }
+
   late final baseRoute = ShellRoute(
     builder: (context, GoRouterState state, child) {
       return WindowDragHandle(
@@ -43,6 +57,9 @@ class NavigationManager {
         path: '/onboarding',
         builder: (state, context) => const SizedBox.shrink(),
         redirect: (BuildContext context, GoRouterState state) {
+          if (!AuthManager.instance.isAuthenticated) {
+            return '/auth';
+          }
           if (state.location == '/onboarding') {
             return '/onboarding/one';
           }
@@ -158,6 +175,7 @@ class NavigationManager {
       GoRoute(
         path: '/home',
         builder: (context, state) => const HomeScreen(),
+        redirect: authGuard,
         pageBuilder: (context, state) {
           final extra = state.extra;
           AxisDirection comesFrom = AxisDirection.down;
@@ -190,17 +208,21 @@ class NavigationManager {
       ),
       GoRoute(
         path: '/chat',
+        redirect: authGuard,
         pageBuilder: (context, state) {
           final Widget child;
           final extra = state.extra;
           if (extra == null || extra is! Map) {
-            child = const ChatScreenWrapper();
+            child = ChatScreenWrapper(prompt: PromptManager.generalChat);
           } else {
-            final String typeParam = extra['type'] ?? ChatType.general.name;
-            final ChatType type = ChatType.values.firstWhere(
-              (chatType) => chatType.name == typeParam,
+            final String promptParam =
+                extra['id'] ?? PromptManager.generalChat.id;
+            final Prompt? prompt =
+                PromptManager.instance.getPromptByID(promptParam);
+
+            child = ChatScreenWrapper(
+              prompt: prompt ?? PromptManager.generalChat,
             );
-            child = ChatScreenWrapper(type: type);
           }
 
           return CustomTransitionPage(
@@ -230,6 +252,30 @@ class NavigationManager {
           return CustomTransitionPage(
             key: state.pageKey,
             child: const SettingsScreen(),
+            opaque: false,
+            transitionDuration: const Duration(milliseconds: 600),
+            reverseTransitionDuration: const Duration(milliseconds: 600),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return pocketJennaTransition(
+                context,
+                animation,
+                secondaryAnimation,
+                child,
+                state: state,
+                comesFrom: AxisDirection.up,
+              );
+            },
+          );
+        },
+      ),
+      GoRoute(
+        path: '/auth',
+        builder: (context, state) => const AuthScreen(),
+        pageBuilder: (context, state) {
+          return CustomTransitionPage(
+            key: state.pageKey,
+            child: const AuthScreen(),
             opaque: false,
             transitionDuration: const Duration(milliseconds: 600),
             reverseTransitionDuration: const Duration(milliseconds: 600),

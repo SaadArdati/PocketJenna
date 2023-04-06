@@ -14,35 +14,35 @@ import '../constants.dart';
 import '../managers/gpt_manager.dart';
 import '../models/chat.dart';
 import '../models/chat_message.dart';
-import '../models/chat_type.dart';
 import '../models/message_status.dart';
+import '../models/prompt.dart';
 import '../ui/markdown_renderer.dart';
 import '../ui/theme_extensions.dart';
 import '../ui/window_controls.dart';
 
 class ChatScreenWrapper extends StatelessWidget {
-  final ChatType type;
+  final Prompt prompt;
 
   const ChatScreenWrapper({
     super.key,
-    this.type = ChatType.general,
+    required this.prompt,
   });
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<GPTManager>(
       create: (context) => GPTManager(),
-      child: ChatScreen(type: type),
+      child: ChatScreen(prompt: prompt),
     );
   }
 }
 
 class ChatScreen extends StatefulWidget {
-  final ChatType type;
+  final Prompt prompt;
 
   const ChatScreen({
     super.key,
-    this.type = ChatType.general,
+    required this.prompt,
   });
 
   @override
@@ -76,9 +76,9 @@ class _ChatScreenState extends State<ChatScreen>
     gpt.init();
     gpt.openChat(
       notify: false,
-      type: widget.type,
-      id: gpt.chatHistory.values
-          .lastWhereOrNull((type) => type.type == widget.type)
+      prompt: widget.prompt,
+      chatID: gpt.chatHistory.values
+          .lastWhereOrNull((chat) => chat.prompt.id == widget.prompt.id)
           ?.id,
     );
   }
@@ -117,7 +117,7 @@ class _ChatScreenState extends State<ChatScreen>
             },
           ),
           title: Text(
-            widget.type.label,
+            widget.prompt.title,
             style: context.textTheme.titleMedium,
           ),
           centerTitle: false,
@@ -159,7 +159,7 @@ class _ChatScreenState extends State<ChatScreen>
               iconSize: buttonSize,
               tooltip: 'New Chat',
               onPressed: () {
-                gpt.openChat(notify: true, type: widget.type);
+                gpt.openChat(notify: true, prompt: widget.prompt);
               },
               icon: const Icon(Icons.add),
             ),
@@ -211,7 +211,8 @@ class _ChatScreenState extends State<ChatScreen>
                         Expanded(
                           child: SelectionArea(
                             child: ListView.separated(
-                              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                              keyboardDismissBehavior:
+                                  ScrollViewKeyboardDismissBehavior.onDrag,
                               controller: scrollController,
                               reverse: true,
                               padding:
@@ -265,14 +266,16 @@ class _ChatScreenState extends State<ChatScreen>
                                 ? Padding(
                                     padding: const EdgeInsets.all(8),
                                     child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
                                         Tooltip(
                                           message: 'Stop generating response',
                                           child: FilledButton.tonalIcon(
                                             onPressed: gpt.stopGenerating,
                                             icon: const Icon(Icons.stop_circle),
-                                            label: const Text('Stop generating'),
+                                            label:
+                                                const Text('Stop generating'),
                                           ),
                                         )
                                       ],
@@ -381,9 +384,19 @@ class _HistoryTileState extends State<HistoryTile> {
         });
       },
       child: ListTile(
-        leading: Icon(
-          widget.chat.type.icon,
-        ),
+        leading: widget.chat.prompt.icon.startsWith('assets/')
+            ? Image.asset(
+                widget.chat.prompt.icon,
+                width: 24,
+                height: 24,
+              )
+            :
+            // TODO: Cached network image
+            Image.network(
+                widget.chat.prompt.icon,
+                width: 24,
+                height: 24,
+              ),
         title: Text(
           widget.chat.messages.isEmpty
               ? 'No messages'
@@ -393,7 +406,7 @@ class _HistoryTileState extends State<HistoryTile> {
           style: context.textTheme.bodyMedium,
         ),
         onTap: () {
-          gpt.openChat(id: widget.chat.id, notify: true);
+          gpt.openChat(chatID: widget.chat.id, notify: true);
           Scaffold.of(context).closeEndDrawer();
         },
         onLongPress: () {

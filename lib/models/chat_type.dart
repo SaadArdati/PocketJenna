@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+
 /// TODO: Properly abstract or turn into strings for customizable chat types.
 enum ChatType {
   general(

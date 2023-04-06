@@ -1,13 +1,33 @@
 class Constants {
+  Constants._();
+
   static const String encryptionKey = 'encryption_key';
 
-  /// General
+  /// ------- Sensitive
+  static const String firebaseWebAPIKey =
+      'AIzaSyBmi7yBY3WTjLyciXXvkkYfQS9HG4X_emk';
+
   static const String openAIKey = 'openai_api_key';
+
+  /// ------- Data
+  static const String firebaseFunctionsBaseURL = 'TODO';
+  static const String user = 'user';
+
+  // FireDart
+  static const String auth = 'auth';
+  static const String authToken = 'authToken';
+  static const String userModel = 'userModel';
+
+  /// ------- Firestore
+  static const String collectionUsers = 'users';
+  static const String collectionChatHistory = 'chat_history';
+
+  /// ------- General
   static const String gptModels = 'gpt_models';
   static const String isFirstTime = 'is_first_time';
   static const String history = 'history';
 
-  /// Settings
+  /// ------- Settings
   static const String settings = 'settings';
   static const String alwaysOnTop = 'always_on_top';
   static const String checkForUpdates = 'check_for_updates';
@@ -17,10 +37,9 @@ class Constants {
       'should_preserve_window_position';
   static const String showTitleBar = 'show_title_bar';
   static const String moveToSystemDock = 'move_to_system_dock';
-  static const String macOSLeftClickOpensApp =
-      'macos_left_click_opens_app';
+  static const String macOSLeftClickOpensApp = 'macos_left_click_opens_app';
 
-  /// Window Meta
+  /// ------- Window Meta
   static const String retainedWindowX = 'retained_window_x';
   static const String retainedWindowY = 'retained_window_y';
   static const String retainedWindowWidth = 'retained_window_width';
@@ -31,7 +50,7 @@ class Constants {
   static const String windowWidth = 'window_width';
   static const String windowHeight = 'window_height';
 
-  /// System Meta
+  /// ------- System Meta
   static const String trayPositionX = 'tray_position_x';
   static const String trayPositionY = 'tray_position_y';
   static const String systemDockPosition = 'system_dock_position';

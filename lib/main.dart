@@ -17,6 +17,8 @@ import 'package:url_strategy/url_strategy.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'constants.dart';
+import 'managers/auth/auth_manager.dart';
+import 'managers/data/data_manager.dart';
 import 'managers/navigation_manager.dart';
 import 'managers/system_manager.dart';
 import 'ui/color_schemes.g.dart';
@@ -77,6 +79,8 @@ class PocketJenna extends StatefulWidget {
       }
       setPathUrlStrategy();
     }
+
+    await AuthManager.instance.init();
 
     OpenAI.apiKey =
         Hive.box(Constants.settings).get(Constants.openAIKey, defaultValue: '');

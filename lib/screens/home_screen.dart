@@ -90,7 +90,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'PocketJenna',
+          'Pocket Jenna',
           style: context.textTheme.titleMedium,
         ),
         centerTitle: false,

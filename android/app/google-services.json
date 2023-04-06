@@ -1,0 +1,82 @@
+{
+  "project_info": {
+    "project_number": "377686290683",
+    "project_id": "saad-ardati",
+    "storage_bucket": "saad-ardati.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:377686290683:android:fbb73ec88ca743c430005e",
+        "android_client_info": {
+          "package_name": "dev.saadardati.pocketjenna.pocketjenna"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "377686290683-bt4oet7h24e34gnvhcq3emu62mom40f0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAdjFltChJEaXam9QarQRaxCmB0uZP-DH0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "377686290683-bt4oet7h24e34gnvhcq3emu62mom40f0.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "377686290683-onb8pjbmji1ecmad2d0pgkjfiji7mfo0.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "me.saad.saadardatidev"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:377686290683:android:d6a8fe32d5ab48b130005e",
+        "android_client_info": {
+          "package_name": "me.saad.saadardatidev"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "377686290683-bt4oet7h24e34gnvhcq3emu62mom40f0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAdjFltChJEaXam9QarQRaxCmB0uZP-DH0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "377686290683-bt4oet7h24e34gnvhcq3emu62mom40f0.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "377686290683-onb8pjbmji1ecmad2d0pgkjfiji7mfo0.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "me.saad.saadardatidev"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
