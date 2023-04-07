@@ -6,7 +6,7 @@ part of 'prompt.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-Prompt _$PromptFromJson(Map<String, dynamic> json) => Prompt(
+Prompt _$PromptFromJson(Map json) => Prompt(
       id: json['id'] as String,
       prompts:
           (json['prompts'] as List<dynamic>).map((e) => e as String).toList(),

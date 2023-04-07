@@ -7,7 +7,7 @@ import 'chat_message.dart';
 
 part 'prompt.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true, anyMap: true)
 class Prompt with EquatableMixin{
   final String id;
   final List<String> prompts;
@@ -32,9 +32,9 @@ class Prompt with EquatableMixin{
             text: prompt, role: OpenAIChatMessageRole.system))
       ];
 
-  factory Prompt.fromJson(Map<String, dynamic> json) => _$PromptFromJson(json);
+  factory Prompt.fromJson(Map json) => _$PromptFromJson(json);
 
-  Map<String, dynamic> toJson() => _$PromptToJson(this);
+  Map toJson() => _$PromptToJson(this);
 
   @override
   List<Object?> get props => [id, prompts, title, icon];

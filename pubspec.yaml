@@ -46,6 +46,8 @@ dependencies:
   firebase_auth: ^4.4.0
   firebase_core: ^2.9.0
   cloud_firestore: ^4.5.0
+  flutter_svg: ^2.0.4
+  vector_graphics: ^1.1.4
 
 dev_dependencies:
   flutter_test:
@@ -111,5 +113,17 @@ flutter:
     - assets/app_icons/windows_app_icon.png
     - assets/app_icons/macos_app_icon.png
     - assets/app_icons/ios_app_icon.png
+    - assets/prompts/analyze.svg
+    - assets/prompts/analyze.svg.vec
+    - assets/prompts/document_code.svg
+    - assets/prompts/document_code.svg.vec
+    - assets/prompts/email.svg
+    - assets/prompts/email.svg.vec
+    - assets/prompts/general.svg
+    - assets/prompts/general.svg.vec
+    - assets/prompts/readme.svg
+    - assets/prompts/readme.svg.vec
+    - assets/prompts/scientific.svg
+    - assets/prompts/scientific.svg.vec
 
 scripts: scripts.yaml

@@ -217,17 +217,18 @@ class _ChatScreenState extends State<ChatScreen>
                               reverse: true,
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 16),
-                              itemCount: gpt.messages.length,
+                              itemCount: gpt.currentChat!.toFullChat.length,
                               separatorBuilder: (context, index) =>
                                   const SizedBox(height: 8),
                               itemBuilder: (context, index) {
+                                final fullChat = gpt.currentChat!.toFullChat;
                                 final int reversedIndex =
-                                    gpt.messages.length - 1 - index;
+                                    fullChat.length - 1 - index;
                                 final ChatMessage message =
-                                    gpt.messages[reversedIndex];
+                                    fullChat[reversedIndex];
                                 return Padding(
                                   padding: EdgeInsets.only(
-                                    top: index == gpt.messages.length - 1
+                                    top: index == fullChat.length - 1
                                         ? (Scaffold.of(context)
                                                     .appBarMaxHeight ??
                                                 48) +
@@ -722,19 +723,16 @@ class SystemMessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Bubble(
-      color: context.colorScheme.surfaceVariant,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(Icons.security, size: 16),
-          const SizedBox(width: 4),
-          Text(
-            message.text,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 12.0),
-          ),
-        ],
+    return Container(
+      alignment: Alignment.center,
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      child: Bubble(
+        showNip: false,
+        color: context.colorScheme.secondaryContainer,
+        child: MarkdownText(
+          text: message.text,
+          role: message.role,
+        ),
       ),
     );
   }

@@ -20,7 +20,7 @@ class Chat with EquatableMixin {
   @JsonKey(fromJson: jsonToDate, toJson: dateToJson)
   final DateTime updatedOn;
 
-  List<ChatMessage> toFullChat() => [...prompt.toChatMessages, ...messages];
+  List<ChatMessage> get toFullChat => [...prompt.toChatMessages, ...messages];
 
   Chat({
     required this.id,
@@ -42,9 +42,9 @@ class Chat with EquatableMixin {
         createdOn = createdOn ?? DateTime.now(),
         messages = messages ?? [];
 
-  factory Chat.fromJson(Map<String, dynamic> json) => _$ChatFromJson(json);
+  factory Chat.fromJson(Map json) => _$ChatFromJson(json);
 
-  Map<String, dynamic> toJson() => _$ChatToJson(this);
+  Map toJson() => _$ChatToJson(this);
 
   @override
   List<Object?> get props => [messages];

@@ -8,7 +8,7 @@ part of 'chat.dart';
 
 Chat _$ChatFromJson(Map json) => Chat(
       id: json['id'] as String,
-      prompt: Prompt.fromJson(Map<String, dynamic>.from(json['prompt'] as Map)),
+      prompt: Prompt.fromJson(json['prompt'] as Map),
       messages: (json['messages'] as List<dynamic>?)
           ?.map((e) => ChatMessage.fromJson(e as Map))
           .toList(),

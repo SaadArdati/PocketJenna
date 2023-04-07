@@ -64,7 +64,10 @@ class GPTManager extends ChangeNotifier {
   }
 
   void init() {
-    final Map serializedHistory = box.get(Constants.history) ?? {};
+    box.clear();
+    final Map serializedHistory = {
+      ...box.get(Constants.history, defaultValue: {}),
+    };
     chatHistory = {
       for (final chat in serializedHistory.entries)
         chat.key: Chat.fromJson(chat.value)

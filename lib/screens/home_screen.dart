@@ -10,8 +10,11 @@ import 'package:pub_semver/pub_semver.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import '../constants.dart';
+import '../managers/prompt_manager.dart';
 import '../managers/version_manager.dart';
 import '../models/chat_type.dart';
+import '../models/prompt.dart';
+import '../ui/asset_repository.dart';
 import '../ui/theme_extensions.dart';
 import '../ui/window_controls.dart';
 
@@ -126,27 +129,27 @@ class _HomeScreenState extends State<HomeScreen> {
                 physics: const NeverScrollableScrollPhysics(),
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 shrinkWrap: true,
-                itemCount: ChatType.values.length,
+                itemCount: PromptManager.instance.prompts.length,
                 itemBuilder: (context, index) {
-                  final type = ChatType.values[index];
-                  final bool isComingSoon;
-                  switch (type) {
-                    case ChatType.general:
-                    case ChatType.email:
-                    case ChatType.documentCode:
-                      isComingSoon = false;
-                      break;
-                    case ChatType.scientific:
-                    case ChatType.analyze:
-                    case ChatType.readMe:
-                      isComingSoon = true;
-                      break;
-                  }
+                  final Prompt prompt = PromptManager.instance.prompts.values.toList()[index];
+                  // final bool isComingSoon;
+                  // switch (type) {
+                  //   case ChatType.general:
+                  //   case ChatType.email:
+                  //   case ChatType.documentCode:
+                  //     isComingSoon = false;
+                  //     break;
+                  //   case ChatType.scientific:
+                  //   case ChatType.analyze:
+                  //   case ChatType.readMe:
+                  //     isComingSoon = true;
+                  //     break;
+                  // }
                   return Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: GPTCard(
-                      type: type,
-                      isComingSoon: isComingSoon,
+                      prompt: prompt,
+                      isComingSoon: false,
                     ),
                   );
                 },
@@ -160,12 +163,12 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 class GPTCard extends StatelessWidget {
-  final ChatType type;
+  final Prompt prompt;
   final bool isComingSoon;
 
   const GPTCard({
     super.key,
-    required this.type,
+    required this.prompt,
     this.isComingSoon = false,
   });
 
@@ -196,29 +199,35 @@ class GPTCard extends StatelessWidget {
               highlightColor: context.colorScheme.secondaryContainer,
               onTap: isComingSoon
                   ? null
-                  : () => context
-                      .go('/chat', extra: {'type': type.name, 'from': '/home'}),
+                  : () => context.go('/chat',
+                      extra: {'promptID': prompt.id, 'from': '/home'}),
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(
-                      type.icon,
+                    AssetRepository.getPromptIcon(
+                      prompt,
                       color: context.colorScheme.tertiary,
+                      size: 24,
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 8),
                     Text(
-                      type.label,
+                      prompt.title,
                       style: context.textTheme.bodyMedium!.copyWith(
                         color: context.colorScheme.tertiary,
                       ),
                     ),
                     const SizedBox(height: 4),
-                    Text(
-                      type.caption,
-                      style: context.textTheme.bodySmall!.copyWith(
-                        color: context.colorScheme.tertiary,
+                    Expanded(
+                      child: Text(
+                        prompt.prompts.last,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 6,
+                        style: context.textTheme.bodySmall!.copyWith(
+                          color: context.colorScheme.tertiary,
+                          fontSize: 10
+                        ),
                       ),
                     ),
                   ],
