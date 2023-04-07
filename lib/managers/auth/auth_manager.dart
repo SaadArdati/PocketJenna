@@ -34,6 +34,10 @@ abstract class AuthManager {
   /// This method should be called before using any of the other methods.
   Future<void> init();
 
+  /// Dispose of any resources related to the authentication manager.
+  /// This method should be called when the manager is no longer needed.
+  void dispose();
+
   Future<String?> getAuthToken();
 
   /// Sign-in the user with the provided email and password.
@@ -52,7 +56,7 @@ abstract class AuthManager {
   /// Throws an error if the operation fails.
   Future<void> signOut();
 
-  /// Dispose of any resources related to the authentication manager.
-  /// This method should be called when the manager is no longer needed.
-  void dispose();
+  Future<void> forgotPassword(String email);
+
+  Future<void> deleteAccount();
 }

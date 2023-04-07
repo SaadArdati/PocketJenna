@@ -8,6 +8,22 @@ import '../../ui/switchers.dart';
 import '../../ui/theme_extensions.dart';
 import '../../ui/window_controls.dart';
 
+enum AuthScreenMode {
+  signIn('Sign In'),
+  signUp('Sign Up'),
+  forgotPassword('Forgot Password');
+
+  final String label;
+
+  const AuthScreenMode(this.label);
+
+  bool get isSignIn => this == AuthScreenMode.signIn;
+
+  bool get isSignUp => this == AuthScreenMode.signUp;
+
+  bool get isForgotPassword => this == AuthScreenMode.forgotPassword;
+}
+
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
 
@@ -21,9 +37,10 @@ class _AuthScreenState extends State<AuthScreen> {
   final TextEditingController confirmPasswordController =
       TextEditingController();
 
+  AuthScreenMode mode = AuthScreenMode.signIn;
+
   bool showPassword = false;
   bool showConfirmPassword = false;
-  bool isSigningUp = false;
 
   bool isLoading = false;
   String? error;
@@ -49,6 +66,10 @@ class _AuthScreenState extends State<AuthScreen> {
           emailController.text,
           passwordController.text,
         );
+
+        if (mounted) {
+          context.pop();
+        }
       } catch (e) {
         error = e.toString();
       }
@@ -64,11 +85,35 @@ class _AuthScreenState extends State<AuthScreen> {
       isLoading = true;
       error = null;
     });
-    if (formKey.currentState?.validate() == false) {
-      await AuthManager.instance.signUp(
-        emailController.text,
-        passwordController.text,
-      );
+
+    if (formKey.currentState?.validate() == true) {
+      try {
+        await AuthManager.instance.signUp(
+          emailController.text,
+          passwordController.text,
+        );
+      } catch (e) {
+        error = e.toString();
+      }
+    }
+
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  Future<void> forgotPassword() async {
+    setState(() {
+      isLoading = true;
+      error = null;
+    });
+
+    if (formKey.currentState?.validate() == true) {
+      try {
+        await AuthManager.instance.forgotPassword(emailController.text);
+      } catch (e) {
+        error = e.toString();
+      }
     }
 
     setState(() {
@@ -83,7 +128,7 @@ class _AuthScreenState extends State<AuthScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          isSigningUp ? 'Sign up' : 'Sign in',
+          mode.label,
           style: context.textTheme.titleMedium,
         ),
         centerTitle: false,
@@ -165,216 +210,303 @@ class _AuthScreenState extends State<AuthScreen> {
                     cursorRadius: const Radius.circular(4),
                   ),
                   const SizedBox(height: 16),
-                  Text(
-                    'Password',
-                    style: context.textTheme.bodyLarge,
-                  ),
-                  const SizedBox(height: 8),
-                  TextFormField(
-                    controller: passwordController,
-                    maxLength: 10000,
-                    maxLengthEnforcement: MaxLengthEnforcement.enforced,
-                    textInputAction: isSigningUp
-                        ? TextInputAction.next
-                        : TextInputAction.send,
-                    keyboardType: TextInputType.visiblePassword,
-                    enabled: !isLoading,
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Please enter a valid password';
-                      }
-                      return null;
-                    },
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    onChanged: (_) {
-                      setState(() {});
-                    },
-                    onFieldSubmitted: (_) {
-                      if (isSigningUp) {
-                        Focus.of(context).nextFocus();
-                      } else {
-                        signIn();
-                      }
-                    },
-                    style: context.textTheme.bodyMedium?.copyWith(
-                      color: context.colorScheme.onSecondaryContainer,
-                    ),
-                    obscureText: !showPassword,
-                    decoration: InputDecoration(
-                      counterText: '',
-                      labelText: 'Enter a password',
-                      isDense: true,
-                      floatingLabelBehavior: FloatingLabelBehavior.never,
-                      filled: true,
-                      fillColor: context.colorScheme.secondaryContainer
-                          .withOpacity(0.5),
-                      hoverColor: Colors.transparent,
-                      suffixIcon: IconButton(
-                        tooltip: 'Show password',
-                        icon: Icon(
-                          showPassword
-                              ? Icons.visibility
-                              : Icons.visibility_off,
+                  CollapsableSwitcher(
+                    open: !mode.isForgotPassword,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Password',
+                          style: context.textTheme.bodyLarge,
                         ),
-                        onPressed: () {
-                          setState(() {
-                            showPassword = !showPassword;
-                          });
-                        },
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: borderRadius,
-                        borderSide: const BorderSide(width: 1.5),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: borderRadius,
-                        borderSide: BorderSide(
-                          color: context.colorScheme.primary,
-                          width: 1,
-                        ),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: borderRadius,
-                        borderSide: const BorderSide(
-                          color: Colors.transparent,
-                          width: 1,
-                        ),
-                      ),
-                    ),
-                    cursorRadius: const Radius.circular(4),
-                  ),
-                  if (!isSigningUp) ...[
-                    const SizedBox(height: 8),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButton(
-                        onPressed: () {},
-                        child: Text(
-                          'Forgot Password?',
-                          style: context.textTheme.bodySmall?.copyWith(
-                            color: context.colorScheme.primary,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                  if (isSigningUp) ...[
-                    const SizedBox(height: 16),
-                    Text(
-                      'Confirm Password',
-                      style: context.textTheme.bodyLarge,
-                    ),
-                    const SizedBox(height: 8),
-                    TextFormField(
-                      controller: passwordController,
-                      maxLength: 10000,
-                      maxLengthEnforcement: MaxLengthEnforcement.enforced,
-                      textInputAction: TextInputAction.next,
-                      keyboardType: TextInputType.visiblePassword,
-                      autofillHints: const [AutofillHints.password],
-                      enabled: !isLoading,
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'Please enter a valid password';
-                        }
-
-                        if (value != passwordController.text) {
-                          return 'Passwords do not match';
-                        }
-
-                        return null;
-                      },
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      onChanged: (_) {
-                        setState(() {});
-                      },
-                      onFieldSubmitted: (_) {},
-                      style: context.textTheme.bodyMedium?.copyWith(
-                        color: context.colorScheme.onSecondaryContainer,
-                      ),
-                      obscureText: !showConfirmPassword,
-                      decoration: InputDecoration(
-                        counterText: '',
-                        labelText: 'Enter password again',
-                        isDense: true,
-                        floatingLabelBehavior: FloatingLabelBehavior.never,
-                        filled: true,
-                        fillColor: context.colorScheme.secondaryContainer
-                            .withOpacity(0.5),
-                        hoverColor: Colors.transparent,
-                        suffixIcon: IconButton(
-                          tooltip: 'Show password',
-                          icon: Icon(
-                            showConfirmPassword
-                                ? Icons.visibility
-                                : Icons.visibility_off,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              showConfirmPassword = !showConfirmPassword;
-                            });
+                        const SizedBox(height: 8),
+                        TextFormField(
+                          controller: passwordController,
+                          maxLength: 10000,
+                          maxLengthEnforcement: MaxLengthEnforcement.enforced,
+                          textInputAction: mode.isSignUp
+                              ? TextInputAction.next
+                              : TextInputAction.send,
+                          keyboardType: TextInputType.visiblePassword,
+                          enabled: !isLoading,
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return 'Please enter a valid password';
+                            }
+                            return null;
                           },
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: borderRadius,
-                          borderSide: const BorderSide(width: 1.5),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: borderRadius,
-                          borderSide: BorderSide(
-                            color: context.colorScheme.primary,
-                            width: 1,
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          onChanged: (_) {
+                            setState(() {});
+                          },
+                          onFieldSubmitted: (_) {
+                            if (mode.isSignUp) {
+                              Focus.of(context).nextFocus();
+                            } else {
+                              signIn();
+                            }
+                          },
+                          style: context.textTheme.bodyMedium?.copyWith(
+                            color: context.colorScheme.onSecondaryContainer,
                           ),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: borderRadius,
-                          borderSide: const BorderSide(
-                            color: Colors.transparent,
-                            width: 1,
+                          obscureText: !showPassword,
+                          decoration: InputDecoration(
+                            counterText: '',
+                            labelText: 'Enter a password',
+                            isDense: true,
+                            floatingLabelBehavior: FloatingLabelBehavior.never,
+                            filled: true,
+                            fillColor: context.colorScheme.secondaryContainer
+                                .withOpacity(0.5),
+                            hoverColor: Colors.transparent,
+                            suffixIcon: IconButton(
+                              tooltip: 'Show password',
+                              icon: Icon(
+                                showPassword
+                                    ? Icons.visibility
+                                    : Icons.visibility_off,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  showPassword = !showPassword;
+                                });
+                              },
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: borderRadius,
+                              borderSide: const BorderSide(width: 1.5),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: borderRadius,
+                              borderSide: BorderSide(
+                                color: context.colorScheme.primary,
+                                width: 1,
+                              ),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: borderRadius,
+                              borderSide: const BorderSide(
+                                color: Colors.transparent,
+                                width: 1,
+                              ),
+                            ),
                           ),
+                          cursorRadius: const Radius.circular(4),
                         ),
-                      ),
-                      cursorRadius: const Radius.circular(4),
+                      ],
                     ),
-                  ],
-                  const SizedBox(height: 16),
+                  ),
+                  CollapsableSwitcher(
+                    open: mode.isSignIn,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 8),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: TextButton(
+                            onPressed: isLoading
+                                ? null
+                                : () {
+                                    setState(() {
+                                      mode = AuthScreenMode.forgotPassword;
+                                      passwordController.clear();
+                                      confirmPasswordController.clear();
+                                      error = null;
+                                    });
+                                  },
+                            child: Text(
+                              'Forgot Password?',
+                              style: context.textTheme.bodySmall?.copyWith(
+                                color: context.colorScheme.primary,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  CollapsableSwitcher(
+                    open: mode.isSignUp,
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 16),
+                          Text(
+                            'Confirm Password',
+                            style: context.textTheme.bodyLarge,
+                          ),
+                          const SizedBox(height: 8),
+                          TextFormField(
+                            controller: confirmPasswordController,
+                            maxLength: 10000,
+                            maxLengthEnforcement: MaxLengthEnforcement.enforced,
+                            textInputAction: TextInputAction.next,
+                            keyboardType: TextInputType.visiblePassword,
+                            autofillHints: const [AutofillHints.password],
+                            enabled: !isLoading,
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return 'Please enter a valid password';
+                              }
+
+                              if (value != confirmPasswordController.text) {
+                                return 'Passwords do not match';
+                              }
+
+                              return null;
+                            },
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteraction,
+                            onChanged: (_) {
+                              setState(() {});
+                            },
+                            onFieldSubmitted: (_) {},
+                            style: context.textTheme.bodyMedium?.copyWith(
+                              color: context.colorScheme.onSecondaryContainer,
+                            ),
+                            obscureText: !showConfirmPassword,
+                            decoration: InputDecoration(
+                              counterText: '',
+                              labelText: 'Enter password again',
+                              isDense: true,
+                              floatingLabelBehavior:
+                                  FloatingLabelBehavior.never,
+                              filled: true,
+                              fillColor: context.colorScheme.secondaryContainer
+                                  .withOpacity(0.5),
+                              hoverColor: Colors.transparent,
+                              suffixIcon: IconButton(
+                                tooltip: 'Show password',
+                                icon: Icon(
+                                  showConfirmPassword
+                                      ? Icons.visibility
+                                      : Icons.visibility_off,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    showConfirmPassword = !showConfirmPassword;
+                                  });
+                                },
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: borderRadius,
+                                borderSide: const BorderSide(width: 1.5),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: borderRadius,
+                                borderSide: BorderSide(
+                                  color: context.colorScheme.primary,
+                                  width: 1,
+                                ),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: borderRadius,
+                                borderSide: const BorderSide(
+                                  color: Colors.transparent,
+                                  width: 1,
+                                ),
+                              ),
+                            ),
+                            cursorRadius: const Radius.circular(4),
+                          ),
+                        ]),
+                  ),
                   CollapsableSwitcher(
                     open: error != null,
-                    child: Text(
-                      error ?? '',
-                      style: context.textTheme.bodySmall?.copyWith(
-                        color: context.colorScheme.error,
-                      ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          error ?? '',
+                          style: context.textTheme.bodySmall?.copyWith(
+                            color: context.colorScheme.error,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      ElevatedButton(
-                        child: Text(
-                            isSigningUp ? 'Log in instead' : 'Sign up instead'),
-                        onPressed: () {
-                          setState(() {
-                            isSigningUp = !isSigningUp;
-                          });
-                        },
-                      ),
-                      const SizedBox(width: 16),
-                      FilledButton.icon(
-                        onPressed: () {
-                          if (isSigningUp) {
-                            signUp();
-                          } else {
-                            signIn();
-                          }
-                        },
-                        icon: isLoading
-                            ? const CupertinoActivityIndicator()
-                            : const SizedBox.shrink(),
-                        label: Text(isSigningUp ? 'Sign up' : 'Sign in'),
-                      ),
-                    ],
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    width: double.infinity,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            CollapsableSwitcher(
+                              open: mode.isForgotPassword,
+                              child: ElevatedButton(
+                                onPressed: isLoading
+                                    ? null
+                                    : () {
+                                        setState(() {
+                                          mode = AuthScreenMode.signIn;
+                                          passwordController.clear();
+                                          confirmPasswordController.clear();
+                                          error = null;
+                                        });
+                                      },
+                                child: Text(
+                                    '${AuthScreenMode.signIn.label} instead'),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            ElevatedButton(
+                              onPressed: isLoading
+                                  ? null
+                                  : () {
+                                      setState(() {
+                                        mode = mode.isSignUp
+                                            ? AuthScreenMode.signIn
+                                            : AuthScreenMode.signUp;
+                                        passwordController.clear();
+                                        confirmPasswordController.clear();
+                                        error = null;
+                                      });
+                                    },
+                              child: Text(
+                                mode.isSignUp
+                                    ? 'Log in instead'
+                                    : 'Sign up instead',
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        FilledButton.icon(
+                          onPressed: isLoading
+                              ? null
+                              : () {
+                                  switch (mode) {
+                                    case AuthScreenMode.signIn:
+                                      signIn();
+                                      break;
+                                    case AuthScreenMode.signUp:
+                                      signUp();
+                                      break;
+                                    case AuthScreenMode.forgotPassword:
+                                      forgotPassword();
+                                      break;
+                                  }
+                                },
+                          icon: isLoading
+                              ? CupertinoActivityIndicator(
+                                  color: context.colorScheme.primary,
+                                )
+                              : const SizedBox.shrink(),
+                          label: Text(
+                            mode.isForgotPassword
+                                ? 'Send password reset email'
+                                : mode.isSignUp
+                                    ? 'Sign up'
+                                    : 'Sign in',
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),

@@ -99,4 +99,10 @@ class FirebaseAuthManager extends AuthManager {
 
   @override
   Future<void> signOut() async => FirebaseAuth.instance.signOut;
+
+  @override
+  Future<void> forgotPassword(String email) async => FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+
+  @override
+  Future<void> deleteAccount() async => FirebaseAuth.instance.currentUser!.delete();
 }

@@ -22,10 +22,13 @@ class _CollapsableSwitcherState extends State<CollapsableSwitcher> {
       switchInCurve: Curves.easeOutQuart,
       switchOutCurve: Curves.easeInQuart,
       transitionBuilder: (child, animation) {
-        return SizeTransition(
-          sizeFactor: animation,
-          axisAlignment: -1,
-          child: child,
+        return FadeTransition(
+          opacity: animation,
+          child: SizeTransition(
+            sizeFactor: animation,
+            axisAlignment: -1,
+            child: child,
+          ),
         );
       },
       child: widget.open

@@ -121,4 +121,14 @@ class FireDartAuthManager extends AuthManager {
     }
     _userStreamController.add(_currentUser);
   }
+
+  @override
+  Future<void> forgotPassword(String email) async {
+    await FirebaseAuth.instance.resetPassword(email);
+  }
+
+  @override
+  Future<void> deleteAccount() async {
+    await FirebaseAuth.instance.deleteAccount();
+  }
 }
