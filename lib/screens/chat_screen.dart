@@ -16,6 +16,7 @@ import '../models/chat.dart';
 import '../models/chat_message.dart';
 import '../models/message_status.dart';
 import '../models/prompt.dart';
+import '../ui/asset_repository.dart';
 import '../ui/markdown_renderer.dart';
 import '../ui/theme_extensions.dart';
 import '../ui/window_controls.dart';
@@ -385,19 +386,11 @@ class _HistoryTileState extends State<HistoryTile> {
         });
       },
       child: ListTile(
-        leading: widget.chat.prompt.icon.startsWith('assets/')
-            ? Image.asset(
-                widget.chat.prompt.icon,
-                width: 24,
-                height: 24,
-              )
-            :
-            // TODO: Cached network image
-            Image.network(
-                widget.chat.prompt.icon,
-                width: 24,
-                height: 24,
-              ),
+        leading: AssetRepository.getPromptIcon(
+          widget.chat.prompt,
+          size: 24,
+          color: Colors.white,
+        ),
         title: Text(
           widget.chat.messages.isEmpty
               ? 'No messages'

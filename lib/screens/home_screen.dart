@@ -10,6 +10,7 @@ import 'package:pub_semver/pub_semver.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import '../constants.dart';
+import '../managers/data/data_manager.dart';
 import '../managers/prompt_manager.dart';
 import '../managers/version_manager.dart';
 import '../models/chat_type.dart';
@@ -111,52 +112,136 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 800),
-            child: LayoutBuilder(builder: (context, constraints) {
-              final int crossAxisCount;
+            child: Column(
+              children: [
+                const TokensCard(),
+                const SizedBox(height: 8),
+                LayoutBuilder(builder: (context, constraints) {
+                  final int crossAxisCount;
 
-              if (constraints.maxWidth <= 600) {
-                crossAxisCount = 2;
-              } else if (constraints.maxWidth <= 750) {
-                crossAxisCount = 3;
-              } else {
-                crossAxisCount = 4;
-              }
+                  if (constraints.maxWidth <= 600) {
+                    crossAxisCount = 2;
+                  } else if (constraints.maxWidth <= 750) {
+                    crossAxisCount = 3;
+                  } else {
+                    crossAxisCount = 4;
+                  }
 
-              return GridView.builder(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: crossAxisCount,
-                ),
-                physics: const NeverScrollableScrollPhysics(),
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                shrinkWrap: true,
-                itemCount: PromptManager.instance.prompts.length,
-                itemBuilder: (context, index) {
-                  final Prompt prompt = PromptManager.instance.prompts.values.toList()[index];
-                  // final bool isComingSoon;
-                  // switch (type) {
-                  //   case ChatType.general:
-                  //   case ChatType.email:
-                  //   case ChatType.documentCode:
-                  //     isComingSoon = false;
-                  //     break;
-                  //   case ChatType.scientific:
-                  //   case ChatType.analyze:
-                  //   case ChatType.readMe:
-                  //     isComingSoon = true;
-                  //     break;
-                  // }
-                  return Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: GPTCard(
-                      prompt: prompt,
-                      isComingSoon: false,
+                  return GridView.builder(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: crossAxisCount,
                     ),
+                    physics: const NeverScrollableScrollPhysics(),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    shrinkWrap: true,
+                    itemCount: PromptManager.instance.prompts.length,
+                    itemBuilder: (context, index) {
+                      final Prompt prompt =
+                          PromptManager.instance.prompts.values.toList()[index];
+                      // final bool isComingSoon;
+                      // switch (type) {
+                      //   case ChatType.general:
+                      //   case ChatType.email:
+                      //   case ChatType.documentCode:
+                      //     isComingSoon = false;
+                      //     break;
+                      //   case ChatType.scientific:
+                      //   case ChatType.analyze:
+                      //   case ChatType.readMe:
+                      //     isComingSoon = true;
+                      //     break;
+                      // }
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: GPTCard(
+                          prompt: prompt,
+                          isComingSoon: false,
+                        ),
+                      );
+                    },
                   );
-                },
-              );
-            }),
+                }),
+              ],
+            ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class TokensCard extends StatelessWidget {
+  const TokensCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 64),
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        color: context.colorScheme.tertiaryContainer,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            context.colorScheme.tertiaryContainer,
+            context.colorScheme.background,
+          ],
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.generating_tokens_outlined,
+            color: context.colorScheme.onTertiaryContainer,
+          ),
+          const SizedBox(width: 12),
+          Text(
+            '${DataManager.instance.currentUser?.tokens ?? 'No'} Tokens',
+            style: context.textTheme.bodyMedium?.copyWith(
+              color: context.colorScheme.onTertiaryContainer,
+            ),
+          ),
+          const Spacer(),
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  context.colorScheme.primary,
+                  context.colorScheme.secondary,
+                ],
+              ),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: Stack(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  child: Text(
+                    'Buy Tokens',
+                    style: context.textTheme.bodySmall?.copyWith(
+                      color: context.colorScheme.onPrimary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                Positioned.fill(
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () {
+                      },
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -199,8 +284,8 @@ class GPTCard extends StatelessWidget {
               highlightColor: context.colorScheme.secondaryContainer,
               onTap: isComingSoon
                   ? null
-                  : () => context.go('/chat',
-                      extra: {'promptID': prompt.id, 'from': '/home'}),
+                  : () => context
+                      .go('/chat', extra: {'id': prompt.id, 'from': '/home'}),
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
@@ -225,9 +310,7 @@ class GPTCard extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         maxLines: 6,
                         style: context.textTheme.bodySmall!.copyWith(
-                          color: context.colorScheme.tertiary,
-                          fontSize: 10
-                        ),
+                            color: context.colorScheme.tertiary, fontSize: 10),
                       ),
                     ),
                   ],

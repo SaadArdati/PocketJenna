@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:adaptive_theme/adaptive_theme.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +12,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import '../constants.dart';
+import '../managers/auth/auth_manager.dart';
 import '../managers/system_manager.dart';
 import '../ui/theme_extensions.dart';
 import '../ui/window_controls.dart';
@@ -77,6 +79,8 @@ class _SettingsScreenState extends State<SettingsScreen>
                     const AppSettingsTile(),
                     const SizedBox(height: 16),
                     const OpenAIKeyTile(),
+                    const SizedBox(height: 16),
+                    const AccountSettingsTile(),
                     const SizedBox(height: 16),
                     buildInfoTile(context),
                     const SizedBox(height: 32)
@@ -676,6 +680,201 @@ class SettingsTile extends StatelessWidget {
           child: child,
         ),
       ),
+    );
+  }
+}
+
+class AccountSettingsTile extends StatefulWidget {
+  const AccountSettingsTile({super.key});
+
+  @override
+  State<AccountSettingsTile> createState() => _AccountSettingsTileState();
+}
+
+class _AccountSettingsTileState extends State<AccountSettingsTile> {
+  @override
+  Widget build(BuildContext context) {
+    return SettingsTile(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            color: context.colorScheme.onSurface.withOpacity(0.1),
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(width: 16),
+                const Icon(Icons.person, size: 20),
+                const SizedBox(width: 12),
+                Text(
+                  'Account Settings'.toUpperCase(),
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                )
+              ],
+            ),
+          ),
+          Divider(
+            height: 1,
+            color: context.colorScheme.onSurface.withOpacity(0.2),
+          ),
+          const SizedBox(height: 8),
+          ListTile(
+            leading: const Icon(Icons.logout),
+            title: const Text('Sign out'),
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return const SignOutDialog();
+                },
+              );
+            },
+          ),
+          ColoredBox(
+            color: context.colorScheme.error,
+            child: ListTile(
+              leading: Icon(
+                Icons.delete_forever,
+                color: context.colorScheme.onError,
+              ),
+              title: Text(
+                'Delete account',
+                style: TextStyle(color: context.colorScheme.onError),
+              ),
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return const DeleteAccountDialog();
+                  },
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class SignOutDialog extends StatefulWidget {
+  const SignOutDialog({super.key});
+
+  @override
+  State<SignOutDialog> createState() => _SignOutDialogState();
+}
+
+class _SignOutDialogState extends State<SignOutDialog> {
+  bool isLoading = false;
+
+  Future<void> signOut() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    await AuthManager.instance.signOut().whenComplete(() {
+      if (!mounted) return;
+      setState(() {
+        isLoading = false;
+        Navigator.pop(context);
+        context.go('/auth');
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Sign out'),
+      content: const Text(
+        'Are you sure you want to sign out of your account?',
+      ),
+      actions: [
+        TextButton(
+          onPressed: isLoading
+              ? null
+              : () {
+                  Navigator.pop(context);
+                },
+          child: const Text('Cancel'),
+        ),
+        TextButton.icon(
+          onPressed: isLoading
+              ? null
+              : () {
+                  signOut();
+                },
+          icon: isLoading
+              ? CupertinoActivityIndicator(color: context.colorScheme.primary)
+              : const Icon(Icons.logout),
+          label: const Text('Sign out'),
+        ),
+      ],
+    );
+  }
+}
+
+class DeleteAccountDialog extends StatefulWidget {
+  const DeleteAccountDialog({super.key});
+
+  @override
+  State<DeleteAccountDialog> createState() => DeleteAccountDialogState();
+}
+
+class DeleteAccountDialogState extends State<DeleteAccountDialog> {
+  bool isLoading = false;
+
+  Future<void> signOut() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    await AuthManager.instance.deleteAccount().whenComplete(() {
+      if (!mounted) return;
+      setState(() {
+        isLoading = false;
+        Navigator.pop(context);
+        context.go('/auth');
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Sign out'),
+      content: const Text(
+        'Are you sure you want to sign out of your account?',
+      ),
+      actions: [
+        TextButton(
+          onPressed: isLoading
+              ? null
+              : () {
+                  Navigator.pop(context);
+                },
+          child: const Text('Cancel'),
+        ),
+        TextButton.icon(
+          style: TextButton.styleFrom(
+            backgroundColor: context.colorScheme.error,
+          ),
+          onPressed: isLoading
+              ? null
+              : () {
+                  signOut();
+                },
+          icon: isLoading
+              ? CupertinoActivityIndicator(color: context.colorScheme.onError)
+              : Icon(Icons.delete_forever, color: context.colorScheme.onError),
+          label: Text('Delete account',
+              style: TextStyle(color: context.colorScheme.onError)),
+        ),
+      ],
     );
   }
 }

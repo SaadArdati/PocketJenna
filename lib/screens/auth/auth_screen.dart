@@ -68,7 +68,7 @@ class _AuthScreenState extends State<AuthScreen> {
         );
 
         if (mounted) {
-          context.pop();
+          context.go('/home');
         }
       } catch (e) {
         error = e.toString();
