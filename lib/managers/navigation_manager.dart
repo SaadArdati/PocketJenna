@@ -178,11 +178,11 @@ class NavigationManager {
         redirect: authGuard,
         pageBuilder: (context, state) {
           final extra = state.extra;
-          AxisDirection comesFrom = AxisDirection.down;
+          AxisDirection comesFrom = AxisDirection.right;
           if (extra != null && extra is Map) {
             final String? fromParam = extra['from'];
             if (fromParam == 'chat') {
-              comesFrom = AxisDirection.up;
+              comesFrom = AxisDirection.left;
             }
           }
 
@@ -239,7 +239,7 @@ class NavigationManager {
                 secondaryAnimation,
                 child,
                 state: state,
-                comesFrom: AxisDirection.down,
+                comesFrom: AxisDirection.right,
               );
             },
           );
@@ -263,7 +263,7 @@ class NavigationManager {
                 secondaryAnimation,
                 child,
                 state: state,
-                comesFrom: AxisDirection.up,
+                comesFrom: AxisDirection.left,
               );
             },
           );

@@ -48,6 +48,7 @@ dependencies:
   cloud_firestore: ^4.5.0
   flutter_svg: ^2.0.4
   vector_graphics: ^1.1.4
+  flex_color_scheme: ^7.0.1
 
 dev_dependencies:
   flutter_test:
@@ -90,40 +91,7 @@ flutter_icons:
 flutter:
   uses-material-design: true
   assets:
-    - assets/app_logo_1000x.png
-    - assets/app_icon.png
-    - assets/app_icon.ico
-    - assets/openai_256.png
-    - assets/discord_256x.png
-    - assets/twitter_256x.png
-    - assets/instagram_256x.png
-    - assets/linked_in_256x.png
-    - assets/github_dark_256x.png
-    - assets/github_light_256x.png
-    - assets/profile_256x.png
-    - assets/logo_bg_dark_256x.png
-    - assets/logo_bg_light_256x.png
-    - assets/logo_bg_dark_1000x.png
-    - assets/logo_bg_light_1000x.png
-    - assets/logo_bg_dark_padded_1024x.png
-    - assets/logo_bg_light_padded_1024x.png
-    - assets/instructions/windows_arrow_1.png
-    - assets/instructions/windows_arrow_2.png
-    - assets/instructions/macos_arrow.png
-    - assets/app_icons/windows_app_icon.png
-    - assets/app_icons/macos_app_icon.png
-    - assets/app_icons/ios_app_icon.png
-    - assets/prompts/analyze.svg
-    - assets/prompts/analyze.svg.vec
-    - assets/prompts/document_code.svg
-    - assets/prompts/document_code.svg.vec
-    - assets/prompts/email.svg
-    - assets/prompts/email.svg.vec
-    - assets/prompts/general.svg
-    - assets/prompts/general.svg.vec
-    - assets/prompts/readme.svg
-    - assets/prompts/readme.svg.vec
-    - assets/prompts/scientific.svg
-    - assets/prompts/scientific.svg.vec
+    - assets/
+    - assets/prompts/
 
 scripts: scripts.yaml

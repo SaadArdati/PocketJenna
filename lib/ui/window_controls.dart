@@ -4,6 +4,7 @@ import 'package:hive/hive.dart';
 
 import '../constants.dart';
 import '../managers/system_manager.dart';
+import 'theme_extensions.dart';
 
 class WindowControls extends StatelessWidget {
   const WindowControls({super.key});

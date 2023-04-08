@@ -1,14 +1,17 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:math' hide log;
+import 'dart:ui' as ui;
 
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:dart_openai/openai.dart';
 import 'package:encrypted_shared_preferences/encrypted_shared_preferences.dart';
+import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:launch_at_startup/launch_at_startup.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -17,13 +20,14 @@ import 'package:url_strategy/url_strategy.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'constants.dart';
+import 'managers/asset_manager.dart';
 import 'managers/auth/auth_manager.dart';
 import 'managers/data/data_manager.dart';
 import 'managers/navigation_manager.dart';
 import 'managers/system_manager.dart';
+import 'ui/background_painter.dart';
 import 'ui/color_schemes.g.dart';
 import 'ui/theme_extensions.dart';
-import 'ui/wave_background.dart';
 
 void main() async {
   await PocketJenna.initPocketJenna();
@@ -81,6 +85,7 @@ class PocketJenna extends StatefulWidget {
     }
 
     await AuthManager.instance.init();
+    await AssetManager.instance.init();
 
     OpenAI.apiKey =
         Hive.box(Constants.settings).get(Constants.openAIKey, defaultValue: '');
@@ -117,13 +122,31 @@ class _PocketJennaState extends State<PocketJenna> with WindowListener {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge,
         overlays: [SystemUiOverlay.top]);
     return AdaptiveTheme(
-      light: ThemeData(
-        useMaterial3: true,
-        colorScheme: lightColorScheme,
-        scaffoldBackgroundColor: Colors.transparent,
+      light: FlexThemeData.light(
+        colors: const FlexSchemeColor(
+          primary: Color(0xff6c4ab0),
+          primaryContainer: Color(0xffa58dd7),
+          secondary: Color(0xff82d6ff),
+          secondaryContainer: Color(0xfff2fbff),
+          tertiary: Color(0xffceefff),
+          tertiaryContainer: Color(0xffdef8fb),
+          appBarColor: Color(0xfff2fbff),
+          error: Color(0xffb00020),
+        ),
+        onPrimaryContainer: Colors.white,
+        scaffoldBackground: Colors.transparent,
+        surfaceMode: FlexSurfaceMode.levelSurfacesLowScaffold,
+        blendLevel: 7,
+        subThemesData: const FlexSubThemesData(
+          blendOnLevel: 10,
+          blendOnColors: false,
+          useTextTheme: true,
+        ),
+        visualDensity: FlexColorScheme.comfortablePlatformDensity,
+        // To use the playground font, add GoogleFonts package and uncomment
+        fontFamily: GoogleFonts.poppins().fontFamily,
+      ).copyWith(
         appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.transparent,
-          surfaceTintColor: Colors.transparent,
           systemOverlayStyle: SystemUiOverlayStyle(
             systemStatusBarContrastEnforced: false,
             systemNavigationBarContrastEnforced: false,
@@ -135,13 +158,31 @@ class _PocketJennaState extends State<PocketJenna> with WindowListener {
           ),
         ),
       ),
-      dark: ThemeData(
-        useMaterial3: true,
-        colorScheme: darkColorScheme,
-        scaffoldBackgroundColor: Colors.transparent,
+      dark: FlexThemeData.dark(
+        colors: const FlexSchemeColor(
+          primary: Color(0xff523886),
+          primaryContainer: Color(0xffc0b2de),
+          secondary: Color(0xff004b74),
+          secondaryContainer: Color(0xff6f96ad),
+          tertiary: Color(0xff007eb6),
+          tertiaryContainer: Color(0xff00344e),
+          appBarColor: Color(0xff6f96ad),
+          error: Color(0xffcf6679),
+        ),
+        scaffoldBackground: Colors.transparent,
+        surfaceMode: FlexSurfaceMode.levelSurfacesLowScaffold,
+        blendLevel: 13,
+        subThemesData: const FlexSubThemesData(
+          blendOnLevel: 20,
+          useTextTheme: true,
+        ),
+        visualDensity: FlexColorScheme.comfortablePlatformDensity,
+        // To use the Playground font, add GoogleFonts package and uncomment
+        fontFamily: GoogleFonts.poppins().fontFamily,
+      ).copyWith(
         appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.transparent,
-          surfaceTintColor: Colors.transparent,
+          // backgroundColor: Colors.transparent,
+          // surfaceTintColor: Colors.transparent,
           systemOverlayStyle: SystemUiOverlayStyle(
             systemStatusBarContrastEnforced: false,
             systemNavigationBarContrastEnforced: false,
@@ -199,6 +240,12 @@ class _NavigationBackgroundState extends State<NavigationBackground>
     value: isOnboardingPage ? 150 : 130,
   );
 
+  late final AnimationController loopController = AnimationController(
+    vsync: this,
+    duration: const Duration(seconds: 1),
+    value: 0,
+  )..repeat(reverse: true);
+
   late final AnimationController logoController = AnimationController(
     vsync: this,
     duration: const Duration(seconds: 1),
@@ -219,6 +266,11 @@ class _NavigationBackgroundState extends State<NavigationBackground>
     curve: Curves.easeInOutQuart,
   );
 
+  late final Animation<double> loopAnimation = CurvedAnimation(
+    parent: loopController,
+    curve: Curves.easeInOutQuart,
+  );
+
   bool get isHomePage => widget.state.location == '/home';
 
   bool get isChatPage => widget.state.location == '/chat';
@@ -226,6 +278,10 @@ class _NavigationBackgroundState extends State<NavigationBackground>
   bool get isOnboardingPage => widget.state.location.startsWith('/onboarding');
 
   bool get isSettingsPage => widget.state.location == '/settings';
+
+  final ui.Image logoFilledBlack = AssetManager
+      .instance.logoFilledBlackPicInfo.picture
+      .toImageSync(100, 100);
 
   bool isTransitioning() =>
       transitionController.status != AnimationStatus.completed &&
@@ -308,6 +364,8 @@ class _NavigationBackgroundState extends State<NavigationBackground>
     waveController.dispose();
     rotationController.dispose();
     logoController.dispose();
+    loopController.dispose();
+    logoFilledBlack.dispose();
     super.dispose();
   }
 
@@ -316,94 +374,31 @@ class _NavigationBackgroundState extends State<NavigationBackground>
     return Material(
       color: context.colorScheme.background,
       child: LayoutBuilder(builder: (context, constraints) {
-        final double bestFit = constraints.biggest.shortestSide;
         return Stack(
+          fit: StackFit.expand,
           children: [
             AnimatedBuilder(
-              animation: logoAnimation,
+              animation: loopAnimation,
               builder: (context, child) {
-                return Positioned(
-                  top: (constraints.biggest.height / 2) *
-                          (1 - logoAnimation.value) +
-                      -bestFit / 2 * logoAnimation.value,
-                  left: 0,
-                  right: 0,
-                  child: Image.asset(
-                    'assets/app_logo_1000x.png',
-                    width: 56 + (bestFit - 56) * logoAnimation.value,
-                    height: 56 + (bestFit - 56) * logoAnimation.value,
-                    color: Color.lerp(
-                      context.colorScheme.onBackground,
-                      context.colorScheme.surfaceVariant.withOpacity(0.5),
-                      logoAnimation.value,
-                    ),
+                return CustomPaint(
+                  painter: BackgroundPainter(
+                    anim: loopAnimation.value,
+                    asset: logoFilledBlack,
+                    shades: [
+                      const Color(0xFF82d6ff),
+                      const Color(0xFF8ed3f5),
+                      const Color(0xFF8fc7e3),
+                      const Color(0xFFb1ddf2),
+                    ],
                   ),
                 );
               },
             ),
-            Positioned.fill(
-              child: AnimatedBuilder(
-                animation: rotationController,
-                builder: (BuildContext context, Widget? child) {
-                  return AnimatedBuilder(
-                    animation: waveAnimation,
-                    builder: (context, child) {
-                      final primary = context.colorScheme.primary;
-                      final secondary = context.colorScheme.primaryContainer;
-                      final overlay = context.colorScheme.background;
-                      final double rot = rotationController.value;
-                      return WaveBackground(
-                        duration: const Duration(milliseconds: 10),
-                        waves: [
-                          Wave(
-                            intensity: 10,
-                            frequency: 50,
-                            gravity: 65,
-                            rotation: (pi / 180) * (rot + 20),
-                            startColor: primary,
-                            endColor: secondary,
-                          ),
-                          Wave(
-                            intensity: 20,
-                            frequency: 20,
-                            gravity: 60,
-                            rotation: (pi / 180) * (rot),
-                            startColor: secondary,
-                            endColor: primary,
-                            reverseDirection: true,
-                          ),
-                          Wave(
-                            intensity: 15,
-                            frequency: 30,
-                            gravity: 30,
-                            rotation: (pi / 180) * (rot + 15),
-                            startColor: primary,
-                            endColor: secondary,
-                          ),
-                          Wave(
-                            intensity: 20,
-                            frequency: 40,
-                            gravity: 10,
-                            rotation: (pi / 180) * (rot + 20),
-                            startColor: secondary,
-                            endColor: overlay,
-                            reverseDirection: true,
-                          ),
-                        ],
-                        waveMotion: waveAnimation.value * 2 - 1,
-                      );
-                    },
-                  );
-                },
-              ),
-            ),
-            Positioned.fill(
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 500),
-                curve: Curves.fastOutSlowIn,
-                color: context.colorScheme.background.withOpacity(
-                  isChatPage ? 0.8 : 0.5,
-                ),
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.fastOutSlowIn,
+              color: context.colorScheme.background.withOpacity(
+                isChatPage ? 0.5 : 0.5,
               ),
             ),
             widget.child,

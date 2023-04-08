@@ -16,7 +16,7 @@ import '../models/chat.dart';
 import '../models/chat_message.dart';
 import '../models/message_status.dart';
 import '../models/prompt.dart';
-import '../ui/asset_repository.dart';
+import '../managers/asset_manager.dart';
 import '../ui/markdown_renderer.dart';
 import '../ui/theme_extensions.dart';
 import '../ui/window_controls.dart';
@@ -111,7 +111,7 @@ class _ChatScreenState extends State<ChatScreen>
         extendBodyBehindAppBar: true,
         appBar: AppBar(
           leading: IconButton(
-            icon: const Icon(Icons.arrow_upward),
+            icon: const Icon(Icons.arrow_back),
             tooltip: MaterialLocalizations.of(context).backButtonTooltip,
             onPressed: () {
               context.go('/home', extra: {'from': 'chat'});
@@ -119,7 +119,9 @@ class _ChatScreenState extends State<ChatScreen>
           ),
           title: Text(
             widget.prompt.title,
-            style: context.textTheme.titleMedium,
+            style: context.textTheme.titleMedium?.copyWith(
+              color: context.colorScheme.onPrimaryContainer,
+            ),
           ),
           centerTitle: false,
           actions: [
@@ -386,7 +388,7 @@ class _HistoryTileState extends State<HistoryTile> {
         });
       },
       child: ListTile(
-        leading: AssetRepository.getPromptIcon(
+        leading: AssetManager.getPromptIcon(
           widget.chat.prompt,
           size: 24,
           color: Colors.white,
@@ -521,7 +523,7 @@ class _UserInteractionRegionState extends State<UserInteractionRegion> {
         return Container(
           padding: const EdgeInsets.all(8.0),
           decoration: BoxDecoration(
-            color: context.colorScheme.surfaceVariant.withOpacity(0.4),
+            color: context.colorScheme.surface,
             borderRadius: const BorderRadius.vertical(
               top: Radius.circular(12),
             ),
@@ -598,8 +600,8 @@ class _UserInteractionRegionState extends State<UserInteractionRegion> {
                           isDense: true,
                           floatingLabelBehavior: FloatingLabelBehavior.never,
                           filled: true,
-                          fillColor: context.colorScheme.secondaryContainer
-                              .withOpacity(0.5),
+                          fillColor: context.colorScheme.secondary
+                              .withOpacity(0.25),
                           hoverColor: Colors.transparent,
                           border: OutlineInputBorder(
                             borderRadius: borderRadius,
@@ -721,7 +723,7 @@ class SystemMessageBubble extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 16),
       child: Bubble(
         showNip: false,
-        color: context.colorScheme.secondaryContainer,
+        color: context.colorScheme.tertiary,
         child: MarkdownText(
           text: message.text,
           role: message.role,

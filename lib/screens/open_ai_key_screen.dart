@@ -405,21 +405,23 @@ class _OpenAIKeyTileState extends State<OpenAIKeyTile> {
             children: [
               Container(
                 padding: const EdgeInsets.symmetric(vertical: 12),
-                color: context.colorScheme.onSurface.withOpacity(0.1),
+                color: context.colorScheme.primary,
                 child: Row(
                   mainAxisSize: MainAxisSize.max,
                   children: [
                     const SizedBox(width: 16),
-                    const ImageIcon(
-                      AssetImage('assets/openai_256.png'),
+                    ImageIcon(
+                      const AssetImage('assets/openai_256.png'),
                       size: 18,
+                      color: context.colorScheme.onPrimary,
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      'Open AI API Key'.toUpperCase(),
-                      style: const TextStyle(
+                      'OpenAI API Key'.toUpperCase(),
+                      style: TextStyle(
                         fontSize: 14,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.bold,
+                        color: context.colorScheme.onPrimary,
                       ),
                     ),
                   ],

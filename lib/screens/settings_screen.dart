@@ -51,69 +51,39 @@ class _SettingsScreenState extends State<SettingsScreen>
           onPressed: () {
             context.go('/home', extra: {'from': 'settings'});
           },
-          icon: const Icon(Icons.arrow_downward),
+          icon: const Icon(Icons.arrow_forward),
         ),
         centerTitle: false,
         title: Text(
           'Settings',
-          style: context.textTheme.titleMedium,
+          style: context.textTheme.titleMedium?.copyWith(
+            color: context.colorScheme.onPrimaryContainer,
+          ),
         ),
         actions: const [WindowControls()],
-        surfaceTintColor: Colors.transparent,
-        backgroundColor: Colors.transparent,
       ),
-      backgroundColor: Colors.transparent,
       extendBodyBehindAppBar: true,
       body: Builder(builder: (context) {
-        return Stack(
-          children: [
-            Positioned.fill(
-              child: Container(
-                constraints: const BoxConstraints(maxWidth: 350),
-                child: ListView(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  children: [
-                    SizedBox(
-                      height: (Scaffold.of(context).appBarMaxHeight ?? 48) + 16,
-                    ),
-                    const AppSettingsTile(),
-                    const SizedBox(height: 16),
-                    const OpenAIKeyTile(),
-                    const SizedBox(height: 16),
-                    const AccountSettingsTile(),
-                    const SizedBox(height: 16),
-                    buildInfoTile(context),
-                    const SizedBox(height: 32)
-                  ],
+        return SizedBox.expand(
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 350),
+            child: ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              children: [
+                SizedBox(
+                  height: (Scaffold.of(context).appBarMaxHeight ?? 48) + 16,
                 ),
-              ),
+                const AppSettingsTile(),
+                const SizedBox(height: 16),
+                const OpenAIKeyTile(),
+                const SizedBox(height: 16),
+                const AccountSettingsTile(),
+                const SizedBox(height: 16),
+                buildInfoTile(context),
+                const SizedBox(height: 32)
+              ],
             ),
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: Builder(
-                builder: (context) {
-                  return ClipRect(
-                    child: AnimatedBuilder(
-                      animation: blurAnimation,
-                      builder: (context, child) {
-                        return BackdropFilter(
-                            filter: ImageFilter.blur(
-                                sigmaX: blurAnimation.value * 5,
-                                sigmaY: blurAnimation.value * 5),
-                            child: child!);
-                      },
-                      child: Container(
-                        color: Colors.transparent,
-                        height: Scaffold.of(context).appBarMaxHeight ?? 48 + 16,
-                      ),
-                    ),
-                  );
-                },
-              ),
-            )
-          ],
+          ),
         );
       }),
     );
@@ -126,20 +96,22 @@ class _SettingsScreenState extends State<SettingsScreen>
         children: [
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            color: context.colorScheme.onSurface.withOpacity(0.1),
+            color: context.colorScheme.primary,
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(
+                Icon(
                   Icons.info_outlined,
                   size: 20,
+                  color: context.colorScheme.onPrimaryContainer,
                 ),
                 const SizedBox(width: 8),
                 Text(
                   'About'.toUpperCase(),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.bold,
+                    color: context.colorScheme.onPrimaryContainer,
                   ),
                 ),
               ],
@@ -319,19 +291,24 @@ class _AppSettingsTileState extends State<AppSettingsTile> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Container(
-                      color: context.colorScheme.onSurface.withOpacity(0.1),
+                      color: context.colorScheme.primary,
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           const SizedBox(width: 16),
-                          const Icon(Icons.settings, size: 20),
+                          Icon(
+                            Icons.settings,
+                            size: 20,
+                            color: context.colorScheme.onPrimaryContainer,
+                          ),
                           const SizedBox(width: 12),
                           Text(
                             'App Settings'.toUpperCase(),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 14,
-                              fontWeight: FontWeight.w500,
+                              fontWeight: FontWeight.bold,
+                              color: context.colorScheme.onPrimaryContainer,
                             ),
                           )
                         ],
@@ -427,20 +404,24 @@ class _AppSettingsTileState extends State<AppSettingsTile> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Container(
-                        color: context.colorScheme.onSurface.withOpacity(0.1),
+                        color: context.colorScheme.primary,
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             const SizedBox(width: 16),
-                            const Icon(Icons.desktop_windows_outlined,
-                                size: 20),
+                            Icon(
+                              Icons.desktop_windows_outlined,
+                              size: 20,
+                              color: context.colorScheme.onPrimaryContainer,
+                            ),
                             const SizedBox(width: 12),
                             Text(
                               'Desktop Settings'.toUpperCase(),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 14,
-                                fontWeight: FontWeight.w500,
+                                fontWeight: FontWeight.bold,
+                                color: context.colorScheme.onPrimaryContainer,
                               ),
                             )
                           ],
@@ -665,15 +646,7 @@ class SettingsTile extends StatelessWidget {
         constraints: const BoxConstraints(maxWidth: 600),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          color: context.colorScheme.tertiaryContainer,
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              context.colorScheme.tertiaryContainer,
-              context.colorScheme.background,
-            ],
-          ),
+          color: context.colorScheme.surface,
         ),
         child: Material(
           color: Colors.transparent,
@@ -699,19 +672,24 @@ class _AccountSettingsTileState extends State<AccountSettingsTile> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Container(
-            color: context.colorScheme.onSurface.withOpacity(0.1),
+            color: context.colorScheme.primary,
             padding: const EdgeInsets.symmetric(vertical: 12),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 const SizedBox(width: 16),
-                const Icon(Icons.person, size: 20),
+                Icon(
+                  Icons.person,
+                  size: 20,
+                  color: context.colorScheme.onPrimaryContainer,
+                ),
                 const SizedBox(width: 12),
                 Text(
                   'Account Settings'.toUpperCase(),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.bold,
+                    color: context.colorScheme.onPrimaryContainer,
                   ),
                 )
               ],

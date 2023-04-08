@@ -15,7 +15,7 @@ import '../managers/prompt_manager.dart';
 import '../managers/version_manager.dart';
 import '../models/chat_type.dart';
 import '../models/prompt.dart';
-import '../ui/asset_repository.dart';
+import '../managers/asset_manager.dart';
 import '../ui/theme_extensions.dart';
 import '../ui/window_controls.dart';
 
@@ -93,9 +93,13 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: context.colorScheme.primary,
+        // surfaceTintColor: Colors.transparent,
         title: Text(
           'Pocket Jenna',
-          style: context.textTheme.titleMedium,
+          style: context.textTheme.titleMedium?.copyWith(
+            color: context.colorScheme.onPrimaryContainer,
+          ),
         ),
         centerTitle: false,
         leading: IconButton(
@@ -130,6 +134,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   return GridView.builder(
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: crossAxisCount,
+                      childAspectRatio: 0.9,
                     ),
                     physics: const NeverScrollableScrollPhysics(),
                     padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -179,28 +184,24 @@ class TokensCard extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 64),
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        color: context.colorScheme.tertiaryContainer,
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            context.colorScheme.tertiaryContainer,
-            context.colorScheme.background,
-          ],
+        borderRadius: BorderRadius.circular(100),
+        color: context.colorScheme.surface,
+        border: Border.all(
+          color: context.colorScheme.primaryContainer,
+          width: 2,
         ),
       ),
       child: Row(
         children: [
           Icon(
             Icons.generating_tokens_outlined,
-            color: context.colorScheme.onTertiaryContainer,
+            color: context.colorScheme.primary,
           ),
           const SizedBox(width: 12),
           Text(
             '${DataManager.instance.currentUser?.tokens ?? 'No'} Tokens',
             style: context.textTheme.bodyMedium?.copyWith(
-              color: context.colorScheme.onTertiaryContainer,
+              color: context.colorScheme.primary,
             ),
           ),
           const Spacer(),
@@ -212,7 +213,7 @@ class TokensCard extends StatelessWidget {
                 end: Alignment.bottomRight,
                 colors: [
                   context.colorScheme.primary,
-                  context.colorScheme.secondary,
+                  context.colorScheme.primary,
                 ],
               ),
             ),
@@ -220,7 +221,8 @@ class TokensCard extends StatelessWidget {
             child: Stack(
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   child: Text(
                     'Buy Tokens',
                     style: context.textTheme.bodySmall?.copyWith(
@@ -233,8 +235,7 @@ class TokensCard extends StatelessWidget {
                   child: Material(
                     color: Colors.transparent,
                     child: InkWell(
-                      onTap: () {
-                      },
+                      onTap: () {},
                     ),
                   ),
                 )
@@ -259,62 +260,77 @@ class GPTCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const borderRadius = BorderRadius.vertical(
+      top: Radius.circular(18),
+      bottom: Radius.circular(80),
+    );
     return Container(
       width: 175,
       height: 175,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        color: context.colorScheme.tertiaryContainer,
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            context.colorScheme.tertiaryContainer,
-            context.colorScheme.background,
-          ],
+        borderRadius: borderRadius,
+        color: context.colorScheme.surface.withOpacity(0.75),
+        border: Border.all(
+          color: context.colorScheme.primaryContainer,
+          width: 2,
+          strokeAlign: BorderSide.strokeAlignOutside,
         ),
       ),
+      clipBehavior: Clip.antiAlias,
       child: Stack(
         children: [
           Material(
             color: Colors.transparent,
             child: InkWell(
-              borderRadius: BorderRadius.circular(12),
-              splashColor: context.colorScheme.tertiaryContainer,
-              highlightColor: context.colorScheme.secondaryContainer,
+              // splashColor: context.colorScheme.secondary,
+              // highlightColor: context.colorScheme.secondaryContainer,
               onTap: isComingSoon
                   ? null
                   : () => context
                       .go('/chat', extra: {'id': prompt.id, 'from': '/home'}),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    AssetRepository.getPromptIcon(
-                      prompt,
-                      color: context.colorScheme.tertiary,
-                      size: 24,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    color: context.colorScheme.surface,
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(8),
+                    alignment: Alignment.center,
+                    child: Text(
                       prompt.title,
+                      maxLines: 2,
                       style: context.textTheme.bodyMedium!.copyWith(
-                        color: context.colorScheme.tertiary,
+                        color: context.colorScheme.primary,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    Expanded(
+                  ),
+                  Divider(
+                    color: context.colorScheme.primaryContainer,
+                    thickness: 2,
+                    height: 1,
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8),
                       child: Text(
                         prompt.prompts.last,
                         overflow: TextOverflow.ellipsis,
                         maxLines: 6,
                         style: context.textTheme.bodySmall!.copyWith(
-                            color: context.colorScheme.tertiary, fontSize: 10),
+                            color: context.colorScheme.onSurface, fontSize: 10),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: AssetManager.getPromptIcon(
+                      prompt,
+                      color: context.colorScheme.onSurface,
+                      size: 24,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

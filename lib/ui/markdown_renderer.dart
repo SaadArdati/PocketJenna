@@ -42,37 +42,37 @@ class _MarkdownTextState extends State<MarkdownText> {
   MarkdownStyleSheet assistantSheet() {
     return MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
       a: TextStyle(
-        color: context.colorScheme.onPrimaryContainer,
+        color: context.colorScheme.onSurface,
       ),
       p: TextStyle(
-        color: context.colorScheme.onPrimaryContainer,
+        color: context.colorScheme.onSurface,
       ),
       h1: TextStyle(
-        color: context.colorScheme.onPrimaryContainer,
+        color: context.colorScheme.onSurface,
       ),
       h2: TextStyle(
-        color: context.colorScheme.onPrimaryContainer,
+        color: context.colorScheme.onSurface,
       ),
       h3: TextStyle(
-        color: context.colorScheme.onPrimaryContainer,
+        color: context.colorScheme.onSurface,
       ),
       h4: TextStyle(
-        color: context.colorScheme.onPrimaryContainer,
+        color: context.colorScheme.onSurface,
       ),
       h5: TextStyle(
-        color: context.colorScheme.onPrimaryContainer,
+        color: context.colorScheme.onSurface,
       ),
       h6: TextStyle(
-        color: context.colorScheme.onPrimaryContainer,
+        color: context.colorScheme.onSurface,
       ),
       em: TextStyle(
-        color: context.colorScheme.onPrimaryContainer,
+        color: context.colorScheme.onSurface,
       ),
       strong: TextStyle(
-        color: context.colorScheme.onPrimaryContainer,
+        color: context.colorScheme.onSurface,
       ),
       del: TextStyle(
-        color: context.colorScheme.onPrimaryContainer,
+        color: context.colorScheme.onSurface,
       ),
       blockquote: TextStyle(
         color: context.colorScheme.onSurfaceVariant,
