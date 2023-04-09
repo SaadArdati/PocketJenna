@@ -11,6 +11,7 @@ import '../models/chat_message.dart';
 import '../models/chat_type.dart';
 import '../models/message_status.dart';
 import '../models/prompt.dart';
+import 'data/data_manager.dart';
 import 'prompt_manager.dart';
 
 class GPTManager extends ChangeNotifier {
@@ -98,11 +99,13 @@ class GPTManager extends ChangeNotifier {
     super.dispose();
   }
 
-  void saveChat() {
+  void saveChat({bool upload = true}) {
     box.put(Constants.history, {
       for (final MapEntry<String, Chat> chat in chatHistory.entries)
         chat.key: chat.value.toJson(),
     });
+
+    DataManager.instance.uploadChat(currentChat!);
   }
 
   void purgeEmptyChats() {

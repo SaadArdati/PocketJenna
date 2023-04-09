@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/widgets.dart';
@@ -37,13 +38,14 @@ abstract class DataManager {
   /// Initialize the data manager.
   /// This method should be called before using any of the other methods.
   @mustCallSuper
-  Future<void> init(AuthModel authModel) async {
+  Future<void> init() async {
     userBox = await Hive.openBox(Constants.user);
   }
 
   /// Dispose of any resources related to the data manager.
   /// This method should be called when the manager is no longer needed.
-  void dispose();
+  @mustCallSuper
+  void dispose() {}
 
   Stream<Chat?> getChatStream(String chatId);
 

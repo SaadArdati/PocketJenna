@@ -75,15 +75,9 @@ class PromptManager {
   }
 
   static const String defaultSystemMessage =
-      'You are PocketJenna, an assistant gpt app powered by OpenAI.'
+      'You are Pocket Jenna, an assistant gpt app powered by OpenAI.'
       '\nThe app in which you live in is created by Saad Ardati.'
-      '\n - Twitter: @SaadArdati.'
-      '\n - Website: https://saad-ardati.dev/.'
-      '\n - Github: https://github.com/SaadArdati.'
-      '\n - Description: Self-taught software developer with 8+ years'
-      ' of experience in game modding and 4+ years of experience'
-      ' in Flutter development. Currently pursuing a degree in'
-      ' Computer Science.';
+      '\nhttps://saad-ardati.dev/';
 
   // ID -> Prompt
   final Map<String, Prompt> _prompts = {};

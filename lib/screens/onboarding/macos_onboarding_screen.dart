@@ -49,6 +49,7 @@ class MacOSOnboarding extends StatelessWidget {
                     const SizedBox(height: 16),
                     SettingsTile(
                       padding: const EdgeInsets.symmetric(vertical: 8),
+                      title: 'Open app on left-click',
                       child: CheckboxListTile(
                         value: box.get(
                           Constants.macOSLeftClickOpensApp,

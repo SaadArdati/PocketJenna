@@ -16,6 +16,7 @@ import '../managers/version_manager.dart';
 import '../models/chat_type.dart';
 import '../models/prompt.dart';
 import '../managers/asset_manager.dart';
+import '../ui/fabric_ruffles_painter.dart';
 import '../ui/theme_extensions.dart';
 import '../ui/window_controls.dart';
 
@@ -93,8 +94,9 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        // backgroundColor: Colors.transparent,
         backgroundColor: context.colorScheme.primary,
-        // surfaceTintColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
         title: Text(
           'Pocket Jenna',
           style: context.textTheme.titleMedium?.copyWith(
@@ -109,6 +111,16 @@ class _HomeScreenState extends State<HomeScreen> {
             context.go('/settings', extra: {'from': 'home'});
           },
         ),
+        // flexibleSpace: FlexibleSpaceBar(
+        //   background: CustomPaint(
+        //     painter: FabricRufflesPainter(
+        //       color: context.colorScheme.primary,
+        //       shade: Colors.black.withOpacity(0.5),
+        //       highlight: Colors.white,
+        //     ),
+        //     child: Placeholder(),
+        //   ),
+        // ),
         actions: const [WindowControls()],
       ),
       body: SingleChildScrollView(
@@ -123,7 +135,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 LayoutBuilder(builder: (context, constraints) {
                   final int crossAxisCount;
 
-                  if (constraints.maxWidth <= 600) {
+                  if (constraints.maxWidth <= 350) {
+                    crossAxisCount = 1;
+                  } else if (constraints.maxWidth <= 600) {
                     crossAxisCount = 2;
                   } else if (constraints.maxWidth <= 750) {
                     crossAxisCount = 3;
@@ -134,7 +148,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   return GridView.builder(
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: crossAxisCount,
-                      childAspectRatio: 0.9,
                     ),
                     physics: const NeverScrollableScrollPhysics(),
                     padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -157,7 +170,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       //     break;
                       // }
                       return Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.all(8),
                         child: GPTCard(
                           prompt: prompt,
                           isComingSoon: false,
@@ -187,7 +200,7 @@ class TokensCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(100),
         color: context.colorScheme.surface,
         border: Border.all(
-          color: context.colorScheme.primaryContainer,
+          color: context.colorScheme.primary,
           width: 2,
         ),
       ),
@@ -264,95 +277,95 @@ class GPTCard extends StatelessWidget {
       top: Radius.circular(18),
       bottom: Radius.circular(80),
     );
-    return Container(
-      width: 175,
-      height: 175,
-      decoration: BoxDecoration(
-        borderRadius: borderRadius,
-        color: context.colorScheme.surface.withOpacity(0.75),
-        border: Border.all(
-          color: context.colorScheme.primaryContainer,
-          width: 2,
-          strokeAlign: BorderSide.strokeAlignOutside,
+    return Center(
+      child: Container(
+        constraints:
+            const BoxConstraints(maxHeight: 200, minWidth: 175, maxWidth: 175),
+        decoration: BoxDecoration(
+          borderRadius: borderRadius,
+          color: context.colorScheme.surface.withOpacity(0.9),
+          border: Border.all(
+            color: context.colorScheme.primary,
+            width: 2,
+            strokeAlign: BorderSide.strokeAlignOutside,
+          ),
         ),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Stack(
-        children: [
-          Material(
-            color: Colors.transparent,
-            child: InkWell(
-              // splashColor: context.colorScheme.secondary,
-              // highlightColor: context.colorScheme.secondaryContainer,
-              onTap: isComingSoon
-                  ? null
-                  : () => context
-                      .go('/chat', extra: {'id': prompt.id, 'from': '/home'}),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Container(
-                    color: context.colorScheme.surface,
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(8),
-                    alignment: Alignment.center,
-                    child: Text(
-                      prompt.title,
-                      maxLines: 2,
-                      style: context.textTheme.bodyMedium!.copyWith(
-                        color: context.colorScheme.primary,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  Divider(
-                    color: context.colorScheme.primaryContainer,
-                    thickness: 2,
-                    height: 1,
-                  ),
-                  Expanded(
-                    child: Padding(
+        clipBehavior: Clip.antiAlias,
+        child: Stack(
+          children: [
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                // splashColor: context.colorScheme.secondary,
+                // highlightColor: context.colorScheme.secondaryContainer,
+                onTap: isComingSoon
+                    ? null
+                    : () => context
+                        .go('/chat', extra: {'id': prompt.id, 'from': '/home'}),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: double.infinity,
                       padding: const EdgeInsets.all(8),
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: context.colorScheme.primary,
+                      ),
                       child: Text(
-                        prompt.prompts.last,
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 6,
-                        style: context.textTheme.bodySmall!.copyWith(
-                            color: context.colorScheme.onSurface, fontSize: 10),
+                        prompt.title,
+                        maxLines: 2,
+                        style: context.textTheme.bodyMedium!.copyWith(
+                          color: context.colorScheme.onPrimaryContainer,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: AssetManager.getPromptIcon(
-                      prompt,
-                      color: context.colorScheme.onSurface,
-                      size: 24,
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Text(
+                          prompt.prompts.last,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 6,
+                          style: context.textTheme.bodySmall!.copyWith(
+                              color: context.colorScheme.onSurface,
+                              fontSize: 10),
+                        ),
+                      ),
                     ),
-                  ),
-                ],
+                    Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: AssetManager.getPromptIcon(
+                        prompt,
+                        color: context.colorScheme.primary,
+                        size: 24,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-          if (isComingSoon)
-            Center(
-              child: Transform.rotate(
-                angle: -35 * pi / 180,
-                child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      color: context.colorScheme.inverseSurface,
-                    ),
-                    padding: const EdgeInsets.all(8),
-                    child: Text(
-                      'Coming Soon',
-                      style: context.textTheme.bodyMedium!.copyWith(
-                        color: context.colorScheme.onInverseSurface,
+            if (isComingSoon)
+              Center(
+                child: Transform.rotate(
+                  angle: -35 * pi / 180,
+                  child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        color: context.colorScheme.inverseSurface,
                       ),
-                    )),
-              ),
-            )
-        ],
+                      padding: const EdgeInsets.all(8),
+                      child: Text(
+                        'Coming Soon',
+                        style: context.textTheme.bodyMedium!.copyWith(
+                          color: context.colorScheme.onInverseSurface,
+                        ),
+                      )),
+                ),
+              )
+          ],
+        ),
       ),
     );
   }

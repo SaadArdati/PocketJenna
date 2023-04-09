@@ -25,28 +25,13 @@ class SettingsScreen extends StatefulWidget {
   State<SettingsScreen> createState() => _SettingsScreenState();
 }
 
-class _SettingsScreenState extends State<SettingsScreen>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController animationController = AnimationController(
-    duration: const Duration(milliseconds: 500),
-    vsync: this,
-  )..forward();
-
-  late final Animation<double> blurAnimation = CurvedAnimation(
-    parent: animationController,
-    curve: Curves.easeInOut,
-  );
-
-  @override
-  void dispose() {
-    animationController.dispose();
-    super.dispose();
-  }
-
+class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: context.colorScheme.primary,
+        surfaceTintColor: Colors.transparent,
         leading: IconButton(
           onPressed: () {
             context.go('/home', extra: {'from': 'settings'});
@@ -91,36 +76,11 @@ class _SettingsScreenState extends State<SettingsScreen>
 
   Widget buildInfoTile(BuildContext context) {
     return SettingsTile(
+      title: 'About'.toUpperCase(),
+      icon: const Icon(Icons.info_outlined),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            color: context.colorScheme.primary,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.info_outlined,
-                  size: 20,
-                  color: context.colorScheme.onPrimaryContainer,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  'About'.toUpperCase(),
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: context.colorScheme.onPrimaryContainer,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Divider(
-            height: 1,
-            color: context.colorScheme.onSurface.withOpacity(0.2),
-          ),
           const SizedBox(height: 16),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -287,38 +247,11 @@ class _AppSettingsTileState extends State<AppSettingsTile> {
             mainAxisSize: MainAxisSize.min,
             children: [
               SettingsTile(
+                title: 'App Settings'.toUpperCase(),
+                icon: const Icon(Icons.settings),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Container(
-                      color: context.colorScheme.primary,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const SizedBox(width: 16),
-                          Icon(
-                            Icons.settings,
-                            size: 20,
-                            color: context.colorScheme.onPrimaryContainer,
-                          ),
-                          const SizedBox(width: 12),
-                          Text(
-                            'App Settings'.toUpperCase(),
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: context.colorScheme.onPrimaryContainer,
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                    Divider(
-                      height: 1,
-                      color: context.colorScheme.onSurface.withOpacity(0.2),
-                    ),
-                    const SizedBox(height: 8),
                     Builder(builder: (context) {
                       final manager = AdaptiveTheme.of(context);
 
@@ -340,7 +273,8 @@ class _AppSettingsTileState extends State<AppSettingsTile> {
                           child: DropdownButton<AdaptiveThemeMode>(
                             value: manager.mode,
                             style: context.textTheme.bodyMedium?.copyWith(
-                                color: context.colorScheme.onPrimaryContainer),
+                              color: context.colorScheme.onSurface,
+                            ),
                             underline: const SizedBox.shrink(),
                             borderRadius: BorderRadius.circular(8),
                             icon: const Padding(
@@ -400,38 +334,11 @@ class _AppSettingsTileState extends State<AppSettingsTile> {
               if (isDesktop) ...[
                 const SizedBox(height: 16),
                 SettingsTile(
+                  title: 'Desktop Settings'.toUpperCase(),
+                  icon: const Icon(Icons.desktop_windows_outlined),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Container(
-                        color: context.colorScheme.primary,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const SizedBox(width: 16),
-                            Icon(
-                              Icons.desktop_windows_outlined,
-                              size: 20,
-                              color: context.colorScheme.onPrimaryContainer,
-                            ),
-                            const SizedBox(width: 12),
-                            Text(
-                              'Desktop Settings'.toUpperCase(),
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: context.colorScheme.onPrimaryContainer,
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                      Divider(
-                        height: 1,
-                        color: context.colorScheme.onSurface.withOpacity(0.2),
-                      ),
-                      const SizedBox(height: 8),
                       CheckboxListTile(
                         value:
                             box.get(Constants.alwaysOnTop, defaultValue: true),
@@ -628,29 +535,82 @@ class _AppSettingsTileState extends State<AppSettingsTile> {
 }
 
 class SettingsTile extends StatelessWidget {
+  final String title;
+  final Widget? icon;
   final Widget child;
   final EdgeInsets padding;
 
   const SettingsTile({
     super.key,
+    required this.title,
+    this.icon,
     required this.child,
-    this.padding = const EdgeInsets.all(0),
+    this.padding = EdgeInsets.zero,
   });
 
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Container(
-        padding: padding,
         clipBehavior: Clip.antiAlias,
         constraints: const BoxConstraints(maxWidth: 600),
         decoration: BoxDecoration(
+          color: context.colorScheme.surface.withOpacity(0.9),
           borderRadius: BorderRadius.circular(12),
-          color: context.colorScheme.surface,
+          border: Border.all(
+            color: context.colorScheme.primary,
+            width: 2,
+            strokeAlign: BorderSide.strokeAlignOutside,
+          ),
         ),
-        child: Material(
-          color: Colors.transparent,
-          child: child,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(color: context.colorScheme.primary),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (icon != null) ...[
+                    Expanded(
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: IconTheme(
+                          data: Theme.of(context).iconTheme.copyWith(
+                                color: context.colorScheme.onPrimaryContainer,
+                                size: 24,
+                              ),
+                          child: icon!,
+                        ),
+                      ),
+                    ),
+                  ],
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Text(
+                      title,
+                      style: context.textTheme.titleSmall?.copyWith(
+                        color: context.colorScheme.onPrimaryContainer,
+                      ),
+                    ),
+                  ),
+                  if (icon != null) const Spacer(),
+                ],
+              ),
+            ),
+            // Divider(
+            //   height: 2,
+            //   thickness: 2,
+            //   color: context.colorScheme.primary,
+            // ),
+            const SizedBox(height: 8),
+            Padding(
+              padding: padding,
+              child: child,
+            ),
+          ],
         ),
       ),
     );
@@ -668,38 +628,11 @@ class _AccountSettingsTileState extends State<AccountSettingsTile> {
   @override
   Widget build(BuildContext context) {
     return SettingsTile(
+      title: 'Account Settings'.toUpperCase(),
+      icon: const Icon(Icons.person),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Container(
-            color: context.colorScheme.primary,
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const SizedBox(width: 16),
-                Icon(
-                  Icons.person,
-                  size: 20,
-                  color: context.colorScheme.onPrimaryContainer,
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  'Account Settings'.toUpperCase(),
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: context.colorScheme.onPrimaryContainer,
-                  ),
-                )
-              ],
-            ),
-          ),
-          Divider(
-            height: 1,
-            color: context.colorScheme.onSurface.withOpacity(0.2),
-          ),
-          const SizedBox(height: 8),
           ListTile(
             leading: const Icon(Icons.logout),
             title: const Text('Sign out'),

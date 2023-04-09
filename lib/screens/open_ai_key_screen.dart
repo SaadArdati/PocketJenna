@@ -395,226 +395,195 @@ class _OpenAIKeyTileState extends State<OpenAIKeyTile> {
   Widget build(BuildContext context) {
     final BorderRadius borderRadius = BorderRadius.circular(12);
     return SettingsTile(
+      title: 'OpenAI API Key'.toUpperCase(),
+      icon: ImageIcon(
+        const AssetImage('assets/openai_256.png'),
+        size: 18,
+        color: context.colorScheme.onPrimary,
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Form(
         child: Builder(builder: (context) {
           final String? bestModel = GPTManager.findBestModel();
           return Column(
             mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                color: context.colorScheme.primary,
-                child: Row(
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    const SizedBox(width: 16),
-                    ImageIcon(
-                      const AssetImage('assets/openai_256.png'),
-                      size: 18,
-                      color: context.colorScheme.onPrimary,
+              Row(
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Text(
+                    bestModel == null
+                        ? 'No relevant model found!'
+                        : 'Currently using model: [$bestModel]',
+                    style: context.textTheme.labelSmall?.copyWith(
+                      color: bestModel == null
+                          ? context.colorScheme.error
+                          : context.colorScheme.onSurfaceVariant,
+                      fontSize: 12,
                     ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'OpenAI API Key'.toUpperCase(),
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: context.colorScheme.onPrimary,
-                      ),
+                  ),
+                  IconButton(
+                    tooltip: 'Validate Token',
+                    iconSize: 18,
+                    icon: Icon(
+                      Icons.youtube_searched_for,
+                      color: bestModel == null
+                          ? context.colorScheme.primary
+                          : context.colorScheme.onSurfaceVariant,
                     ),
-                  ],
+                    onPressed: () {
+                      doValidationCheck();
+                    },
+                  ),
+                ],
+              ),
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeOutQuart,
+                height: isEditing ? 325 : 0,
+                clipBehavior: Clip.antiAlias,
+                decoration: const BoxDecoration(),
+                alignment: Alignment.center,
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 600),
+                  switchInCurve: Curves.easeOutQuart,
+                  switchOutCurve: Curves.easeInQuart,
+                  child: isEditing
+                      ? ScrollConfiguration(
+                          behavior: ScrollConfiguration.of(context)
+                              .copyWith(scrollbars: false),
+                          child: SingleChildScrollView(
+                            physics: const NeverScrollableScrollPhysics(),
+                            padding: EdgeInsets.zero,
+                            primary: false,
+                            child: Column(
+                              children: [
+                                const OpenAIKeyInstructions(),
+                                statusSection(context),
+                              ],
+                            ),
+                          ),
+                        )
+                      : const SizedBox(height: 16),
                 ),
               ),
-              Divider(
-                height: 1,
-                color: context.colorScheme.onSurface.withOpacity(0.2),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        Text(
-                          bestModel == null
-                              ? 'No relevant model found!'
-                              : 'Currently using model: [$bestModel]',
-                          style: context.textTheme.labelSmall?.copyWith(
-                            color: bestModel == null
-                                ? context.colorScheme.error
-                                : context.colorScheme.onSurfaceVariant,
-                            fontSize: 12,
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: controller,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'Please enter your OpenAI API key';
+                        }
+                        return null;
+                      },
+                      onChanged: (_) {
+                        setState(() {
+                          message = null;
+                          isError = false;
+                        });
+                      },
+                      autovalidateMode:
+                          AutovalidateMode.onUserInteraction,
+                      style: context.textTheme.bodyMedium,
+                      decoration: InputDecoration(
+                        counterText: '',
+                        labelText: 'sk-xxxxxxxxxxxxxxx',
+                        isDense: true,
+                        floatingLabelBehavior:
+                            FloatingLabelBehavior.never,
+                        filled: true,
+                        fillColor: context.colorScheme.secondaryContainer
+                            .withOpacity(0.5),
+                        hoverColor: Colors.transparent,
+                        border: OutlineInputBorder(
+                          borderRadius: borderRadius,
+                          borderSide: const BorderSide(width: 1.5),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: borderRadius,
+                          borderSide: BorderSide(
+                            color: context.colorScheme.primary,
+                            width: 1,
                           ),
                         ),
-                        IconButton(
-                          tooltip: 'Validate Token',
-                          iconSize: 18,
-                          icon: Icon(
-                            Icons.youtube_searched_for,
-                            color: bestModel == null
-                                ? context.colorScheme.primary
-                                : context.colorScheme.onSurfaceVariant,
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: borderRadius,
+                          borderSide: const BorderSide(
+                            color: Colors.transparent,
+                            width: 1,
                           ),
-                          onPressed: () {
-                            doValidationCheck();
-                          },
                         ),
-                      ],
-                    ),
-                    AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeOutQuart,
-                      height: isEditing ? 325 : 0,
-                      clipBehavior: Clip.antiAlias,
-                      decoration: const BoxDecoration(),
-                      alignment: Alignment.center,
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 600),
-                        switchInCurve: Curves.easeOutQuart,
-                        switchOutCurve: Curves.easeInQuart,
-                        child: isEditing
-                            ? ScrollConfiguration(
-                                behavior: ScrollConfiguration.of(context)
-                                    .copyWith(scrollbars: false),
-                                child: SingleChildScrollView(
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  padding: EdgeInsets.zero,
-                                  primary: false,
-                                  child: Column(
-                                    children: [
-                                      const OpenAIKeyInstructions(),
-                                      statusSection(context),
-                                    ],
-                                  ),
-                                ),
-                              )
-                            : const SizedBox(height: 16),
                       ),
+                      cursorRadius: const Radius.circular(4),
                     ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: TextFormField(
-                            controller: controller,
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty) {
-                                return 'Please enter your OpenAI API key';
-                              }
-                              return null;
-                            },
-                            onChanged: (_) {
+                  ),
+                  const SizedBox(width: 8),
+                  TextButton(
+                    style: TextButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: borderRadius),
+                      backgroundColor:
+                          controller.text.isNotEmpty && isEditing
+                              ? context.colorScheme.primaryContainer
+                              : context.colorScheme.secondaryContainer
+                                  .withOpacity(0.5),
+                    ),
+                    onPressed: validating
+                        ? null
+                        : () {
+                            if (!isEditing) {
+                              setState(() {
+                                message = null;
+                                isError = false;
+                                isEditing = true;
+                              });
+                              return;
+                            } else if (controller.text ==
+                                box.get(Constants.openAIKey)) {
+                              setState(() {
+                                message = null;
+                                isError = false;
+                                isEditing = false;
+                              });
+                              return;
+                            }
+
+                            if (message != null) {
                               setState(() {
                                 message = null;
                                 isError = false;
                               });
-                            },
-                            autovalidateMode:
-                                AutovalidateMode.onUserInteraction,
-                            style: context.textTheme.bodyMedium,
-                            decoration: InputDecoration(
-                              counterText: '',
-                              labelText: 'sk-xxxxxxxxxxxxxxx',
-                              isDense: true,
-                              floatingLabelBehavior:
-                                  FloatingLabelBehavior.never,
-                              filled: true,
-                              fillColor: context.colorScheme.secondaryContainer
-                                  .withOpacity(0.5),
-                              hoverColor: Colors.transparent,
-                              border: OutlineInputBorder(
-                                borderRadius: borderRadius,
-                                borderSide: const BorderSide(width: 1.5),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: borderRadius,
-                                borderSide: BorderSide(
-                                  color: context.colorScheme.primary,
-                                  width: 1,
-                                ),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: borderRadius,
-                                borderSide: const BorderSide(
-                                  color: Colors.transparent,
-                                  width: 1,
-                                ),
-                              ),
+                            }
+
+                            if (!Form.of(context).validate()) return;
+
+                            doValidationCheck();
+                          },
+                    child: Container(
+                      width: 44,
+                      height: 44,
+                      alignment: Alignment.center,
+                      child: validating
+                          ? const CupertinoActivityIndicator()
+                          : Icon(
+                              !isEditing
+                                  ? Icons.edit
+                                  : controller.text ==
+                                          box.get(Constants.openAIKey)
+                                      ? Icons.edit_off
+                                      : Icons.navigate_next,
+                              color: context.colorScheme.onSurfaceVariant,
+                              size: 22,
                             ),
-                            cursorRadius: const Radius.circular(4),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        TextButton(
-                          style: TextButton.styleFrom(
-                            shape: RoundedRectangleBorder(
-                                borderRadius: borderRadius),
-                            backgroundColor:
-                                controller.text.isNotEmpty && isEditing
-                                    ? context.colorScheme.primaryContainer
-                                    : context.colorScheme.secondaryContainer
-                                        .withOpacity(0.5),
-                          ),
-                          onPressed: validating
-                              ? null
-                              : () {
-                                  if (!isEditing) {
-                                    setState(() {
-                                      message = null;
-                                      isError = false;
-                                      isEditing = true;
-                                    });
-                                    return;
-                                  } else if (controller.text ==
-                                      box.get(Constants.openAIKey)) {
-                                    setState(() {
-                                      message = null;
-                                      isError = false;
-                                      isEditing = false;
-                                    });
-                                    return;
-                                  }
-
-                                  if (message != null) {
-                                    setState(() {
-                                      message = null;
-                                      isError = false;
-                                    });
-                                  }
-
-                                  if (!Form.of(context).validate()) return;
-
-                                  doValidationCheck();
-                                },
-                          child: Container(
-                            width: 44,
-                            height: 44,
-                            alignment: Alignment.center,
-                            child: validating
-                                ? const CupertinoActivityIndicator()
-                                : Icon(
-                                    !isEditing
-                                        ? Icons.edit
-                                        : controller.text ==
-                                                box.get(Constants.openAIKey)
-                                            ? Icons.edit_off
-                                            : Icons.navigate_next,
-                                    color: context.colorScheme.onSurfaceVariant,
-                                    size: 22,
-                                  ),
-                          ),
-                        ),
-                      ],
                     ),
-                    const SizedBox(height: 16),
-                  ],
-                ),
+                  ),
+                ],
               ),
+              const SizedBox(height: 16),
             ],
           );
         }),

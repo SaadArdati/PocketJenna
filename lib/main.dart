@@ -9,6 +9,7 @@ import 'package:encrypted_shared_preferences/encrypted_shared_preferences.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -86,6 +87,7 @@ class PocketJenna extends StatefulWidget {
 
     await AuthManager.instance.init();
     await AssetManager.instance.init();
+    await DataManager.instance.init();
 
     OpenAI.apiKey =
         Hive.box(Constants.settings).get(Constants.openAIKey, defaultValue: '');
@@ -126,7 +128,7 @@ class _PocketJennaState extends State<PocketJenna> with WindowListener {
         colors: const FlexSchemeColor(
           primary: Color(0xff6c4ab0),
           primaryContainer: Color(0xffa58dd7),
-          secondary: Color(0xff82d6ff),
+          secondary: Color(0xff82bcff),
           secondaryContainer: Color(0xfff2fbff),
           tertiary: Color(0xffceefff),
           tertiaryContainer: Color(0xffdef8fb),
@@ -160,9 +162,9 @@ class _PocketJennaState extends State<PocketJenna> with WindowListener {
       ),
       dark: FlexThemeData.dark(
         colors: const FlexSchemeColor(
-          primary: Color(0xff523886),
-          primaryContainer: Color(0xffc0b2de),
-          secondary: Color(0xff004b74),
+          primary: Color(0xff352c48),
+          primaryContainer: Color(0xff1f1c26),
+          secondary: Color(0xff00314b),
           secondaryContainer: Color(0xff6f96ad),
           tertiary: Color(0xff007eb6),
           tertiaryContainer: Color(0xff00344e),
@@ -350,11 +352,26 @@ class _NavigationBackgroundState extends State<NavigationBackground>
     }
   }
 
+  final Random random = Random(2);
+  List<Color>? colors;
+
   @override
   void initState() {
     super.initState();
 
     transitionAnimation.addListener(transitionListener);
+
+    SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+      if (!mounted) return;
+      generateColors();
+      final manager = AdaptiveTheme.of(context);
+      manager.modeChangeNotifier.addListener(onThemeChange);
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
   }
 
   @override
@@ -366,7 +383,41 @@ class _NavigationBackgroundState extends State<NavigationBackground>
     logoController.dispose();
     loopController.dispose();
     logoFilledBlack.dispose();
+
+    final manager = AdaptiveTheme.of(context);
+    manager.modeChangeNotifier.removeListener(onThemeChange);
+
     super.dispose();
+  }
+
+  void onThemeChange() {
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (!mounted) return;
+      generateColors();
+      setState(() {});
+    });
+  }
+
+  void generateColors() {
+    colors = List.generate(
+      8,
+      (index) {
+        final HSVColor color = HSVColor.fromColor(
+          context.colorScheme.secondary,
+        );
+        final HSVColor newColor = color
+            .withSaturation(
+              color.saturation + ((random.nextDouble() - 0.5 * 2) * 0.2),
+            )
+            .withValue(
+              color.value - (random.nextDouble() * 0.15),
+            )
+            .withHue(
+              color.hue + ((random.nextDouble() - 0.5 * 2) * 10),
+            );
+        return newColor.toColor();
+      },
+    );
   }
 
   @override
@@ -384,12 +435,7 @@ class _NavigationBackgroundState extends State<NavigationBackground>
                   painter: BackgroundPainter(
                     anim: loopAnimation.value,
                     asset: logoFilledBlack,
-                    shades: [
-                      const Color(0xFF82d6ff),
-                      const Color(0xFF8ed3f5),
-                      const Color(0xFF8fc7e3),
-                      const Color(0xFFb1ddf2),
-                    ],
+                    shades: colors ?? [context.colorScheme.secondary],
                   ),
                 );
               },
@@ -398,7 +444,7 @@ class _NavigationBackgroundState extends State<NavigationBackground>
               duration: const Duration(milliseconds: 500),
               curve: Curves.fastOutSlowIn,
               color: context.colorScheme.background.withOpacity(
-                isChatPage ? 0.5 : 0.5,
+                isChatPage ? 0.65 : 0.35,
               ),
             ),
             widget.child,

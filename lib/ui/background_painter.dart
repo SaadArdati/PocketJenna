@@ -103,5 +103,7 @@ class BackgroundPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant BackgroundPainter oldDelegate) =>
-      anim != oldDelegate.anim;
+      anim != oldDelegate.anim ||
+      asset != oldDelegate.asset ||
+      shades != oldDelegate.shades;
 }

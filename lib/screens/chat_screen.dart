@@ -110,6 +110,8 @@ class _ChatScreenState extends State<ChatScreen>
       return Scaffold(
         extendBodyBehindAppBar: true,
         appBar: AppBar(
+          backgroundColor: context.colorScheme.primary,
+          surfaceTintColor: Colors.transparent,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             tooltip: MaterialLocalizations.of(context).backButtonTooltip,
@@ -523,7 +525,7 @@ class _UserInteractionRegionState extends State<UserInteractionRegion> {
         return Container(
           padding: const EdgeInsets.all(8.0),
           decoration: BoxDecoration(
-            color: context.colorScheme.surface,
+            color: context.colorScheme.primary,
             borderRadius: const BorderRadius.vertical(
               top: Radius.circular(12),
             ),
@@ -559,7 +561,10 @@ class _UserInteractionRegionState extends State<UserInteractionRegion> {
                         },
                       );
                     },
-                    icon: const Icon(Icons.add),
+                    icon: Icon(
+                      Icons.add,
+                      color: context.colorScheme.onPrimary,
+                    ),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
@@ -592,7 +597,7 @@ class _UserInteractionRegionState extends State<UserInteractionRegion> {
                                   generateResponse: true,
                                 ),
                         style: context.textTheme.bodyMedium?.copyWith(
-                          color: context.colorScheme.onSecondaryContainer,
+                          color: context.colorScheme.onPrimary,
                         ),
                         decoration: InputDecoration(
                           counterText: '',
@@ -600,8 +605,8 @@ class _UserInteractionRegionState extends State<UserInteractionRegion> {
                           isDense: true,
                           floatingLabelBehavior: FloatingLabelBehavior.never,
                           filled: true,
-                          fillColor: context.colorScheme.secondary
-                              .withOpacity(0.25),
+                          fillColor: context.colorScheme.primaryContainer
+                              .withOpacity(0.5),
                           hoverColor: Colors.transparent,
                           border: OutlineInputBorder(
                             borderRadius: borderRadius,
@@ -610,7 +615,7 @@ class _UserInteractionRegionState extends State<UserInteractionRegion> {
                           focusedBorder: OutlineInputBorder(
                             borderRadius: borderRadius,
                             borderSide: BorderSide(
-                              color: context.colorScheme.primary,
+                              color: context.colorScheme.secondary,
                               width: 1,
                             ),
                           ),
@@ -660,6 +665,7 @@ class _UserInteractionRegionState extends State<UserInteractionRegion> {
                               textController.text.isEmpty
                                   ? Icons.mic
                                   : Icons.send,
+                              color: context.colorScheme.onPrimary,
                             ),
                           ),
                         ),
