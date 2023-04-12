@@ -47,5 +47,11 @@ class Chat with EquatableMixin {
   Map toJson() => _$ChatToJson(this);
 
   @override
-  List<Object?> get props => [messages];
+  List<Object?> get props => [
+        messages,
+        createdOn,
+        updatedOn,
+        id,
+        prompt,
+      ];
 }

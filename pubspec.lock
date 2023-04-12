@@ -221,10 +221,10 @@ packages:
     dependency: transitive
     description:
       name: cli_util
-      sha256: "66f86e916d285c1a93d3b79587d94bd71984a66aac4ff74e524cfa7877f1395c"
+      sha256: b8db3080e59b2503ca9e7922c3df2072cf13992354d5e944074ffa836fba43b7
       url: "https://pub.dev"
     source: hosted
-    version: "0.3.5"
+    version: "0.4.0"
   clock:
     dependency: transitive
     description:
@@ -309,18 +309,18 @@ packages:
     dependency: "direct dev"
     description:
       name: dart_code_metrics
-      sha256: "728b1835a8c5b994ae8111148b427236f2f89954eebcb62baf4c476909b3d02d"
+      sha256: "873890861a3d7e06fd5a6cd17d802e215ee1301dfb7cbcc7aeab9576e69330d0"
       url: "https://pub.dev"
     source: hosted
-    version: "5.7.0"
+    version: "5.7.2"
   dart_code_metrics_presets:
     dependency: "direct dev"
     description:
       name: dart_code_metrics_presets
-      sha256: "1b841b3ab3e7b942683a706cfbcef55fe9f38e7d01b690dbcd2e9f3c8e268525"
+      sha256: "9c9b0ecc5e23937a4b62c1fe3b3edb72d3c1b08563a1eac69fb75f1306bb57c4"
       url: "https://pub.dev"
     source: hosted
-    version: "1.5.0"
+    version: "1.6.0"
   dart_openai:
     dependency: "direct main"
     description:
@@ -461,10 +461,10 @@ packages:
     dependency: "direct main"
     description:
       name: firedart
-      sha256: "5a6925b857ae327046afac314efc774b80b59e91e9c2202119fead4937ab7a49"
+      sha256: "1050a04e1810baf340ef0ddad5d9c82cbeb164348de84d32140581a64bea42c3"
       url: "https://pub.dev"
     source: hosted
-    version: "0.9.0+1"
+    version: "0.9.1+1"
   fixnum:
     dependency: transitive
     description:
@@ -523,10 +523,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_svg
-      sha256: "12006889e2987c549c4c1ec1a5ba4ec4b24d34d2469ee5f9476c926dcecff266"
+      sha256: f991fdb1533c3caeee0cdc14b04f50f0c3916f0dbcbc05237ccbe4e3c6b93f3f
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.4"
+    version: "2.0.5"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -565,10 +565,10 @@ packages:
     dependency: "direct main"
     description:
       name: go_router
-      sha256: dc9be8270090afe04464e8827df849a8f1041bc2c10cf854f01389bad19616d5
+      sha256: "50bc08b72ede07daaf897deb4c00ca8fd8976c8821a4c84d7aeef0e92d1c5620"
       url: "https://pub.dev"
     source: hosted
-    version: "6.5.3"
+    version: "6.5.6"
   google_fonts:
     dependency: "direct main"
     description:
@@ -781,10 +781,10 @@ packages:
     dependency: "direct main"
     description:
       name: msix
-      sha256: "68679afc7d7117467250363dea4fb62db7520a23a9490bf4b65794655235a1d5"
+      sha256: "8cd0a6c6deafac9914cf36e8cd3db76b9e4d2ab7dcb6b71310c92a9a84d920f4"
       url: "https://pub.dev"
     source: hosted
-    version: "3.9.1"
+    version: "3.9.2"
   nested:
     dependency: transitive
     description:
@@ -805,10 +805,10 @@ packages:
     dependency: "direct main"
     description:
       name: package_info_plus
-      sha256: "8df5ab0a481d7dc20c0e63809e90a588e496d276ba53358afc4c4443d0a00697"
+      sha256: cbff87676c352d97116af6dbea05aa28c4d65eb0f6d5677a520c11a69ca9a24d
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.3"
+    version: "3.1.0"
   package_info_plus_platform_interface:
     dependency: transitive
     description:
@@ -1242,26 +1242,26 @@ packages:
     dependency: "direct main"
     description:
       name: vector_graphics
-      sha256: "4cf8e60dbe4d3a693d37dff11255a172594c0793da542183cbfe7fe978ae4aaa"
+      sha256: ea8d3fc7b2e0f35de38a7465063ecfcf03d8217f7962aa2a6717132cb5d43a79
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.4"
+    version: "1.1.5"
   vector_graphics_codec:
     dependency: transitive
     description:
       name: vector_graphics_codec
-      sha256: "278ad5f816f58b1967396d1f78ced470e3e58c9fe4b27010102c0a595c764468"
+      sha256: a5eaa5d19e123ad4f61c3718ca1ed921c4e6254238d9145f82aa214955d9aced
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.4"
+    version: "1.1.5"
   vector_graphics_compiler:
     dependency: transitive
     description:
       name: vector_graphics_compiler
-      sha256: "0bf61ad56e6fd6688a2865d3ceaea396bc6a0a90ea0d7ad5049b1b76c09d6163"
+      sha256: "15edc42f7eaa478ce854eaf1fbb9062a899c0e4e56e775dd73b7f4709c97c4ca"
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.4"
+    version: "1.1.5"
   vector_math:
     dependency: transitive
     description:
@@ -1306,10 +1306,10 @@ packages:
     dependency: "direct main"
     description:
       name: window_manager
-      sha256: "492806c69879f0d28e95472bbe5e8d5940ac8c6e99cc07052fe14946974555ba"
+      sha256: "2b2572442b2a5178642730442dc625ac088244f5827b1f0811371b1b7485eb62"
       url: "https://pub.dev"
     source: hosted
-    version: "0.3.1"
+    version: "0.3.2"
   xdg_directories:
     dependency: transitive
     description:

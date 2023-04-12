@@ -8,7 +8,6 @@ import 'package:hive/hive.dart';
 import '../constants.dart';
 import '../models/chat.dart';
 import '../models/chat_message.dart';
-import '../models/chat_type.dart';
 import '../models/message_status.dart';
 import '../models/prompt.dart';
 import 'data/data_manager.dart';
@@ -105,6 +104,7 @@ class GPTManager extends ChangeNotifier {
         chat.key: chat.value.toJson(),
     });
 
+    if (!upload) return;
     DataManager.instance.uploadChat(currentChat!);
   }
 
@@ -181,7 +181,7 @@ class GPTManager extends ChangeNotifier {
             notifyListeners();
           }
         }
-        saveChat();
+        saveChat(upload: false);
         responseStreamController.add(responseMsg);
       },
       onError: (error) {

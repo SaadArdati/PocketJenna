@@ -7,7 +7,6 @@ import 'package:hive/hive.dart';
 
 import '../constants.dart';
 import '../main.dart';
-import '../models/chat_type.dart';
 import '../models/prompt.dart';
 import '../screens/auth/auth_screen.dart';
 import '../screens/chat_screen.dart';

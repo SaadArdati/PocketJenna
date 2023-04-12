@@ -31,7 +31,8 @@ class ChatMessage with EquatableMixin {
     required this.role,
     this.status = MessageStatus.waiting,
     DateTime? timestamp,
-  })  : id = const Uuid().v4(),
+  })
+      : id = const Uuid().v4(),
         timestamp = timestamp ?? DateTime.now();
 
   OpenAIChatCompletionChoiceMessageModel toOpenAI() {
@@ -46,5 +47,12 @@ class ChatMessage with EquatableMixin {
   Map toJson() => _$ChatMessageToJson(this);
 
   @override
-  List<Object?> get props => [text, status];
+  List<Object?> get props =>
+      [
+        text,
+        status,
+        timestamp,
+        role,
+        id,
+      ];
 }

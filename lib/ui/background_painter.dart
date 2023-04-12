@@ -77,8 +77,8 @@ class BackgroundPainter extends CustomPainter {
 
         final double sign = random.nextBool() ? 1 : -1;
         final double rotChaos = random.nextDouble() * 20 * chaos;
-        final double xChaos = random.nextDouble() * 75 * chaos;
-        final double yChaos = random.nextDouble() * 75 * chaos;
+        final double xChaos = random.nextDouble() * 50 * chaos;
+        final double yChaos = random.nextDouble() * 50 * chaos;
 
         canvas.translate(halfLogoSize, halfLogoSize);
         canvas.scale(scale);

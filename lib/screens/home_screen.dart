@@ -13,10 +13,8 @@ import '../constants.dart';
 import '../managers/data/data_manager.dart';
 import '../managers/prompt_manager.dart';
 import '../managers/version_manager.dart';
-import '../models/chat_type.dart';
 import '../models/prompt.dart';
 import '../managers/asset_manager.dart';
-import '../ui/fabric_ruffles_painter.dart';
 import '../ui/theme_extensions.dart';
 import '../ui/window_controls.dart';
 

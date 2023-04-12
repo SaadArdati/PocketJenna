@@ -8,7 +8,7 @@ import 'chat_message.dart';
 part 'prompt.g.dart';
 
 @JsonSerializable(explicitToJson: true, anyMap: true)
-class Prompt with EquatableMixin{
+class Prompt with EquatableMixin {
   final String id;
   final List<String> prompts;
   final String title;

@@ -8,7 +8,6 @@ import 'package:universal_io/io.dart';
 
 import '../../constants.dart';
 import '../auth/auth_manager.dart';
-import '../auth/auth_model.dart';
 import '../../models/chat.dart';
 import 'firebase_data_manager.dart';
 import 'firedart_data_manager.dart';
@@ -56,8 +55,11 @@ abstract class DataManager {
     }
     post(
       Uri.parse('${Constants.firebaseFunctionsBaseURL}/updateChat'),
-      body: {'chat': chat.toJson()},
-      headers: {'Authorization': 'Bearer $token'},
+      body: json.encode(chat.toJson()),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
     );
   }
 

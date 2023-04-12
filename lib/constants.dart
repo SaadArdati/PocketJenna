@@ -10,7 +10,8 @@ class Constants {
   static const String openAIKey = 'openai_api_key';
 
   /// ------- Data
-  static const String firebaseFunctionsBaseURL = 'TODO';
+  static const String firebaseFunctionsBaseURL =
+      'https://us-central1-saad-ardati.cloudfunctions.net/widgets';
   static const String user = 'user';
 
   // FireDart

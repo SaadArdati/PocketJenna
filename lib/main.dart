@@ -27,7 +27,6 @@ import 'managers/data/data_manager.dart';
 import 'managers/navigation_manager.dart';
 import 'managers/system_manager.dart';
 import 'ui/background_painter.dart';
-import 'ui/color_schemes.g.dart';
 import 'ui/theme_extensions.dart';
 
 void main() async {
@@ -128,8 +127,8 @@ class _PocketJennaState extends State<PocketJenna> with WindowListener {
         colors: const FlexSchemeColor(
           primary: Color(0xff6c4ab0),
           primaryContainer: Color(0xffa58dd7),
-          secondary: Color(0xff82bcff),
-          secondaryContainer: Color(0xfff2fbff),
+          secondary: Color(0xff007eb6),
+          secondaryContainer: Color(0xff82bcff),
           tertiary: Color(0xffceefff),
           tertiaryContainer: Color(0xffdef8fb),
           appBarColor: Color(0xfff2fbff),
@@ -163,11 +162,11 @@ class _PocketJennaState extends State<PocketJenna> with WindowListener {
       dark: FlexThemeData.dark(
         colors: const FlexSchemeColor(
           primary: Color(0xff352c48),
-          primaryContainer: Color(0xff1f1c26),
+          primaryContainer: Color(0xff282331),
           secondary: Color(0xff00314b),
-          secondaryContainer: Color(0xff6f96ad),
-          tertiary: Color(0xff007eb6),
-          tertiaryContainer: Color(0xff00344e),
+          secondaryContainer: Color(0xff00273f),
+          tertiary: Color(0xff3c3748),
+          tertiaryContainer: Color(0xff27262a),
           appBarColor: Color(0xff6f96ad),
           error: Color(0xffcf6679),
         ),
@@ -357,7 +356,7 @@ class _NavigationBackgroundState extends State<NavigationBackground>
         // return newColor.toColor();
 
         final HSVColor color = HSVColor.fromColor(
-          context.colorScheme.secondary,
+          context.colorScheme.secondaryContainer,
         );
         final HSVColor newColor = color
             .withSaturation(
