@@ -226,52 +226,26 @@ class NavigationBackground extends StatefulWidget {
 
 class _NavigationBackgroundState extends State<NavigationBackground>
     with TickerProviderStateMixin {
-  late final AnimationController transitionController = AnimationController(
-    vsync: this,
-    duration: const Duration(seconds: 1),
-  );
-  late final AnimationController waveController = AnimationController(
-    vsync: this,
-    duration: const Duration(seconds: 100),
-  )..repeat(reverse: true);
-
   late final AnimationController rotationController = AnimationController(
     vsync: this,
-    duration: const Duration(seconds: 1),
+    duration: const Duration(minutes: 4),
     upperBound: 360,
-    value: isOnboardingPage ? 150 : 130,
-  );
-
-  late final AnimationController loopController = AnimationController(
+    value: isOnboardingPage ? 150 : 90,
+  )..repeat(reverse: false);
+  late final AnimationController chaosController = AnimationController(
     vsync: this,
-    duration: const Duration(seconds: 1),
-    value: 0,
-  )..repeat(reverse: true);
+    duration: const Duration(minutes: 1),
+    lowerBound: 0,
+    upperBound: 1,
+  )..animateTo(1);
 
-  late final AnimationController logoController = AnimationController(
-    vsync: this,
-    duration: const Duration(seconds: 1),
-  )..forward();
-
-  late final Animation<double> transitionAnimation = CurvedAnimation(
-    parent: transitionController,
-    curve: Curves.easeInOutQuart,
+  late final Animation<double> chaosAnimation = CurvedAnimation(
+    parent: chaosController,
+    curve: Curves.easeInOut,
   );
 
-  late final Animation<double> waveAnimation = CurvedAnimation(
-    parent: waveController,
-    curve: Curves.linear,
-  );
-
-  late final Animation<double> logoAnimation = CurvedAnimation(
-    parent: logoController,
-    curve: Curves.easeInOutQuart,
-  );
-
-  late final Animation<double> loopAnimation = CurvedAnimation(
-    parent: loopController,
-    curve: Curves.easeInOutQuart,
-  );
+  final Random random = Random(2);
+  List<Color>? colors;
 
   bool get isHomePage => widget.state.location == '/home';
 
@@ -285,81 +259,57 @@ class _NavigationBackgroundState extends State<NavigationBackground>
       .instance.logoFilledBlackPicInfo.picture
       .toImageSync(100, 100);
 
-  bool isTransitioning() =>
-      transitionController.status != AnimationStatus.completed &&
-      transitionController.status != AnimationStatus.dismissed;
-
   @override
   void didUpdateWidget(covariant NavigationBackground oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (widget.state == oldWidget.state) return;
+    if (widget.state.location == oldWidget.state.location &&
+        widget.state.extra == oldWidget.state.extra) return;
 
-    transitionController
-      ..reset()
-      ..forward();
+    chaosController
+        .animateTo(
+      0,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeInOutQuart,
+    )
+        .whenCompleteOrCancel(() {
+      chaosController.animateTo(1);
+    });
 
     if (isChatPage) {
-      rotationController.animateTo(
-        230,
-        curve: Curves.easeInOutQuart,
-        duration: const Duration(seconds: 1),
-      );
+      rotate(45);
     } else if (isSettingsPage) {
-      rotationController.animateTo(
-        20,
-        curve: Curves.easeInOutQuart,
-        duration: const Duration(seconds: 1),
-      );
+      rotate(10);
     } else if (isOnboardingPage) {
       final bool isStep1 = widget.state.location == '/onboarding/one';
       final bool isStep2 = widget.state.location == '/onboarding/two';
-      rotationController.animateTo(
+      rotate(
         isStep1
             ? 150
             : isStep2
                 ? 230
                 : 300,
-        curve: Curves.easeInOutQuart,
-        duration: const Duration(seconds: 1),
       );
     } else {
-      rotationController.animateTo(
-        130,
-        curve: Curves.easeInOutQuart,
-        duration: const Duration(seconds: 1),
-      );
+      rotate(90);
     }
   }
 
-  void transitionListener() {
-    if (isTransitioning()) {
-      // [0, 1]
-      final time = transitionAnimation.value;
-
-      // [-1, 0, 1]
-      final normalizedTime = time * 2 - 1;
-
-      // [1, 0, 1]
-      final vTime = normalizedTime.abs();
-
-      // [0, 1, 0]
-      final reversedTime = 1 - vTime;
-
-      waveController.value = (waveController.value + (reversedTime / 90)) % 1;
-    } else {
-      waveController.repeat(reverse: true);
-    }
+  void rotate(double angle) {
+    rotationController
+        .animateTo(
+      angle,
+      curve: Curves.easeInOutQuart,
+      duration: const Duration(seconds: 1),
+    )
+        .whenCompleteOrCancel(() {
+      rotationController.repeat(reverse: false);
+    });
   }
-
-  final Random random = Random(2);
-  List<Color>? colors;
 
   @override
   void initState() {
     super.initState();
-
-    transitionAnimation.addListener(transitionListener);
 
     SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
       if (!mounted) return;
@@ -376,13 +326,9 @@ class _NavigationBackgroundState extends State<NavigationBackground>
 
   @override
   void dispose() {
-    transitionAnimation.removeListener(transitionListener);
-    transitionController.dispose();
-    waveController.dispose();
     rotationController.dispose();
-    logoController.dispose();
-    loopController.dispose();
     logoFilledBlack.dispose();
+    chaosController.dispose();
 
     final manager = AdaptiveTheme.of(context);
     manager.modeChangeNotifier.removeListener(onThemeChange);
@@ -400,8 +346,16 @@ class _NavigationBackgroundState extends State<NavigationBackground>
 
   void generateColors() {
     colors = List.generate(
-      8,
+      20,
       (index) {
+        // final HSVColor color = HSVColor.fromColor(
+        //   Colors.red,
+        // );
+        // final HSVColor newColor = color.withSaturation(
+        //   (color.saturation + (index / 20)) % 1,
+        // );
+        // return newColor.toColor();
+
         final HSVColor color = HSVColor.fromColor(
           context.colorScheme.secondary,
         );
@@ -429,17 +383,23 @@ class _NavigationBackgroundState extends State<NavigationBackground>
           fit: StackFit.expand,
           children: [
             AnimatedBuilder(
-              animation: loopAnimation,
-              builder: (context, child) {
-                return CustomPaint(
-                  painter: BackgroundPainter(
-                    anim: loopAnimation.value,
-                    asset: logoFilledBlack,
-                    shades: colors ?? [context.colorScheme.secondary],
-                  ),
-                );
-              },
-            ),
+                animation: chaosAnimation,
+                builder: (context, child) {
+                  return AnimatedBuilder(
+                    animation: rotationController,
+                    builder: (context, child) {
+                      return CustomPaint(
+                        painter: BackgroundPainter(
+                          motion: Offset.zero,
+                          rotation: rotationController.value,
+                          chaos: chaosAnimation.value,
+                          asset: logoFilledBlack,
+                          shades: colors ?? [context.colorScheme.secondary],
+                        ),
+                      );
+                    },
+                  );
+                }),
             AnimatedContainer(
               duration: const Duration(milliseconds: 500),
               curve: Curves.fastOutSlowIn,

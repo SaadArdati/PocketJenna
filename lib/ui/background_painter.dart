@@ -1,16 +1,21 @@
 import 'dart:math';
 import 'dart:ui' as ui;
 
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 import 'logo_path.dart';
 
+const double _logoSize = 75;
+
 class BackgroundPainter extends CustomPainter {
-  final double anim;
+  final Offset motion;
+  final double rotation;
+  final double chaos;
   final ui.Image asset;
   final List<Color> shades;
 
-  final Path path = logoPath(const Size.square(100));
+  final Path path = logoPath(const Size.square(_logoSize));
 
   final Random random = Random(2);
   late final List<Paint> paintShades = List.generate(shades.length, (i) {
@@ -28,24 +33,32 @@ class BackgroundPainter extends CustomPainter {
   });
 
   BackgroundPainter({
-    required this.anim,
+    required this.motion,
+    required this.rotation,
+    required this.chaos,
     required this.asset,
     required this.shades,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
-    const double logoSize = 75;
+    const double logoSize = _logoSize;
     const double halfLogoSize = logoSize / 2;
-    const double multiplier = 1.1; // makes it so edge logos are not cut off
+    const double quarterLogoSize = logoSize / 4;
+    const double scaledLogo = logoSize / 2;
 
-    final double xLogoCount = (size.width / logoSize) * multiplier;
-    final double yLogoCount = (size.height / halfLogoSize) * multiplier * 2;
+    final double maxCountX = (size.width / logoSize).ceilToDouble();
+    final double maxCountY = (size.height / logoSize).ceilToDouble();
 
-    // Translate logos by half to center the overflowing grid.
+    final double maxExtentX = maxCountX * logoSize;
+    final double maxExtentY = maxCountY * logoSize;
+
+    final double xLogoCount = maxCountX;
+    final double yLogoCount = maxCountY * 2.1;
+
     canvas.translate(
-      -((xLogoCount * logoSize) / 2) + (size.width / 2) - (halfLogoSize),
-      -((yLogoCount * halfLogoSize) / 2) + (size.height / 2) - (logoSize / 4),
+      -halfLogoSize - (maxExtentX / 2 * motion.dx),
+      -halfLogoSize - (maxExtentY / 2 * motion.dy),
     );
 
     // grid of logo
@@ -54,7 +67,7 @@ class BackgroundPainter extends CustomPainter {
         final bool minor = j % 2 == 0;
         final double x = i * logoSize;
         final double y = j * halfLogoSize;
-        final double scale = minor ? 0.35 : 0.5;
+        final double scale = (minor ? 0.4 : 0.6);
 
         if (minor) {
           canvas.translate(halfLogoSize, 0);
@@ -62,15 +75,34 @@ class BackgroundPainter extends CustomPainter {
 
         canvas.translate(x, y);
 
+        final double sign = random.nextBool() ? 1 : -1;
+        final double rotChaos = random.nextDouble() * 20 * chaos;
+        final double xChaos = random.nextDouble() * 75 * chaos;
+        final double yChaos = random.nextDouble() * 75 * chaos;
+
         canvas.translate(halfLogoSize, halfLogoSize);
         canvas.scale(scale);
         canvas.translate(-halfLogoSize, -halfLogoSize);
 
-        canvas.drawPath(path, paintShades[(i + j) % paintShades.length]);
-        // canvas.drawImage(asset, Offset.zero, patternShade1);
+        final int index = i + j;
+        final int shadeIndex =
+            ((index % maxCountX) % paintShades.length).toInt();
 
+        canvas.translate(xChaos, yChaos);
+        canvas.translate(halfLogoSize, halfLogoSize);
+        canvas.rotate((rotation + rotChaos) * sign * pi / 180);
+        canvas.translate(-halfLogoSize, -halfLogoSize);
+
+        canvas.drawPath(path, paintShades[shadeIndex]);
+
+        canvas.translate(halfLogoSize, halfLogoSize);
+        canvas.rotate(-(rotation + rotChaos) * sign * pi / 180);
+        canvas.translate(-halfLogoSize, -halfLogoSize);
+        canvas.translate(-xChaos, -yChaos);
+
+        // canvas.scale(1/scale);
         // final textSpan = TextSpan(
-        //   text: '${i + j}',
+        //   text: '$i - $j',
         //   style: const TextStyle(color: Colors.black),
         // );
         // final textPainter = TextPainter(
@@ -78,15 +110,8 @@ class BackgroundPainter extends CustomPainter {
         //   textDirection: TextDirection.ltr,
         // );
         // textPainter.layout();
-        // canvas.translate(
-        //   halfLogoSize - (textPainter.width / 2),
-        //   halfLogoSize - (textPainter.height / 2),
-        // );
         // textPainter.paint(canvas, Offset.zero);
-        // canvas.translate(
-        //   -halfLogoSize + (textPainter.width / 2),
-        //   -halfLogoSize + (textPainter.height / 2),
-        // );
+        // canvas.scale(scale);
 
         canvas.translate(halfLogoSize, halfLogoSize);
         canvas.scale(1 / scale);
@@ -103,7 +128,8 @@ class BackgroundPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant BackgroundPainter oldDelegate) =>
-      anim != oldDelegate.anim ||
+      motion != oldDelegate.motion ||
+      rotation != oldDelegate.rotation ||
       asset != oldDelegate.asset ||
       shades != oldDelegate.shades;
 }

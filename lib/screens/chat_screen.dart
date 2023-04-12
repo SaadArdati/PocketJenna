@@ -602,6 +602,9 @@ class _UserInteractionRegionState extends State<UserInteractionRegion> {
                         decoration: InputDecoration(
                           counterText: '',
                           labelText: 'Type a message...',
+                          labelStyle: context.textTheme.bodyMedium?.copyWith(
+                            color: context.colorScheme.onPrimary,
+                          ),
                           isDense: true,
                           floatingLabelBehavior: FloatingLabelBehavior.never,
                           filled: true,
@@ -615,7 +618,7 @@ class _UserInteractionRegionState extends State<UserInteractionRegion> {
                           focusedBorder: OutlineInputBorder(
                             borderRadius: borderRadius,
                             borderSide: BorderSide(
-                              color: context.colorScheme.secondary,
+                              color: context.colorScheme.primaryContainer,
                               width: 1,
                             ),
                           ),
@@ -627,6 +630,7 @@ class _UserInteractionRegionState extends State<UserInteractionRegion> {
                             ),
                           ),
                         ),
+                        cursorColor: context.colorScheme.onPrimaryContainer,
                         cursorRadius: const Radius.circular(4),
                       ),
                     ),

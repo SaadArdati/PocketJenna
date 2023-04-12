@@ -97,6 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
         // backgroundColor: Colors.transparent,
         backgroundColor: context.colorScheme.primary,
         surfaceTintColor: Colors.transparent,
+        elevation: 0,
         title: Text(
           'Pocket Jenna',
           style: context.textTheme.titleMedium?.copyWith(
