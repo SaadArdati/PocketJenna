@@ -1,51 +1,37 @@
-// ignore_for_file: must_be_immutable
-
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-import '../../models/chat.dart';
+import '../../models/chat_snippet.dart';
+import '../../models/model_utils.dart';
 
 part 'user_model.g.dart';
 
-DateTime? fromJsonTimestamp(dynamic json) {
-  if (json is int) {
-    return DateTime.fromMillisecondsSinceEpoch(json);
-  } else {
-    return null;
-  }
-}
-
-int? toJsonTimestamp(DateTime? date) {
-  return date?.millisecondsSinceEpoch;
-}
-
 @JsonSerializable(explicitToJson: true, anyMap: true)
 class UserModel extends Equatable {
-  late String id;
+  final String id;
   final int tokens;
-  final Map<String, String> chatSnippets;
+  final Map<String, ChatSnippet> chatSnippets;
 
-  @JsonKey(fromJson: fromJsonTimestamp, toJson: toJsonTimestamp)
-  final DateTime? lastUpdate;
+  @JsonKey(fromJson: jsonToDate, toJson: dateToJson)
+  final DateTime updatedOn;
 
-  UserModel({
-    String? id,
-    this.tokens = 0,
-    Map<String, String>? chatSnippets,
-    this.lastUpdate,
-  }) : chatSnippets = chatSnippets ?? {} {
-    if (id != null) {
-      this.id = id;
-    }
-  }
+  const UserModel({
+    required this.id,
+    required this.tokens,
+    required this.chatSnippets,
+    required this.updatedOn,
+  });
 
   UserModel copyWith({
     int? tokens,
-    Map<String, String>? chatSnippets,
+    Map<String, ChatSnippet>? chatSnippets,
+    DateTime? updatedOn,
   }) {
     return UserModel(
+      id: id,
       tokens: tokens ?? this.tokens,
       chatSnippets: chatSnippets ?? this.chatSnippets,
+      updatedOn: updatedOn ?? this.updatedOn,
     );
   }
 
@@ -55,5 +41,5 @@ class UserModel extends Equatable {
   Map<String, dynamic> toJson() => _$UserModelToJson(this);
 
   @override
-  List<Object?> get props => [id, tokens, chatSnippets, lastUpdate];
+  List<Object?> get props => [id, tokens, chatSnippets, updatedOn];
 }

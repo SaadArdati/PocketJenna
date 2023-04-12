@@ -214,13 +214,14 @@ class NavigationManager {
           if (extra == null || extra is! Map) {
             child = ChatScreenWrapper(prompt: PromptManager.generalChat);
           } else {
-            final String promptParam =
-                extra['id'] ?? PromptManager.generalChat.id;
-            final Prompt? prompt =
-                PromptManager.instance.getPromptByID(promptParam);
+            final String? promptID = extra['promptID'];
+            final String? chatID = extra['chatID'];
 
             child = ChatScreenWrapper(
-              prompt: prompt ?? PromptManager.generalChat,
+              chatID: chatID,
+              prompt: promptID == null
+                  ? null
+                  : PromptManager.instance.getPromptByID(promptID),
             );
           }
 

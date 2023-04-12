@@ -37,8 +37,13 @@ class FirebaseDataManager extends DataManager {
         _authModel = authModel;
         if (_authModel == null) return;
         streamUser(authModel!, onEvent: (UserModel? user) {
+          print('auth changed, user stream event. $user');
           _currentUser = user;
           _userStreamController.add(user);
+
+          if (user == null) {
+            registerUser();
+          }
         });
       },
     );
@@ -51,8 +56,14 @@ class FirebaseDataManager extends DataManager {
       streamUser(
         _authModel!,
         onEvent: (UserModel? user) {
+          print('initial load, user stream event. $user');
           _currentUser = user;
           _userStreamController.add(user);
+
+          if (user == null) {
+            registerUser();
+          }
+
           if (!completer.isCompleted) {
             completer.complete(user);
           }
@@ -78,12 +89,13 @@ class FirebaseDataManager extends DataManager {
         .doc(authModel.id)
         .snapshots()
         .listen((DocumentSnapshot<Map<String, dynamic>> event) {
-      if (event.data() == null) {
+      final Map<String, dynamic>? data = event.data();
+      if (!event.exists || data == null || data.isEmpty) {
         onEvent?.call(null);
         return;
       }
       try {
-        final user = UserModel.fromJson(event.data()!);
+        final user = UserModel.fromJson(data);
         onEvent?.call(user);
       } catch (e) {
         onEvent?.call(null);
@@ -106,5 +118,26 @@ class FirebaseDataManager extends DataManager {
         .doc(chatId)
         .snapshots()
         .map((event) => Chat.fromJson(event.data()!));
+  }
+
+  @override
+  Future<Chat?> fetchChat(String chatId) async {
+    assert(
+      AuthManager.instance.currentAuth != null,
+      'Chat streaming should never be allowed when auth is not ready',
+    );
+
+    final snapshot = await FirebaseFirestore.instance
+        .collection(Constants.collectionUsers)
+        .doc(AuthManager.instance.currentAuth!.id)
+        .collection(Constants.collectionChatHistory)
+        .doc(chatId)
+        .get();
+
+    if (!snapshot.exists) return null;
+
+    final Map<String, dynamic>? data = snapshot.data();
+
+    return data == null ? null : Chat.fromJson(data);
   }
 }

@@ -1,14 +1,10 @@
 import * as functions from "firebase-functions";
-
-
 import * as admin from "firebase-admin";
 import * as express from "express";
-
+import {NextFunction, Request, Response} from "express";
+import {warn} from "firebase-functions/logger";
+import {Chat, Prompt, UserModel} from "./models";
 import cors = require("cors");
-
-
-import {log} from "firebase-functions/logger";
-import {Request, Response, NextFunction} from "express";
 
 admin.initializeApp();
 
@@ -33,11 +29,6 @@ app.use((
     return;
   }
   const idToken = req.headers.authorization.split("Bearer ")[1];
-
-  log("Auth header found: [", req.headers.authorization + "]");
-  log("id token part: [" + idToken + "]");
-  log("req.body: [" + req.body + "]");
-  log("req.body type: [" + typeof req.body + "]");
   admin
     .auth()
     .verifyIdToken(idToken)
@@ -46,7 +37,7 @@ app.use((
       return next();
     })
     .catch((err) => {
-      log("Error while verifying Firebase ID token:", err);
+      warn("Error while verifying Firebase ID token:", err);
       res.status(403).send("Unauthorized. Bad token.");
     });
 });
@@ -58,7 +49,7 @@ app.post("/updateChat", async (
   req: Request,
   res: Response,
 ) => {
-  const chat = req.body;
+  const chat = req.body as Chat;
   const userID = req.headers.userID;
 
   if (!userID) {
@@ -73,6 +64,18 @@ app.post("/updateChat", async (
   }
 
   await usersRef.doc(userID).collection("chats").doc(chat.id).set(chat);
+
+  // update chatSnippets in user model.
+  const user = await usersRef.doc(userID).get();
+  const userModel = user.data() as UserModel;
+
+  userModel.chatSnippets[chat.id] = {
+    id: chat.id,
+    snippet: chat.messages && chat.messages[0].text ||
+      "No messages",
+    prompt: chat.prompt,
+  };
+  await usersRef.doc(userID).set(userModel);
 
   res.status(200).send("OK");
 });
@@ -109,6 +112,100 @@ app.get("/getChat", async (
   const chat = await usersRef.doc(userID).collection("chats").doc(chatId).get();
 
   res.status(200).send(chat.data());
+});
+
+app.post("/registerUser", async (
+  req: Request,
+  res: Response,
+) => {
+  const userID = req.headers.userID;
+
+  if (!userID) {
+    res.status(400).send("userID is required");
+    return;
+  }
+
+  // check if is a string.
+  if (typeof userID !== "string") {
+    res.status(400).send("userID must be a string");
+    return;
+  }
+
+  // Check if user is already registered.
+  const user = await usersRef.doc(userID).get();
+  if (user.exists) {
+    const data: FirebaseFirestore.DocumentData | undefined = user.data();
+
+    if (data) {
+      res.status(400).send("User already registered");
+      return;
+    }
+
+    return;
+  }
+
+  const userModel: UserModel = {
+    id: userID,
+    tokens: 1000,
+    chatSnippets: {},
+    updatedOn: Date.now(),
+  };
+
+  await usersRef.doc(userID).set(userModel);
+
+  return res.status(200).send("OK");
+});
+
+app.post("/updatePrompt", async (req: Request, res: Response) => {
+  const userID = req.headers.userID;
+
+  if (!userID) {
+    res.status(400).send("userID is required");
+    return;
+  }
+
+  // check if is a string.
+  if (typeof userID !== "string") {
+    res.status(400).send("userID must be a string");
+    return;
+  }
+
+  // Check if user is already registered.
+  const user = await usersRef.doc(userID).get();
+  if (user.exists) {
+    res.status(200).send("User already registered");
+    return;
+  }
+
+  const prompt = req.body;
+
+  // If the prompt already has a doc on firestore from its id,
+  // update it, otherwise create a new one.
+  const promptRef = await db.collection("prompts").doc(prompt.id).get();
+  let promptModel: Prompt;
+  if (promptRef.exists) {
+    promptModel = {
+      id: prompt.id,
+      userID: userID,
+      prompts: prompt.prompts,
+      title: prompt.title,
+      icon: prompt.icon,
+      createdOn: prompt.createdOn,
+      updatedOn: Date.now(),
+    };
+  } else {
+    promptModel = {
+      id: prompt.id,
+      userID: userID,
+      prompts: prompt.prompts,
+      title: prompt.title,
+      icon: prompt.icon,
+      updatedOn: Date.now(),
+      createdOn: Date.now(),
+    };
+  }
+
+  await db.collection("prompts").doc(prompt.id).set(promptModel);
 });
 
 // Expose Express API as a single Cloud Function:

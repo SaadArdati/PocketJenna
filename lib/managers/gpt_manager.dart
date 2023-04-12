@@ -17,8 +17,8 @@ class GPTManager extends ChangeNotifier {
   List<ChatMessage> get messages => currentChat!.messages;
 
   final StreamController<ChatMessage> responseStreamController =
-      StreamController<ChatMessage>.broadcast();
-  final box = Hive.box(Constants.history);
+  StreamController<ChatMessage>.broadcast();
+  final historyBox = Hive.box(Constants.history);
 
   Stream<ChatMessage> get responseStream => responseStreamController.stream;
 
@@ -64,9 +64,8 @@ class GPTManager extends ChangeNotifier {
   }
 
   void init() {
-    box.clear();
     final Map serializedHistory = {
-      ...box.get(Constants.history, defaultValue: {}),
+      ...historyBox.get(Constants.history, defaultValue: {}),
     };
     chatHistory = {
       for (final chat in serializedHistory.entries)
@@ -74,15 +73,22 @@ class GPTManager extends ChangeNotifier {
     };
   }
 
-  void openChat({String? chatID, required bool notify, Prompt? prompt}) {
-    assert(chatID != null || prompt != null,
-        'Either chatID or prompt must be provided');
+  FutureOr<void> openChat({
+    String? chatID,
+    Prompt? prompt,
+    required bool notify,
+  }) async {
+    assert(
+    (chatID == null) != (prompt == null),
+    'Either chatID or prompt must be provided',
+    );
 
     if (chatID == null) {
       currentChat = Chat.simple(prompt: prompt!);
       chatHistory[currentChat!.id] = currentChat!;
     } else {
       currentChat = chatHistory[chatID];
+      currentChat ??= await DataManager.instance.fetchChat(chatID);
       purgeEmptyChats();
     }
     if (notify) {
@@ -99,7 +105,7 @@ class GPTManager extends ChangeNotifier {
   }
 
   void saveChat({bool upload = true}) {
-    box.put(Constants.history, {
+    historyBox.put(Constants.history, {
       for (final MapEntry<String, Chat> chat in chatHistory.entries)
         chat.key: chat.value.toJson(),
     });
@@ -152,7 +158,7 @@ class GPTManager extends ChangeNotifier {
 
   void _generate() {
     final Stream<OpenAIStreamChatCompletionModel> stream =
-        OpenAI.instance.chat.createStream(
+    OpenAI.instance.chat.createStream(
       model: findTailoredModel(),
       messages: [
         ...currentChat!.prompt.toChatMessages
@@ -172,7 +178,7 @@ class GPTManager extends ChangeNotifier {
     responseStreamController.add(responseMsg);
 
     listener = stream.listen(
-      (streamChatCompletion) {
+          (streamChatCompletion) {
         final content = streamChatCompletion.choices.first.delta.content;
         if (content != null) {
           responseMsg.text += content;

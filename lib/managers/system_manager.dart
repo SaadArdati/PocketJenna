@@ -338,7 +338,6 @@ class SystemManager with WindowListener {
 
   @override
   Future<void> onWindowBlur() async {
-    log('window unfocused');
     final box = Hive.box(Constants.settings);
     final bool alwaysOnTop = box.get(Constants.alwaysOnTop, defaultValue: true);
 
@@ -354,7 +353,6 @@ class SystemManager with WindowListener {
 
   @override
   void onWindowFocus() {
-    log('window focused');
     windowFocus.value = true;
   }
 

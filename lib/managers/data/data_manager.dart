@@ -48,6 +48,8 @@ abstract class DataManager {
 
   Stream<Chat?> getChatStream(String chatId);
 
+  Future<Chat?> fetchChat(String chatId);
+
   Future<void> uploadChat(Chat chat) async {
     final String? token = await AuthManager.instance.getAuthToken();
     if (token == null) {
@@ -82,6 +84,20 @@ abstract class DataManager {
         await uploadChat(chat);
       }
     }
+  }
+
+  Future<void> registerUser() async {
+    final String? token = await AuthManager.instance.getAuthToken();
+    if (token == null) {
+      throw Exception('No token');
+    }
+    post(
+      Uri.parse('${Constants.firebaseFunctionsBaseURL}/registerUser'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
   }
 
   void saveChat(Chat chat) {

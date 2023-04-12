@@ -14,6 +14,7 @@ class PromptManager {
   static final Prompt generalChat = Prompt.simple(
     title: 'General Chat',
     icon: 'general',
+    userID: 'Jenna',
     prompts: [
       'Feel free to talk about anything you want.',
     ],
@@ -26,6 +27,7 @@ class PromptManager {
         Prompt.simple(
           title: 'Email',
           icon: 'email',
+          userID: 'Jenna',
           prompts: [
             'Anything the user sends should be converted to a formal email.'
                 ' Feel free to ask them for any information you need to complete'
@@ -36,6 +38,7 @@ class PromptManager {
         Prompt.simple(
           title: 'Scientific',
           icon: 'scientific',
+          userID: 'Jenna',
           prompts: [
             'Be as precise, objective, and scientific as possible. Do not'
                 ' use any colloquialisms or slang. Do not hesitate to admit lack of'
@@ -45,6 +48,7 @@ class PromptManager {
         Prompt.simple(
           title: 'Analyze',
           icon: 'analyze',
+          userID: 'Jenna',
           prompts: [
             'Be as objective as possible. Try to summarize whatever the user'
                 ' sends in a few sentences. Ask the user about what to look for'
@@ -54,6 +58,7 @@ class PromptManager {
         Prompt.simple(
           title: 'Document Code',
           icon: 'documentCode',
+          userID: 'Jenna',
           prompts: [
             'Try to embed high quality and concise code documentation '
                 'into any code the user sends. If the programming language is not'
@@ -64,6 +69,7 @@ class PromptManager {
         Prompt.simple(
           title: 'ReadMe',
           icon: 'readMe',
+          userID: 'Jenna',
           prompts: [
             "Analyze all of the user's code and try to write a README.md."
                 'Ask the user for a template. If there is no template, try to do it'

@@ -272,11 +272,12 @@ class _NavigationBackgroundState extends State<NavigationBackground>
       curve: Curves.easeInOutQuart,
     )
         .whenCompleteOrCancel(() {
+      if (!mounted) return;
       chaosController.animateTo(1);
     });
 
     if (isChatPage) {
-      rotate(45);
+      rotate(180);
     } else if (isSettingsPage) {
       rotate(10);
     } else if (isOnboardingPage) {
@@ -302,6 +303,7 @@ class _NavigationBackgroundState extends State<NavigationBackground>
       duration: const Duration(seconds: 1),
     )
         .whenCompleteOrCancel(() {
+      if (!mounted) return;
       rotationController.repeat(reverse: false);
     });
   }

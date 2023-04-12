@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:bubble/bubble.dart';
 import 'package:collection/collection.dart';
 import 'package:dart_openai/openai.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,9 +13,11 @@ import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
 
 import '../constants.dart';
+import '../managers/data/data_manager.dart';
 import '../managers/gpt_manager.dart';
 import '../models/chat.dart';
 import '../models/chat_message.dart';
+import '../models/chat_snippet.dart';
 import '../models/message_status.dart';
 import '../models/prompt.dart';
 import '../managers/asset_manager.dart';
@@ -22,12 +26,17 @@ import '../ui/theme_extensions.dart';
 import '../ui/window_controls.dart';
 
 class ChatScreenWrapper extends StatelessWidget {
-  final Prompt prompt;
+  final Prompt? prompt;
+  final String? chatID;
 
   const ChatScreenWrapper({
     super.key,
-    required this.prompt,
-  });
+    this.chatID,
+    this.prompt,
+  }) : assert(
+          (chatID == null) != (prompt == null),
+          'Either chatID or prompt must be provided',
+        );
 
   @override
   Widget build(BuildContext context) {
@@ -39,12 +48,17 @@ class ChatScreenWrapper extends StatelessWidget {
 }
 
 class ChatScreen extends StatefulWidget {
-  final Prompt prompt;
+  final Prompt? prompt;
+  final String? chatID;
 
   const ChatScreen({
     super.key,
-    required this.prompt,
-  });
+    this.prompt,
+    this.chatID,
+  }) : assert(
+          (chatID == null) != (prompt == null),
+          'Either chatID or prompt must be provided',
+        );
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -54,15 +68,7 @@ class _ChatScreenState extends State<ChatScreen>
     with SingleTickerProviderStateMixin {
   final ScrollController scrollController = ScrollController();
 
-  late final AnimationController animationController = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 500),
-  )..forward();
-
-  late final Animation<double> blurAnimation = CurvedAnimation(
-    parent: animationController,
-    curve: Curves.easeInOut,
-  );
+  late final FutureOr<void> openChatFuture;
 
   bool historyOpenOnWide = Hive.box(Constants.settings).get(
     Constants.openHistoryOnWideScreen,
@@ -75,19 +81,16 @@ class _ChatScreenState extends State<ChatScreen>
 
     final GPTManager gpt = context.read<GPTManager>();
     gpt.init();
-    gpt.openChat(
+    openChatFuture = gpt.openChat(
       notify: false,
       prompt: widget.prompt,
-      chatID: gpt.chatHistory.values
-          .lastWhereOrNull((chat) => chat.prompt.id == widget.prompt.id)
-          ?.id,
+      chatID: widget.chatID,
     );
   }
 
   @override
   void dispose() {
     scrollController.dispose();
-    animationController.dispose();
     super.dispose();
   }
 
@@ -120,7 +123,7 @@ class _ChatScreenState extends State<ChatScreen>
             },
           ),
           title: Text(
-            widget.prompt.title,
+            widget.prompt?.title ?? 'Loading...',
             style: context.textTheme.titleMedium?.copyWith(
               color: context.colorScheme.onPrimaryContainer,
             ),
@@ -194,9 +197,9 @@ class _ChatScreenState extends State<ChatScreen>
                           ),
                           Expanded(
                             child: ListView(children: [
-                              for (final Chat chat
-                                  in gpt.chatHistory.values.toList().reversed)
-                                HistoryTile(chat: chat),
+                              for (final ChatSnippet chatSnippet in DataManager
+                                  .instance.currentUser!.chatSnippets.values)
+                                HistoryTile(chatSnippet: chatSnippet),
                             ]),
                           ),
                         ],
@@ -206,153 +209,142 @@ class _ChatScreenState extends State<ChatScreen>
                 }),
               ),
         body: SizedBox.expand(
-          child: Row(
-            children: [
-              Expanded(
-                child: Stack(
+          child: FutureBuilder(
+              future: Future.value(openChatFuture),
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Text(
+                      snapshot.error.toString(),
+                      style: context.textTheme.bodyMedium,
+                    ),
+                  );
+                }
+
+                if (!snapshot.hasData) {
+                  return const Center(
+                    child: CupertinoActivityIndicator(),
+                  );
+                }
+                return Row(
                   children: [
-                    Column(
-                      children: [
-                        Expanded(
-                          child: SelectionArea(
-                            child: ListView.separated(
-                              keyboardDismissBehavior:
-                                  ScrollViewKeyboardDismissBehavior.onDrag,
-                              controller: scrollController,
-                              reverse: true,
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 16),
-                              itemCount: gpt.currentChat!.toFullChat.length,
-                              separatorBuilder: (context, index) =>
-                                  const SizedBox(height: 8),
-                              itemBuilder: (context, index) {
-                                final fullChat = gpt.currentChat!.toFullChat;
-                                final int reversedIndex =
-                                    fullChat.length - 1 - index;
-                                final ChatMessage message =
-                                    fullChat[reversedIndex];
-                                return Padding(
-                                  padding: EdgeInsets.only(
-                                    top: index == fullChat.length - 1
-                                        ? (Scaffold.of(context)
-                                                    .appBarMaxHeight ??
-                                                48) +
-                                            16
-                                        : 0,
-                                    bottom: index == 0 ? 16 : 0,
-                                  ),
-                                  child: ChatMessageBubble(
-                                    message: message,
+                    Expanded(
+                      child: Column(
+                        children: [
+                          Expanded(
+                            child: SelectionArea(
+                              child: ListView.separated(
+                                keyboardDismissBehavior:
+                                    ScrollViewKeyboardDismissBehavior.onDrag,
+                                controller: scrollController,
+                                reverse: true,
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 16),
+                                itemCount: gpt.currentChat!.toFullChat.length,
+                                separatorBuilder: (context, index) =>
+                                    const SizedBox(height: 8),
+                                itemBuilder: (context, index) {
+                                  final fullChat = gpt.currentChat!.toFullChat;
+                                  final int reversedIndex =
+                                      fullChat.length - 1 - index;
+                                  final ChatMessage message =
+                                      fullChat[reversedIndex];
+                                  return Padding(
+                                    padding: EdgeInsets.only(
+                                      top: index == fullChat.length - 1
+                                          ? (Scaffold.of(context)
+                                                      .appBarMaxHeight ??
+                                                  48) +
+                                              16
+                                          : 0,
+                                      bottom: index == 0 ? 16 : 0,
+                                    ),
+                                    child: ChatMessageBubble(
+                                      message: message,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                          AnimatedSize(
+                            duration: const Duration(milliseconds: 600),
+                            curve: Curves.easeOutQuart,
+                            child: AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 300),
+                              switchOutCurve: Curves.easeOutQuart,
+                              switchInCurve: Curves.easeOutQuart,
+                              transitionBuilder: (child, animation) {
+                                return FadeTransition(
+                                  opacity: animation,
+                                  child: SlideTransition(
+                                    position: Tween<Offset>(
+                                      begin: const Offset(0, 1),
+                                      end: Offset.zero,
+                                    ).animate(animation),
+                                    child: child,
                                   ),
                                 );
                               },
+                              child: isGenerating
+                                  ? Padding(
+                                      padding: const EdgeInsets.all(8),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Tooltip(
+                                            message: 'Stop generating response',
+                                            child: FilledButton.tonalIcon(
+                                              onPressed: gpt.stopGenerating,
+                                              icon:
+                                                  const Icon(Icons.stop_circle),
+                                              label:
+                                                  const Text('Stop generating'),
+                                            ),
+                                          )
+                                        ],
+                                      ),
+                                    )
+                                  : const SizedBox.shrink(),
                             ),
                           ),
-                        ),
-                        AnimatedSize(
-                          duration: const Duration(milliseconds: 600),
-                          curve: Curves.easeOutQuart,
-                          child: AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 300),
-                            switchOutCurve: Curves.easeOutQuart,
-                            switchInCurve: Curves.easeOutQuart,
-                            transitionBuilder: (child, animation) {
-                              return FadeTransition(
-                                opacity: animation,
-                                child: SlideTransition(
-                                  position: Tween<Offset>(
-                                    begin: const Offset(0, 1),
-                                    end: Offset.zero,
-                                  ).animate(animation),
-                                  child: child,
-                                ),
-                              );
-                            },
-                            child: isGenerating
-                                ? Padding(
-                                    padding: const EdgeInsets.all(8),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Tooltip(
-                                          message: 'Stop generating response',
-                                          child: FilledButton.tonalIcon(
-                                            onPressed: gpt.stopGenerating,
-                                            icon: const Icon(Icons.stop_circle),
-                                            label:
-                                                const Text('Stop generating'),
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                  )
-                                : const SizedBox.shrink(),
-                          ),
-                        ),
-                        const UserInteractionRegion(),
-                      ],
+                          const UserInteractionRegion(),
+                        ],
+                      ),
                     ),
-                    Positioned(
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      child: Builder(builder: (context) {
-                        return ClipRect(
-                          child: AnimatedBuilder(
-                            animation: blurAnimation,
-                            builder: (context, child) {
-                              return BackdropFilter(
-                                filter: ImageFilter.blur(
-                                  sigmaX: blurAnimation.value * 5,
-                                  sigmaY: blurAnimation.value * 5,
-                                ),
-                                child: child!,
-                              );
-                            },
-                            child: Container(
-                              color: context.colorScheme.background
-                                  .withOpacity(0.5),
-                              height: Scaffold.of(context).appBarMaxHeight ??
-                                  48 + 16,
-                            ),
-                          ),
-                        );
-                      }),
-                    ),
-                  ],
-                ),
-              ),
-              if (isWide && historyOpenOnWide)
-                SizedBox(
-                  width: 300,
-                  child: Drawer(
-                    child: Column(
-                      children: [
-                        Container(
-                          alignment: Alignment.centerLeft,
-                          padding: const EdgeInsets.all(18),
-                          child: Text(
-                            'Chat History',
-                            style: context.textTheme.bodyMedium,
-                          ),
-                        ),
-                        Expanded(
-                          child: ListView(
-                            padding: EdgeInsets.zero,
+                    if (isWide && historyOpenOnWide)
+                      SizedBox(
+                        width: 300,
+                        child: Drawer(
+                          child: Column(
                             children: [
-                              for (final Chat chat
-                                  in gpt.chatHistory.values.toList().reversed)
-                                HistoryTile(chat: chat),
+                              Container(
+                                alignment: Alignment.centerLeft,
+                                padding: const EdgeInsets.all(18),
+                                child: Text(
+                                  'Chat History',
+                                  style: context.textTheme.bodyMedium,
+                                ),
+                              ),
+                              Expanded(
+                                child: ListView(
+                                  padding: EdgeInsets.zero,
+                                  children: [
+                                    for (final ChatSnippet chatSnippet
+                                        in DataManager.instance.currentUser!
+                                            .chatSnippets.values)
+                                      HistoryTile(chatSnippet: chatSnippet),
+                                  ],
+                                ),
+                              ),
                             ],
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                ),
-            ],
-          ),
+                      ),
+                  ],
+                );
+              }),
         ),
       );
     });
@@ -362,10 +354,11 @@ class _ChatScreenState extends State<ChatScreen>
 class HistoryTile extends StatefulWidget {
   const HistoryTile({
     super.key,
-    required this.chat,
+    required this.chatSnippet,
+    // required Prompt prompt;
   });
 
-  final Chat chat;
+  final ChatSnippet chatSnippet;
 
   @override
   State<HistoryTile> createState() => _HistoryTileState();
@@ -377,7 +370,7 @@ class _HistoryTileState extends State<HistoryTile> {
   @override
   Widget build(BuildContext context) {
     final GPTManager gpt = context.watch<GPTManager>();
-    final bool isActiveChat = widget.chat.id == gpt.currentChat?.id;
+    final bool isActiveChat = widget.chatSnippet.id == gpt.currentChat?.id;
     return MouseRegion(
       onEnter: (event) {
         setState(() {
@@ -391,20 +384,20 @@ class _HistoryTileState extends State<HistoryTile> {
       },
       child: ListTile(
         leading: AssetManager.getPromptIcon(
-          widget.chat.prompt,
+          widget.chatSnippet.prompt,
           size: 24,
-          color: Colors.white,
+          color: isActiveChat
+              ? context.colorScheme.onPrimaryContainer
+              : context.colorScheme.onBackground,
         ),
         title: Text(
-          widget.chat.messages.isEmpty
-              ? 'No messages'
-              : widget.chat.messages.first.text,
+          widget.chatSnippet.snippet,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: context.textTheme.bodyMedium,
         ),
         onTap: () {
-          gpt.openChat(chatID: widget.chat.id, notify: true);
+          gpt.openChat(chatID: widget.chatSnippet.id, notify: true);
           Scaffold.of(context).closeEndDrawer();
         },
         onLongPress: () {
@@ -425,7 +418,7 @@ class _HistoryTileState extends State<HistoryTile> {
                       TextButton(
                         child: const Text('Delete'),
                         onPressed: () {
-                          gpt.deleteChat(widget.chat.id);
+                          gpt.deleteChat(widget.chatSnippet.id);
                           Navigator.of(context).pop();
                         },
                       ),
@@ -452,7 +445,7 @@ class _HistoryTileState extends State<HistoryTile> {
                 iconSize: 20,
                 icon: Icon(Icons.delete, color: context.colorScheme.error),
                 onPressed: () {
-                  gpt.deleteChat(widget.chat.id);
+                  gpt.deleteChat(widget.chatSnippet.id);
                 },
               ),
       ),

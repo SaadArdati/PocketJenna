@@ -37,8 +37,13 @@ class FireDartDataManager extends DataManager {
         _authModel = authModel;
         if (_authModel == null) return;
         streamUser(authModel!, onEvent: (UserModel? user) {
+          print('auth changed, user stream event. $user');
           _currentUser = user;
           _userStreamController.add(user);
+
+          if (user == null) {
+            registerUser();
+          }
         });
       },
     );
@@ -51,8 +56,14 @@ class FireDartDataManager extends DataManager {
       streamUser(
         _authModel!,
         onEvent: (UserModel? user) {
+          print('initial load, user stream event. $user');
           _currentUser = user;
           _userStreamController.add(user);
+
+          if (user == null) {
+            registerUser();
+          }
+
           if (!completer.isCompleted) {
             completer.complete(user);
           }
@@ -79,10 +90,11 @@ class FireDartDataManager extends DataManager {
         .document(authModel.id)
         .stream
         .listen((Document? event) {
-      if (event == null) {
+      if (event == null || event.map.isEmpty) {
         onEvent?.call(null);
         return;
       }
+
       try {
         final user = UserModel.fromJson(event.map);
         onEvent?.call(user);
@@ -107,5 +119,28 @@ class FireDartDataManager extends DataManager {
         .document(chatId)
         .stream
         .map((event) => Chat.fromJson(event!.map));
+  }
+
+  @override
+  Future<Chat?> fetchChat(String chatId) async {
+    assert(
+      AuthManager.instance.currentAuth != null,
+      'Chat streaming should never be allowed when auth is not ready',
+    );
+
+    final DocumentReference docRef = Firestore.instance
+        .collection(Constants.collectionUsers)
+        .document(AuthManager.instance.currentAuth!.id)
+        .collection(Constants.collectionChatHistory)
+        .document(chatId);
+
+    if (!await docRef.exists) {
+      return null;
+    }
+
+    final Document doc = await docRef.get();
+    final Map<String, dynamic> data = doc.map;
+
+    return Chat.fromJson(data);
   }
 }
