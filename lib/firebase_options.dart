@@ -44,40 +44,40 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyBmi7yBY3WTjLyciXXvkkYfQS9HG4X_emk',
-    appId: '1:377686290683:web:1142185db0096e2630005e',
-    messagingSenderId: '377686290683',
-    projectId: 'saad-ardati',
-    authDomain: 'saad-ardati.firebaseapp.com',
-    storageBucket: 'saad-ardati.appspot.com',
-    measurementId: 'G-25BFM7DC0W',
+    apiKey: 'AIzaSyABjpkJUp-BDXe4GIhOfYYWl-0twmOhsqs',
+    appId: '1:653039980755:web:6d7dd366f0400351068426',
+    messagingSenderId: '653039980755',
+    projectId: 'pocket-jenna',
+    authDomain: 'pocket-jenna.firebaseapp.com',
+    storageBucket: 'pocket-jenna.appspot.com',
+    measurementId: 'G-XKJ8E7TM9W',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAdjFltChJEaXam9QarQRaxCmB0uZP-DH0',
-    appId: '1:377686290683:android:fbb73ec88ca743c430005e',
-    messagingSenderId: '377686290683',
-    projectId: 'saad-ardati',
-    storageBucket: 'saad-ardati.appspot.com',
+    apiKey: 'AIzaSyAWhHL-75zsY4GJb7-wCoRDHgFnCwkjh1A',
+    appId: '1:653039980755:android:c8bbd7666c0b97cd068426',
+    messagingSenderId: '653039980755',
+    projectId: 'pocket-jenna',
+    storageBucket: 'pocket-jenna.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCAtInTUPk9FQ1H1zcK5qIZAMOio3SuG-Q',
-    appId: '1:377686290683:ios:8e98493dd2dab99930005e',
-    messagingSenderId: '377686290683',
-    projectId: 'saad-ardati',
-    storageBucket: 'saad-ardati.appspot.com',
-    iosClientId: '377686290683-r07f7hu7f6nnb5mqiond6ko54lcbr326.apps.googleusercontent.com',
+    apiKey: 'AIzaSyAXFyIfs9OtKGGPdfY0fbdWAVFKyEJubPw',
+    appId: '1:653039980755:ios:de0963ffea5e9df1068426',
+    messagingSenderId: '653039980755',
+    projectId: 'pocket-jenna',
+    storageBucket: 'pocket-jenna.appspot.com',
+    iosClientId: '653039980755-pt0hk5prebd357bhgje26t1kjt08std4.apps.googleusercontent.com',
     iosBundleId: 'dev.saadardati.pocketjenna.pocketjenna',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyCAtInTUPk9FQ1H1zcK5qIZAMOio3SuG-Q',
-    appId: '1:377686290683:ios:db3f2376d06e092a30005e',
-    messagingSenderId: '377686290683',
-    projectId: 'saad-ardati',
-    storageBucket: 'saad-ardati.appspot.com',
-    iosClientId: '377686290683-q956stmu2899em7q6mv614v26jlfsfrl.apps.googleusercontent.com',
+    apiKey: 'AIzaSyAXFyIfs9OtKGGPdfY0fbdWAVFKyEJubPw',
+    appId: '1:653039980755:ios:5af4136d5a45ca6b068426',
+    messagingSenderId: '653039980755',
+    projectId: 'pocket-jenna',
+    storageBucket: 'pocket-jenna.appspot.com',
+    iosClientId: '653039980755-55t2elon4ju1luecm1i2k24dmch4tcno.apps.googleusercontent.com',
     iosBundleId: 'dev.saadardati.pocketjenna',
   );
 }

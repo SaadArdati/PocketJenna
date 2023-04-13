@@ -1,8 +1,8 @@
 name: Release Artifacts
 
 on:
-#  release:
-#    types: [ published ]
+  #  release:
+  #    types: [ published ]
   workflow_dispatch:
     inputs:
       tag:
@@ -29,8 +29,7 @@ jobs:
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_SAAD_ARDATI }}'
-          projectId: saad-ardati
-          target: pocketjenna
+          projectId: pocket-jenna
           channelId: live
   android:
     runs-on: macos-latest

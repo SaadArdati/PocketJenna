@@ -3,21 +3,21 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>377686290683-r07f7hu7f6nnb5mqiond6ko54lcbr326.apps.googleusercontent.com</string>
+	<string>653039980755-pt0hk5prebd357bhgje26t1kjt08std4.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.377686290683-r07f7hu7f6nnb5mqiond6ko54lcbr326</string>
+	<string>com.googleusercontent.apps.653039980755-pt0hk5prebd357bhgje26t1kjt08std4</string>
 	<key>API_KEY</key>
-	<string>AIzaSyCAtInTUPk9FQ1H1zcK5qIZAMOio3SuG-Q</string>
+	<string>AIzaSyAXFyIfs9OtKGGPdfY0fbdWAVFKyEJubPw</string>
 	<key>GCM_SENDER_ID</key>
-	<string>377686290683</string>
+	<string>653039980755</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>dev.saadardati.pocketjenna.pocketjenna</string>
 	<key>PROJECT_ID</key>
-	<string>saad-ardati</string>
+	<string>pocket-jenna</string>
 	<key>STORAGE_BUCKET</key>
-	<string>saad-ardati.appspot.com</string>
+	<string>pocket-jenna.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -29,6 +29,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:377686290683:ios:8e98493dd2dab99930005e</string>
+	<string>1:653039980755:ios:de0963ffea5e9df1068426</string>
 </dict>
 </plist>

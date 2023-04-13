@@ -1,76 +1,40 @@
 {
   "project_info": {
-    "project_number": "377686290683",
-    "project_id": "saad-ardati",
-    "storage_bucket": "saad-ardati.appspot.com"
+    "project_number": "653039980755",
+    "project_id": "pocket-jenna",
+    "storage_bucket": "pocket-jenna.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:377686290683:android:fbb73ec88ca743c430005e",
+        "mobilesdk_app_id": "1:653039980755:android:c8bbd7666c0b97cd068426",
         "android_client_info": {
           "package_name": "dev.saadardati.pocketjenna.pocketjenna"
         }
       },
       "oauth_client": [
         {
-          "client_id": "377686290683-bt4oet7h24e34gnvhcq3emu62mom40f0.apps.googleusercontent.com",
+          "client_id": "653039980755-9na59kt0tbbdcenqc5n1s714rnqpl3lp.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAdjFltChJEaXam9QarQRaxCmB0uZP-DH0"
+          "current_key": "AIzaSyAWhHL-75zsY4GJb7-wCoRDHgFnCwkjh1A"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "377686290683-bt4oet7h24e34gnvhcq3emu62mom40f0.apps.googleusercontent.com",
+              "client_id": "653039980755-9na59kt0tbbdcenqc5n1s714rnqpl3lp.apps.googleusercontent.com",
               "client_type": 3
             },
             {
-              "client_id": "377686290683-onb8pjbmji1ecmad2d0pgkjfiji7mfo0.apps.googleusercontent.com",
+              "client_id": "653039980755-55t2elon4ju1luecm1i2k24dmch4tcno.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "me.saad.saadardatidev"
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:377686290683:android:d6a8fe32d5ab48b130005e",
-        "android_client_info": {
-          "package_name": "me.saad.saadardatidev"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "377686290683-bt4oet7h24e34gnvhcq3emu62mom40f0.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyAdjFltChJEaXam9QarQRaxCmB0uZP-DH0"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "377686290683-bt4oet7h24e34gnvhcq3emu62mom40f0.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "377686290683-onb8pjbmji1ecmad2d0pgkjfiji7mfo0.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "me.saad.saadardatidev"
+                "bundle_id": "dev.saadardati.pocketjenna"
               }
             }
           ]

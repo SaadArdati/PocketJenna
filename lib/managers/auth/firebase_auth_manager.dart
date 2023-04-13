@@ -27,7 +27,8 @@ class FirebaseAuthManager extends AuthManager {
   @override
   Future<void> init() async {
     await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform);
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
 
     final Completer<AuthModel?> completer = Completer<AuthModel?>();
     _userChangesSubscription =
@@ -103,8 +104,10 @@ class FirebaseAuthManager extends AuthManager {
   }
 
   @override
-  Future<void> forgotPassword(String email) async => FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+  Future<void> forgotPassword(String email) async =>
+      FirebaseAuth.instance.sendPasswordResetEmail(email: email);
 
   @override
-  Future<void> deleteAccount() async => FirebaseAuth.instance.currentUser!.delete();
+  Future<void> deleteAccount() async =>
+      FirebaseAuth.instance.currentUser!.delete();
 }

@@ -5,13 +5,13 @@ class Constants {
 
   /// ------- Sensitive
   static const String firebaseWebAPIKey =
-      'AIzaSyBmi7yBY3WTjLyciXXvkkYfQS9HG4X_emk';
+      'AIzaSyABjpkJUp-BDXe4GIhOfYYWl-0twmOhsqs';
 
   static const String openAIKey = 'openai_api_key';
 
   /// ------- Data
   static const String firebaseFunctionsBaseURL =
-      'us-central1-saad-ardati.cloudfunctions.net';
+      'us-central1-pocket-jenna.cloudfunctions.net';
   static const String user = 'user';
 
   // FireDart

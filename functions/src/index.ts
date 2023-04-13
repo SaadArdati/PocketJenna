@@ -5,7 +5,7 @@ import {NextFunction, Request, Response} from "express";
 import {warn} from "firebase-functions/logger";
 import {Chat, ChatMessage, ChatMessageRole, Prompt, UserModel} from "./models";
 import {encode} from "gpt-3-encoder";
-import {defineSecret} from "firebase-functions/lib/params";
+import {defineSecret} from "firebase-functions/params";
 import cors = require("cors");
 
 const openAIKey = defineSecret("OPEN_AI_KEY");
