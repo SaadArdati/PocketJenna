@@ -11,7 +11,7 @@ class Constants {
 
   /// ------- Data
   static const String firebaseFunctionsBaseURL =
-      'https://us-central1-saad-ardati.cloudfunctions.net/widgets';
+      'us-central1-saad-ardati.cloudfunctions.net';
   static const String user = 'user';
 
   // FireDart
@@ -21,7 +21,7 @@ class Constants {
 
   /// ------- Firestore
   static const String collectionUsers = 'users';
-  static const String collectionChatHistory = 'chat_history';
+  static const String collectionChats = 'chats';
 
   /// ------- General
   static const String gptModels = 'gpt_models';

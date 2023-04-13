@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../constants.dart';
+import '../../models/chat.dart';
 import '../auth/auth_manager.dart';
 import '../auth/auth_model.dart';
-import '../../models/chat.dart';
 import 'data_manager.dart';
 import 'user_model.dart';
 
@@ -114,7 +114,7 @@ class FirebaseDataManager extends DataManager {
     return FirebaseFirestore.instance
         .collection(Constants.collectionUsers)
         .doc(AuthManager.instance.currentAuth!.id)
-        .collection(Constants.collectionChatHistory)
+        .collection(Constants.collectionChats)
         .doc(chatId)
         .snapshots()
         .map((event) => Chat.fromJson(event.data()!));
@@ -130,7 +130,7 @@ class FirebaseDataManager extends DataManager {
     final snapshot = await FirebaseFirestore.instance
         .collection(Constants.collectionUsers)
         .doc(AuthManager.instance.currentAuth!.id)
-        .collection(Constants.collectionChatHistory)
+        .collection(Constants.collectionChats)
         .doc(chatId)
         .get();
 

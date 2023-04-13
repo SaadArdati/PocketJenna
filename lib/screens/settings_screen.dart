@@ -154,13 +154,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         launchUrlString(
                             'https://saad-ardati.dev/pocketjenna/privacy-policy');
                       },
-                      child: const Text('View Privacy Policy'),
+                      child: Text(
+                        'View Privacy Policy',
+                        style: context.textTheme.labelMedium?.copyWith(
+                          color: context.colorScheme.onSurface,
+                        ),
+                      ),
                     ),
                     TextButton(
                       onPressed: () {
                         showLicensePage(context: context);
                       },
-                      child: const Text('View Licenses'),
+                      child: Text(
+                        'View Licenses',
+                        style: context.textTheme.labelMedium?.copyWith(
+                          color: context.colorScheme.onSurface,
+                        ),
+                      ),
                     )
                   ],
                 ),

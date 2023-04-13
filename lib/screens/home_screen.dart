@@ -358,7 +358,7 @@ class GPTCard extends StatelessWidget {
                       child: Padding(
                         padding: const EdgeInsets.all(8),
                         child: Text(
-                          prompt.prompts.last,
+                          prompt.prompts[1],
                           overflow: TextOverflow.ellipsis,
                           maxLines: 6,
                           style: context.textTheme.bodySmall!.copyWith(
@@ -371,7 +371,7 @@ class GPTCard extends StatelessWidget {
                       padding: const EdgeInsets.all(8),
                       child: AssetManager.getPromptIcon(
                         prompt,
-                        color: context.colorScheme.primary,
+                        color: context.colorScheme.onSurface,
                         size: 24,
                       ),
                     ),

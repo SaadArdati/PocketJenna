@@ -56,7 +56,7 @@ abstract class DataManager {
       throw Exception('No token');
     }
     post(
-      Uri.parse('${Constants.firebaseFunctionsBaseURL}/updateChat'),
+      Uri.https(Constants.firebaseFunctionsBaseURL, 'widgets/updateChat'),
       body: json.encode(chat.toJson()),
       headers: {
         'Authorization': 'Bearer $token',
@@ -72,8 +72,11 @@ abstract class DataManager {
     }
 
     final Response response = await get(
-      Uri.parse('${Constants.firebaseFunctionsBaseURL}/getChat')
-        ..queryParameters['chatId'] = chat.id,
+      Uri.https(
+        Constants.firebaseFunctionsBaseURL,
+        'widgets/getChat',
+        {'chatId': chat.id},
+      ),
     );
 
     if (response.statusCode == 200) {
@@ -92,7 +95,7 @@ abstract class DataManager {
       throw Exception('No token');
     }
     post(
-      Uri.parse('${Constants.firebaseFunctionsBaseURL}/registerUser'),
+      Uri.http(Constants.firebaseFunctionsBaseURL, 'widgets/registerUser'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',

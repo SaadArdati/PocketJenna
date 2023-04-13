@@ -3,6 +3,7 @@ export interface UserModel {
   tokens: number;
   chatSnippets: { [key: string]: ChatSnippet };
   updatedOn: number;
+  key: string;
 }
 
 export interface ChatSnippet {

@@ -38,7 +38,7 @@ class MarkdownText extends StatefulWidget {
 }
 
 class _MarkdownTextState extends State<MarkdownText> {
-  MarkdownStyleSheet assistantSheet() {
+  MarkdownStyleSheet styleSheet() {
     return MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
       a: widget.style,
       p: widget.style,
@@ -67,7 +67,7 @@ class _MarkdownTextState extends State<MarkdownText> {
     return MarkdownBody(
       data: widget.text,
       selectable: false,
-      styleSheet: assistantSheet(),
+      styleSheet: styleSheet(),
       builders: {
         'code': CodeElementBuilder(),
       },

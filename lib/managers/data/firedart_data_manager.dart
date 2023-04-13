@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:firedart/firedart.dart';
 
 import '../../constants.dart';
+import '../../models/chat.dart';
 import '../auth/auth_manager.dart';
 import '../auth/auth_model.dart';
-import '../../models/chat.dart';
 import 'data_manager.dart';
 import 'user_model.dart';
 
@@ -115,7 +115,7 @@ class FireDartDataManager extends DataManager {
     return Firestore.instance
         .collection(Constants.collectionUsers)
         .document(AuthManager.instance.currentAuth!.id)
-        .collection(Constants.collectionChatHistory)
+        .collection(Constants.collectionChats)
         .document(chatId)
         .stream
         .map((event) => Chat.fromJson(event!.map));
@@ -131,7 +131,7 @@ class FireDartDataManager extends DataManager {
     final DocumentReference docRef = Firestore.instance
         .collection(Constants.collectionUsers)
         .document(AuthManager.instance.currentAuth!.id)
-        .collection(Constants.collectionChatHistory)
+        .collection(Constants.collectionChats)
         .document(chatId);
 
     if (!await docRef.exists) {

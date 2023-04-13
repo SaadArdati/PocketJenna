@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
 
@@ -205,144 +206,152 @@ class _ChatScreenState extends State<ChatScreen>
                   );
                 }),
               ),
-        body: SizedBox.expand(
-          child: FutureBuilder<bool>(
-              future: Future.value(openChatFuture),
-              builder: (context, snapshot) {
-                if (snapshot.hasError) {
-                  return Center(
-                    child: Text(
-                      snapshot.error.toString(),
-                      style: context.textTheme.bodyMedium,
-                    ),
-                  );
-                }
+        body: Theme(
+          data: Theme.of(context).copyWith(
+            textTheme: Theme.of(context)
+                .textTheme
+                .merge(GoogleFonts.robotoTextTheme()),
+          ),
+          child: SizedBox.expand(
+            child: FutureBuilder<bool>(
+                future: Future.value(openChatFuture),
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Text(
+                        snapshot.error.toString(),
+                        style: context.textTheme.bodyMedium,
+                      ),
+                    );
+                  }
 
-                if (!snapshot.hasData) {
-                  return const Center(
-                    child: CupertinoActivityIndicator(),
-                  );
-                }
+                  if (!snapshot.hasData) {
+                    return const Center(
+                      child: CupertinoActivityIndicator(),
+                    );
+                  }
 
-                final fullChat = gpt.currentChat!.toFullChat..removeAt(0);
-                return Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        children: [
-                          Expanded(
-                            child: SelectionArea(
-                              child: ListView.separated(
-                                keyboardDismissBehavior:
-                                    ScrollViewKeyboardDismissBehavior.onDrag,
-                                controller: scrollController,
-                                reverse: true,
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 16),
-                                itemCount: fullChat.length,
-                                separatorBuilder: (context, index) =>
-                                    const SizedBox(height: 8),
-                                itemBuilder: (context, index) {
-                                  final int reversedIndex =
-                                      fullChat.length - 1 - index;
-                                  final ChatMessage message =
-                                      fullChat[reversedIndex];
-                                  return Padding(
-                                    padding: EdgeInsets.only(
-                                      top: index == fullChat.length - 1
-                                          ? (Scaffold.of(context)
-                                                      .appBarMaxHeight ??
-                                                  48) +
-                                              16
-                                          : 0,
-                                      bottom: index == 0 ? 16 : 0,
-                                    ),
-                                    child: ChatMessageBubble(
-                                      message: message,
+                  final fullChat = gpt.currentChat!.toFullChat..removeAt(0);
+                  return Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          children: [
+                            Expanded(
+                              child: SelectionArea(
+                                child: ListView.separated(
+                                  keyboardDismissBehavior:
+                                      ScrollViewKeyboardDismissBehavior.onDrag,
+                                  controller: scrollController,
+                                  reverse: true,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16),
+                                  itemCount: fullChat.length,
+                                  separatorBuilder: (context, index) =>
+                                      const SizedBox(height: 8),
+                                  itemBuilder: (context, index) {
+                                    final int reversedIndex =
+                                        fullChat.length - 1 - index;
+                                    final ChatMessage message =
+                                        fullChat[reversedIndex];
+                                    return Padding(
+                                      padding: EdgeInsets.only(
+                                        top: index == fullChat.length - 1
+                                            ? (Scaffold.of(context)
+                                                        .appBarMaxHeight ??
+                                                    48) +
+                                                16
+                                            : 0,
+                                        bottom: index == 0 ? 16 : 0,
+                                      ),
+                                      child: ChatMessageBubble(
+                                        message: message,
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                            AnimatedSize(
+                              duration: const Duration(milliseconds: 600),
+                              curve: Curves.easeOutQuart,
+                              child: AnimatedSwitcher(
+                                duration: const Duration(milliseconds: 300),
+                                switchOutCurve: Curves.easeOutQuart,
+                                switchInCurve: Curves.easeOutQuart,
+                                transitionBuilder: (child, animation) {
+                                  return FadeTransition(
+                                    opacity: animation,
+                                    child: SlideTransition(
+                                      position: Tween<Offset>(
+                                        begin: const Offset(0, 1),
+                                        end: Offset.zero,
+                                      ).animate(animation),
+                                      child: child,
                                     ),
                                   );
                                 },
+                                child: isGenerating
+                                    ? Padding(
+                                        padding: const EdgeInsets.all(8),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Tooltip(
+                                              message:
+                                                  'Stop generating response',
+                                              child: FilledButton.tonalIcon(
+                                                onPressed: gpt.stopGenerating,
+                                                icon: const Icon(
+                                                    Icons.stop_circle),
+                                                label: const Text(
+                                                    'Stop generating'),
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                      )
+                                    : const SizedBox.shrink(),
                               ),
                             ),
-                          ),
-                          AnimatedSize(
-                            duration: const Duration(milliseconds: 600),
-                            curve: Curves.easeOutQuart,
-                            child: AnimatedSwitcher(
-                              duration: const Duration(milliseconds: 300),
-                              switchOutCurve: Curves.easeOutQuart,
-                              switchInCurve: Curves.easeOutQuart,
-                              transitionBuilder: (child, animation) {
-                                return FadeTransition(
-                                  opacity: animation,
-                                  child: SlideTransition(
-                                    position: Tween<Offset>(
-                                      begin: const Offset(0, 1),
-                                      end: Offset.zero,
-                                    ).animate(animation),
-                                    child: child,
-                                  ),
-                                );
-                              },
-                              child: isGenerating
-                                  ? Padding(
-                                      padding: const EdgeInsets.all(8),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Tooltip(
-                                            message: 'Stop generating response',
-                                            child: FilledButton.tonalIcon(
-                                              onPressed: gpt.stopGenerating,
-                                              icon:
-                                                  const Icon(Icons.stop_circle),
-                                              label:
-                                                  const Text('Stop generating'),
-                                            ),
-                                          )
-                                        ],
-                                      ),
-                                    )
-                                  : const SizedBox.shrink(),
-                            ),
-                          ),
-                          const UserInteractionRegion(),
-                        ],
-                      ),
-                    ),
-                    if (isWide && historyOpenOnWide)
-                      SizedBox(
-                        width: 300,
-                        child: Drawer(
-                          child: Column(
-                            children: [
-                              Container(
-                                alignment: Alignment.centerLeft,
-                                padding: const EdgeInsets.all(18),
-                                child: Text(
-                                  'Chat History',
-                                  style: context.textTheme.bodyMedium,
-                                ),
-                              ),
-                              Expanded(
-                                child: ListView(
-                                  padding: EdgeInsets.zero,
-                                  children: [
-                                    for (final ChatSnippet chatSnippet
-                                        in DataManager.instance.currentUser!
-                                            .chatSnippets.values)
-                                      HistoryTile(chatSnippet: chatSnippet),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
+                            const UserInteractionRegion(),
+                          ],
                         ),
                       ),
-                  ],
-                );
-              }),
+                      if (isWide && historyOpenOnWide)
+                        SizedBox(
+                          width: 300,
+                          child: Drawer(
+                            child: Column(
+                              children: [
+                                Container(
+                                  alignment: Alignment.centerLeft,
+                                  padding: const EdgeInsets.all(18),
+                                  child: Text(
+                                    'Chat History',
+                                    style: context.textTheme.bodyMedium,
+                                  ),
+                                ),
+                                Expanded(
+                                  child: ListView(
+                                    padding: EdgeInsets.zero,
+                                    children: [
+                                      for (final ChatSnippet chatSnippet
+                                          in DataManager.instance.currentUser!
+                                              .chatSnippets.values)
+                                        HistoryTile(chatSnippet: chatSnippet),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                    ],
+                  );
+                }),
+          ),
         ),
       );
     });
@@ -381,18 +390,19 @@ class _HistoryTileState extends State<HistoryTile> {
         });
       },
       child: ListTile(
+        horizontalTitleGap: 0,
         leading: AssetManager.getPromptIcon(
           widget.chatSnippet.prompt,
-          size: 24,
+          size: 20,
           color: isActiveChat
               ? context.colorScheme.onPrimaryContainer
               : context.colorScheme.onBackground,
         ),
         title: Text(
           widget.chatSnippet.snippet,
-          maxLines: 1,
+          maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          style: context.textTheme.bodyMedium,
+          style: context.textTheme.bodySmall,
         ),
         onTap: () {
           gpt.openChat(chatID: widget.chatSnippet.id, notify: true);
@@ -408,13 +418,20 @@ class _HistoryTileState extends State<HistoryTile> {
                         'Are you sure you want to delete this chat?'),
                     actions: [
                       TextButton(
-                        child: const Text('Cancel'),
+                        child: Text(
+                          'Cancel',
+                          style: TextStyle(
+                              color: context.colorScheme.onBackground),
+                        ),
                         onPressed: () {
                           Navigator.of(context).pop();
                         },
                       ),
                       TextButton(
-                        child: const Text('Delete'),
+                        child: Text(
+                          'Delete',
+                          style: TextStyle(color: context.colorScheme.error),
+                        ),
                         onPressed: () {
                           gpt.deleteChat(widget.chatSnippet.id);
                           Navigator.of(context).pop();
@@ -842,7 +859,7 @@ class AssistantMessageBubble extends StatelessWidget {
         color: context.colorScheme.primaryContainer,
         child: MarkdownText(
           text: message.text,
-          style: TextStyle(
+          style: context.textTheme.bodyMedium?.copyWith(
             color: context.colorScheme.onPrimaryContainer,
           ),
         ),

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:vector_graphics/vector_graphics.dart';
 
@@ -37,59 +37,44 @@ class AssetManager {
   }
 
   static Widget getPromptIcon(Prompt prompt, {Color? color, double? size}) {
+    final iconPath;
     switch (prompt.icon) {
       case 'analyze':
-        return SvgPicture(
-          const AssetBytesLoader('assets/prompts/analyze.svg.vec'),
-          width: size,
-          height: size,
-          placeholderBuilder: (BuildContext context) =>
-              const CircularProgressIndicator(),
-          colorFilter:
-              color == null ? null : ColorFilter.mode(color, BlendMode.srcIn),
-        );
+        iconPath = 'assets/prompts/analyze.svg.vec';
+        break;
       case 'documentCode':
-        return SvgPicture(
-          const AssetBytesLoader('assets/prompts/document_code.svg.vec'),
-          width: size,
-          height: size,
-          colorFilter:
-              color == null ? null : ColorFilter.mode(color, BlendMode.srcIn),
-        );
+        iconPath = 'assets/prompts/document_code.svg.vec';
+        break;
       case 'email':
-        return SvgPicture(
-          const AssetBytesLoader('assets/prompts/email.svg.vec'),
-          width: size,
-          height: size,
-          colorFilter:
-              color == null ? null : ColorFilter.mode(color, BlendMode.srcIn),
-        );
+        iconPath = 'assets/prompts/email.svg.vec';
+        break;
       case 'general':
-        return SvgPicture(
-          const AssetBytesLoader('assets/prompts/general.svg.vec'),
-          width: size,
-          height: size,
-          colorFilter:
-              color == null ? null : ColorFilter.mode(color, BlendMode.srcIn),
-        );
+        iconPath = 'assets/prompts/general.svg.vec';
+        break;
       case 'readMe':
-        return SvgPicture(
-          const AssetBytesLoader('assets/prompts/readme.svg.vec'),
-          width: size,
-          height: size,
-          colorFilter:
-              color == null ? null : ColorFilter.mode(color, BlendMode.srcIn),
-        );
+        iconPath = 'assets/prompts/readme.svg.vec';
+        break;
       case 'scientific':
-        return SvgPicture(
-          const AssetBytesLoader('assets/prompts/scientific.svg.vec'),
-          width: size,
-          height: size,
-          colorFilter:
-              color == null ? null : ColorFilter.mode(color, BlendMode.srcIn),
-        );
+        iconPath = 'assets/prompts/scientific.svg.vec';
+        break;
+      case 'twitter':
+        iconPath = 'assets/prompts/twitter.svg.vec';
+        break;
+      case 'reddit':
+        iconPath = 'assets/prompts/reddit.svg.vec';
+        break;
       default:
         return ImageIcon(NetworkImage(prompt.icon), color: color);
     }
+
+    return SvgPicture(
+      AssetBytesLoader(iconPath),
+      width: size,
+      height: size,
+      placeholderBuilder: (BuildContext context) =>
+          const CupertinoActivityIndicator(),
+      colorFilter:
+          color == null ? null : ColorFilter.mode(color, BlendMode.srcIn),
+    );
   }
 }

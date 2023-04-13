@@ -142,6 +142,7 @@ class _PocketJennaState extends State<PocketJenna> with WindowListener {
           blendOnLevel: 10,
           blendOnColors: false,
           useTextTheme: true,
+          blendTextTheme: true,
         ),
         visualDensity: FlexColorScheme.comfortablePlatformDensity,
         // To use the playground font, add GoogleFonts package and uncomment
@@ -176,6 +177,7 @@ class _PocketJennaState extends State<PocketJenna> with WindowListener {
         subThemesData: const FlexSubThemesData(
           blendOnLevel: 20,
           useTextTheme: true,
+          blendTextTheme: true,
         ),
         visualDensity: FlexColorScheme.comfortablePlatformDensity,
         // To use the Playground font, add GoogleFonts package and uncomment
