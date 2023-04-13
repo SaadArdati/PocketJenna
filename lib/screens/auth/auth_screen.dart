@@ -129,7 +129,9 @@ class _AuthScreenState extends State<AuthScreen> {
       appBar: AppBar(
         title: Text(
           mode.label,
-          style: context.textTheme.titleMedium,
+          style: context.textTheme.titleMedium?.copyWith(
+            color: context.colorScheme.onPrimary,
+          ),
         ),
         centerTitle: false,
         leading: IconButton(
@@ -177,7 +179,7 @@ class _AuthScreenState extends State<AuthScreen> {
                     },
                     onFieldSubmitted: (_) {},
                     style: context.textTheme.bodyMedium?.copyWith(
-                      color: context.colorScheme.onSecondaryContainer,
+                      color: context.colorScheme.onPrimaryContainer,
                     ),
                     decoration: InputDecoration(
                       counterText: '',
@@ -185,8 +187,7 @@ class _AuthScreenState extends State<AuthScreen> {
                       isDense: true,
                       floatingLabelBehavior: FloatingLabelBehavior.never,
                       filled: true,
-                      fillColor: context.colorScheme.secondaryContainer
-                          .withOpacity(0.5),
+                      fillColor: context.colorScheme.primaryContainer,
                       hoverColor: Colors.transparent,
                       border: OutlineInputBorder(
                         borderRadius: borderRadius,
@@ -196,7 +197,7 @@ class _AuthScreenState extends State<AuthScreen> {
                         borderRadius: borderRadius,
                         borderSide: BorderSide(
                           color: context.colorScheme.primary,
-                          width: 1,
+                          width: 2,
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
@@ -247,7 +248,7 @@ class _AuthScreenState extends State<AuthScreen> {
                             }
                           },
                           style: context.textTheme.bodyMedium?.copyWith(
-                            color: context.colorScheme.onSecondaryContainer,
+                            color: context.colorScheme.onPrimaryContainer,
                           ),
                           obscureText: !showPassword,
                           decoration: InputDecoration(
@@ -256,11 +257,11 @@ class _AuthScreenState extends State<AuthScreen> {
                             isDense: true,
                             floatingLabelBehavior: FloatingLabelBehavior.never,
                             filled: true,
-                            fillColor: context.colorScheme.secondaryContainer
-                                .withOpacity(0.5),
+                            fillColor: context.colorScheme.primaryContainer,
                             hoverColor: Colors.transparent,
                             suffixIcon: IconButton(
                               tooltip: 'Show password',
+                              color: context.colorScheme.onPrimaryContainer,
                               icon: Icon(
                                 showPassword
                                     ? Icons.visibility
@@ -280,7 +281,7 @@ class _AuthScreenState extends State<AuthScreen> {
                               borderRadius: borderRadius,
                               borderSide: BorderSide(
                                 color: context.colorScheme.primary,
-                                width: 1,
+                                width: 2,
                               ),
                             ),
                             enabledBorder: OutlineInputBorder(
@@ -318,7 +319,7 @@ class _AuthScreenState extends State<AuthScreen> {
                             child: Text(
                               'Forgot Password?',
                               style: context.textTheme.bodySmall?.copyWith(
-                                color: context.colorScheme.primary,
+                                color: context.colorScheme.onBackground,
                               ),
                             ),
                           ),
@@ -329,98 +330,109 @@ class _AuthScreenState extends State<AuthScreen> {
                   CollapsableSwitcher(
                     open: mode.isSignUp,
                     child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(height: 16),
-                          Text(
-                            'Confirm Password',
-                            style: context.textTheme.bodyLarge,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 16),
+                        Text(
+                          'Confirm Password',
+                          style: context.textTheme.bodyLarge,
+                        ),
+                        const SizedBox(height: 8),
+                        TextFormField(
+                          controller: confirmPasswordController,
+                          maxLength: 10000,
+                          maxLengthEnforcement: MaxLengthEnforcement.enforced,
+                          textInputAction: TextInputAction.next,
+                          keyboardType: TextInputType.visiblePassword,
+                          autofillHints: const [AutofillHints.password],
+                          enabled: !isLoading,
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return 'Please enter a valid password';
+                            }
+
+                            if (value != confirmPasswordController.text) {
+                              return 'Passwords do not match';
+                            }
+
+                            return null;
+                          },
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          onChanged: (_) {
+                            setState(() {});
+                          },
+                          onFieldSubmitted: (_) {},
+                          style: context.textTheme.bodyMedium?.copyWith(
+                            color: context.colorScheme.onPrimaryContainer,
                           ),
-                          const SizedBox(height: 8),
-                          TextFormField(
-                            controller: confirmPasswordController,
-                            maxLength: 10000,
-                            maxLengthEnforcement: MaxLengthEnforcement.enforced,
-                            textInputAction: TextInputAction.next,
-                            keyboardType: TextInputType.visiblePassword,
-                            autofillHints: const [AutofillHints.password],
-                            enabled: !isLoading,
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty) {
-                                return 'Please enter a valid password';
-                              }
-
-                              if (value != confirmPasswordController.text) {
-                                return 'Passwords do not match';
-                              }
-
-                              return null;
-                            },
-                            autovalidateMode:
-                                AutovalidateMode.onUserInteraction,
-                            onChanged: (_) {
-                              setState(() {});
-                            },
-                            onFieldSubmitted: (_) {},
-                            style: context.textTheme.bodyMedium?.copyWith(
-                              color: context.colorScheme.onSecondaryContainer,
+                          obscureText: !showConfirmPassword,
+                          decoration: InputDecoration(
+                            counterText: '',
+                            labelText: 'Enter password again',
+                            isDense: true,
+                            floatingLabelBehavior: FloatingLabelBehavior.never,
+                            filled: true,
+                            fillColor: context.colorScheme.primaryContainer,
+                            hoverColor: Colors.transparent,
+                            suffixIcon: IconButton(
+                              tooltip: 'Show password',
+                              color: context.colorScheme.onPrimaryContainer,
+                              icon: Icon(
+                                showConfirmPassword
+                                    ? Icons.visibility
+                                    : Icons.visibility_off,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  showConfirmPassword = !showConfirmPassword;
+                                });
+                              },
                             ),
-                            obscureText: !showConfirmPassword,
-                            decoration: InputDecoration(
-                              counterText: '',
-                              labelText: 'Enter password again',
-                              isDense: true,
-                              floatingLabelBehavior:
-                                  FloatingLabelBehavior.never,
-                              filled: true,
-                              fillColor: context.colorScheme.secondaryContainer
-                                  .withOpacity(0.5),
-                              hoverColor: Colors.transparent,
-                              suffixIcon: IconButton(
-                                tooltip: 'Show password',
-                                icon: Icon(
-                                  showConfirmPassword
-                                      ? Icons.visibility
-                                      : Icons.visibility_off,
-                                ),
-                                onPressed: () {
-                                  setState(() {
-                                    showConfirmPassword = !showConfirmPassword;
-                                  });
-                                },
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: borderRadius,
-                                borderSide: const BorderSide(width: 1.5),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: borderRadius,
-                                borderSide: BorderSide(
-                                  color: context.colorScheme.primary,
-                                  width: 1,
-                                ),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: borderRadius,
-                                borderSide: const BorderSide(
-                                  color: Colors.transparent,
-                                  width: 1,
-                                ),
+                            border: OutlineInputBorder(
+                              borderRadius: borderRadius,
+                              borderSide: const BorderSide(width: 1.5),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: borderRadius,
+                              borderSide: BorderSide(
+                                color: context.colorScheme.primary,
+                                width: 2,
                               ),
                             ),
-                            cursorRadius: const Radius.circular(4),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: borderRadius,
+                              borderSide: const BorderSide(
+                                color: Colors.transparent,
+                                width: 1,
+                              ),
+                            ),
                           ),
-                        ]),
+                          cursorRadius: const Radius.circular(4),
+                        ),
+                      ],
+                    ),
                   ),
+                  const SizedBox(height: 16),
                   CollapsableSwitcher(
                     open: error != null,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          error ?? '',
-                          style: context.textTheme.bodySmall?.copyWith(
-                            color: context.colorScheme.error,
+                        Container(
+                          decoration: BoxDecoration(
+                            color: context.colorScheme.errorContainer,
+                            borderRadius: borderRadius,
+                            border: Border.all(
+                              color: context.colorScheme.error,
+                              width: 2,
+                            ),
+                          ),
+                          padding: const EdgeInsets.all(8),
+                          child: Text(
+                            error ?? '',
+                            style: context.textTheme.bodySmall?.copyWith(
+                              color: context.colorScheme.error,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 8),

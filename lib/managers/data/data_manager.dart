@@ -56,7 +56,7 @@ abstract class DataManager {
       throw Exception('No token');
     }
     await post(
-      Uri.https(Constants.firebaseFunctionsBaseURL, 'widgets/updateChat'),
+      Uri.https(Constants.firebaseFunctionsBaseURL, '/widgets/updateChat'),
       body: json.encode(chat.toJson()),
       headers: {
         'Authorization': 'Bearer $token',
@@ -74,7 +74,7 @@ abstract class DataManager {
     final Response response = await get(
       Uri.https(
         Constants.firebaseFunctionsBaseURL,
-        'widgets/getChat',
+        '/widgets/getChat',
         {'chatId': chat.id},
       ),
     );
@@ -94,25 +94,19 @@ abstract class DataManager {
     if (token == null) {
       throw Exception('No token: Authentication token is missing');
     }
-    try {
-      final response = await post(
-        Uri.http(Constants.firebaseFunctionsBaseURL, 'widgets/registerUser'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
-      if (response.statusCode == 200) {
-        print('User registered');
-        print(response.body);
-      } else {
-        throw Exception(
-            'Registration failed: Received status code \${response.statusCode}');
-      }
-    } on SocketException catch (error) {
-      throw Exception('Network error: $error');
-    } catch (error) {
-      throw Exception('Error registering user: $error');
+    final response = await post(
+      Uri.https(Constants.firebaseFunctionsBaseURL, '/widgets/registerUser'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+    if (response.statusCode == 200) {
+      print('User registered');
+      print(response.body);
+    } else {
+      throw Exception(
+          'Registration failed: ${response.statusCode} ${response.body} ${response.reasonPhrase}');
     }
   }
 

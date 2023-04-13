@@ -159,6 +159,11 @@ class _PocketJennaState extends State<PocketJenna> with WindowListener {
             statusBarBrightness: Brightness.light,
           ),
         ),
+        textSelectionTheme: TextSelectionThemeData(
+          cursorColor: Colors.black.withOpacity(0.5),
+          selectionColor: Colors.black.withOpacity(0.5),
+          selectionHandleColor: Colors.black.withOpacity(0.5),
+        ),
       ),
       dark: FlexThemeData.dark(
         colors: const FlexSchemeColor(
@@ -184,8 +189,6 @@ class _PocketJennaState extends State<PocketJenna> with WindowListener {
         fontFamily: GoogleFonts.poppins().fontFamily,
       ).copyWith(
         appBarTheme: const AppBarTheme(
-          // backgroundColor: Colors.transparent,
-          // surfaceTintColor: Colors.transparent,
           systemOverlayStyle: SystemUiOverlayStyle(
             systemStatusBarContrastEnforced: false,
             systemNavigationBarContrastEnforced: false,
@@ -195,6 +198,11 @@ class _PocketJennaState extends State<PocketJenna> with WindowListener {
             statusBarIconBrightness: Brightness.light,
             statusBarBrightness: Brightness.dark,
           ),
+        ),
+        textSelectionTheme: TextSelectionThemeData(
+          cursorColor: Colors.white.withOpacity(0.5),
+          selectionColor: Colors.white.withOpacity(0.5),
+          selectionHandleColor: Colors.white.withOpacity(0.5),
         ),
       ),
       initial: widget.mode,

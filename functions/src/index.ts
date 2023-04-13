@@ -2,7 +2,7 @@ import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 import * as express from "express";
 import {NextFunction, Request, Response} from "express";
-import {warn} from "firebase-functions/logger";
+import {log, warn} from "firebase-functions/logger";
 import {Chat, ChatMessage, ChatMessageRole, Prompt, UserModel} from "./models";
 import {encode} from "gpt-3-encoder";
 import {defineSecret} from "firebase-functions/params";
@@ -140,6 +140,7 @@ app.post("/registerUser", async (
 ) => {
   const userID = req.headers.userID;
 
+  log("Trying to register user: " + userID);
   if (!userID) {
     res.status(400).send("userID is required");
     return;
@@ -150,6 +151,8 @@ app.post("/registerUser", async (
     res.status(400).send("userID must be a string");
     return;
   }
+
+  log("Checking if user is already registered");
 
   // Check if user is already registered.
   const user = await usersRef.doc(userID).get();
@@ -167,6 +170,8 @@ app.post("/registerUser", async (
     }
   }
 
+  log("OPENAI KEY");
+  log(openAIKey.value());
   const userModel: UserModel = {
     id: userID,
     tokens: 1000,
@@ -233,4 +238,5 @@ app.post("/updatePrompt", async (req: Request, res: Response) => {
 });
 
 // Expose Express API as a single Cloud Function:
-exports.widgets = functions.https.onRequest(app);
+exports.widgets =
+  functions.runWith({secrets: ["OPEN_AI_KEY"]}).https.onRequest(app);
