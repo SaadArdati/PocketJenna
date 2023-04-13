@@ -1,8 +1,6 @@
 import 'dart:async';
-import 'dart:ui';
 
 import 'package:bubble/bubble.dart';
-import 'package:collection/collection.dart';
 import 'package:dart_openai/openai.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -13,14 +11,13 @@ import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
 
 import '../constants.dart';
+import '../managers/asset_manager.dart';
 import '../managers/data/data_manager.dart';
 import '../managers/gpt_manager.dart';
-import '../models/chat.dart';
 import '../models/chat_message.dart';
 import '../models/chat_snippet.dart';
 import '../models/message_status.dart';
 import '../models/prompt.dart';
-import '../managers/asset_manager.dart';
 import '../ui/markdown_renderer.dart';
 import '../ui/theme_extensions.dart';
 import '../ui/window_controls.dart';
@@ -68,7 +65,7 @@ class _ChatScreenState extends State<ChatScreen>
     with SingleTickerProviderStateMixin {
   final ScrollController scrollController = ScrollController();
 
-  late final FutureOr<void> openChatFuture;
+  late final FutureOr<bool> openChatFuture;
 
   bool historyOpenOnWide = Hive.box(Constants.settings).get(
     Constants.openHistoryOnWideScreen,
@@ -125,7 +122,7 @@ class _ChatScreenState extends State<ChatScreen>
           title: Text(
             widget.prompt?.title ?? 'Loading...',
             style: context.textTheme.titleMedium?.copyWith(
-              color: context.colorScheme.onPrimaryContainer,
+              color: context.colorScheme.onPrimary,
             ),
           ),
           centerTitle: false,
@@ -209,7 +206,7 @@ class _ChatScreenState extends State<ChatScreen>
                 }),
               ),
         body: SizedBox.expand(
-          child: FutureBuilder(
+          child: FutureBuilder<bool>(
               future: Future.value(openChatFuture),
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
@@ -226,6 +223,8 @@ class _ChatScreenState extends State<ChatScreen>
                     child: CupertinoActivityIndicator(),
                   );
                 }
+
+                final fullChat = gpt.currentChat!.toFullChat..removeAt(0);
                 return Row(
                   children: [
                     Expanded(
@@ -240,11 +239,10 @@ class _ChatScreenState extends State<ChatScreen>
                                 reverse: true,
                                 padding:
                                     const EdgeInsets.symmetric(horizontal: 16),
-                                itemCount: gpt.currentChat!.toFullChat.length,
+                                itemCount: fullChat.length,
                                 separatorBuilder: (context, index) =>
                                     const SizedBox(height: 8),
                                 itemBuilder: (context, index) {
-                                  final fullChat = gpt.currentChat!.toFullChat;
                                   final int reversedIndex =
                                       fullChat.length - 1 - index;
                                   final ChatMessage message =
@@ -491,14 +489,20 @@ class _UserInteractionRegionState extends State<UserInteractionRegion> {
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
-                child: const Text('OK'),
+                child: Text(
+                  'Dismiss',
+                  style: context.textTheme.bodySmall?.copyWith(
+                    color: context.colorScheme.onBackground,
+                  ),
+                ),
               ),
             ],
           );
         },
       );
     }
-    if (!Form.of(context).validate()) return;
+    // if (!Form.of(context).validate()) return;
+    if (textController.text.trim().isEmpty) return;
 
     final GPTManager gpt = context.read<GPTManager>();
     gpt.sendMessage(textController.text, generateResponse: generateResponse);
@@ -547,7 +551,12 @@ class _UserInteractionRegionState extends State<UserInteractionRegion> {
                                 onPressed: () {
                                   Navigator.of(context).pop();
                                 },
-                                child: const Text('OK'),
+                                child: Text(
+                                  'Dismiss',
+                                  style: context.textTheme.bodySmall?.copyWith(
+                                    color: context.colorScheme.onBackground,
+                                  ),
+                                ),
                               ),
                             ],
                           );
@@ -573,12 +582,6 @@ class _UserInteractionRegionState extends State<UserInteractionRegion> {
                         textInputAction: TextInputAction.newline,
                         keyboardType: TextInputType.multiline,
                         maxLines: null,
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'Please enter some text';
-                          }
-                          return null;
-                        },
                         autovalidateMode: AutovalidateMode.disabled,
                         onChanged: (_) {
                           setState(() {});
@@ -590,13 +593,13 @@ class _UserInteractionRegionState extends State<UserInteractionRegion> {
                                   generateResponse: true,
                                 ),
                         style: context.textTheme.bodyMedium?.copyWith(
-                          color: context.colorScheme.onPrimary,
+                          color: context.colorScheme.onPrimaryContainer,
                         ),
                         decoration: InputDecoration(
                           counterText: '',
                           labelText: 'Type a message...',
                           labelStyle: context.textTheme.bodyMedium?.copyWith(
-                            color: context.colorScheme.onPrimary,
+                            color: context.colorScheme.onPrimaryContainer,
                           ),
                           isDense: true,
                           floatingLabelBehavior: FloatingLabelBehavior.never,
@@ -611,7 +614,7 @@ class _UserInteractionRegionState extends State<UserInteractionRegion> {
                           focusedBorder: OutlineInputBorder(
                             borderRadius: borderRadius,
                             borderSide: BorderSide(
-                              color: context.colorScheme.primaryContainer,
+                              color: context.colorScheme.onPrimaryContainer,
                               width: 1,
                             ),
                           ),
@@ -729,7 +732,9 @@ class SystemMessageBubble extends StatelessWidget {
         color: context.colorScheme.tertiary,
         child: MarkdownText(
           text: message.text,
-          role: message.role,
+          style: TextStyle(
+            color: context.colorScheme.onTertiaryContainer,
+          ),
         ),
       ),
     );
@@ -755,7 +760,9 @@ class UserMessageBubble extends StatelessWidget {
         color: context.colorScheme.secondaryContainer,
         child: MarkdownText(
           text: message.text,
-          role: message.role,
+          style: TextStyle(
+            color: context.colorScheme.onSecondaryContainer,
+          ),
         ),
       ),
     );
@@ -835,7 +842,9 @@ class AssistantMessageBubble extends StatelessWidget {
         color: context.colorScheme.primaryContainer,
         child: MarkdownText(
           text: message.text,
-          role: message.role,
+          style: TextStyle(
+            color: context.colorScheme.onPrimaryContainer,
+          ),
         ),
       ),
     );

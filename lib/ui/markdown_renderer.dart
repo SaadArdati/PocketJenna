@@ -1,4 +1,3 @@
-import 'package:dart_openai/openai.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_highlighter/flutter_highlighter.dart';
@@ -30,9 +29,9 @@ class CodeElementBuilder extends MarkdownElementBuilder {
 
 class MarkdownText extends StatefulWidget {
   final String text;
-  final OpenAIChatMessageRole role;
+  final TextStyle? style;
 
-  const MarkdownText({super.key, required this.text, required this.role});
+  const MarkdownText({super.key, required this.text, this.style});
 
   @override
   State<MarkdownText> createState() => _MarkdownTextState();
@@ -41,45 +40,21 @@ class MarkdownText extends StatefulWidget {
 class _MarkdownTextState extends State<MarkdownText> {
   MarkdownStyleSheet assistantSheet() {
     return MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
-      a: TextStyle(
-        color: context.colorScheme.onSurface,
-      ),
-      p: TextStyle(
-        color: context.colorScheme.onSurface,
-      ),
-      h1: TextStyle(
-        color: context.colorScheme.onSurface,
-      ),
-      h2: TextStyle(
-        color: context.colorScheme.onSurface,
-      ),
-      h3: TextStyle(
-        color: context.colorScheme.onSurface,
-      ),
-      h4: TextStyle(
-        color: context.colorScheme.onSurface,
-      ),
-      h5: TextStyle(
-        color: context.colorScheme.onSurface,
-      ),
-      h6: TextStyle(
-        color: context.colorScheme.onSurface,
-      ),
-      em: TextStyle(
-        color: context.colorScheme.onSurface,
-      ),
-      strong: TextStyle(
-        color: context.colorScheme.onSurface,
-      ),
-      del: TextStyle(
-        color: context.colorScheme.onSurface,
-      ),
+      a: widget.style,
+      p: widget.style,
+      h1: widget.style,
+      h2: widget.style,
+      h3: widget.style,
+      h4: widget.style,
+      h5: widget.style,
+      h6: widget.style,
+      em: widget.style,
+      strong: widget.style,
+      del: widget.style,
       blockquote: TextStyle(
         color: context.colorScheme.onSurfaceVariant,
       ),
-      code: TextStyle(
-        color: context.colorScheme.onSurface,
-      ),
+      code: widget.style,
       codeblockDecoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
       ),

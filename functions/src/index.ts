@@ -137,11 +137,14 @@ app.post("/registerUser", async (
     const data: FirebaseFirestore.DocumentData | undefined = user.data();
 
     if (data) {
-      res.status(400).send("User already registered");
-      return;
+      try {
+        const userModel: UserModel = data as UserModel;
+        if (userModel.tokens) {
+          return res.status(200).send("User already registered");
+        }
+      } catch (e) {/* empty */
+      }
     }
-
-    return;
   }
 
   const userModel: UserModel = {

@@ -1,18 +1,16 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive/hive.dart';
 
 import '../constants.dart';
 import '../main.dart';
-import '../models/prompt.dart';
 import '../screens/auth/auth_screen.dart';
 import '../screens/chat_screen.dart';
 import '../screens/home_screen.dart';
-import '../screens/onboarding/onboarding_screen.dart';
 import '../screens/onboarding/macos_onboarding_screen.dart';
+import '../screens/onboarding/onboarding_screen.dart';
 import '../screens/open_ai_key_screen.dart';
 import '../screens/settings_screen.dart';
 import '../ui/window_drag_handle.dart';
@@ -220,7 +218,7 @@ class NavigationManager {
             child = ChatScreenWrapper(
               chatID: chatID,
               prompt: promptID == null
-                  ? null
+                  ? (chatID == null ? PromptManager.generalChat : null)
                   : PromptManager.instance.getPromptByID(promptID),
             );
           }

@@ -10,11 +10,12 @@ import 'package:pub_semver/pub_semver.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import '../constants.dart';
+import '../managers/asset_manager.dart';
 import '../managers/data/data_manager.dart';
+import '../managers/data/user_model.dart';
 import '../managers/prompt_manager.dart';
 import '../managers/version_manager.dart';
 import '../models/prompt.dart';
-import '../managers/asset_manager.dart';
 import '../ui/theme_extensions.dart';
 import '../ui/window_controls.dart';
 
@@ -99,7 +100,7 @@ class _HomeScreenState extends State<HomeScreen> {
         title: Text(
           'Pocket Jenna',
           style: context.textTheme.titleMedium?.copyWith(
-            color: context.colorScheme.onPrimaryContainer,
+            color: context.colorScheme.onPrimary,
           ),
         ),
         centerTitle: false,
@@ -192,71 +193,104 @@ class TokensCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 64),
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(100),
-        color: context.colorScheme.surface,
-        border: Border.all(
-          color: context.colorScheme.primary,
-          width: 2,
-        ),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            Icons.generating_tokens_outlined,
-            color: context.colorScheme.primary,
-          ),
-          const SizedBox(width: 12),
-          Text(
-            '${DataManager.instance.currentUser?.tokens ?? 'No'} Tokens',
-            style: context.textTheme.bodyMedium?.copyWith(
-              color: context.colorScheme.primary,
-            ),
-          ),
-          const Spacer(),
-          Container(
+    return StreamBuilder<UserModel?>(
+        stream: DataManager.instance.userStream,
+        initialData: DataManager.instance.currentUser,
+        builder: (context, snapshot) {
+          final UserModel? user = snapshot.data;
+          return Container(
+            margin: const EdgeInsets.symmetric(horizontal: 64),
+            padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  context.colorScheme.primary,
-                  context.colorScheme.primary,
-                ],
+              borderRadius: BorderRadius.circular(100),
+              color: context.colorScheme.surface,
+              border: Border.all(
+                color: context.colorScheme.primary,
+                width: 2,
               ),
             ),
-            clipBehavior: Clip.antiAlias,
-            child: Stack(
+            child: Row(
               children: [
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  child: Text(
-                    'Buy Tokens',
-                    style: context.textTheme.bodySmall?.copyWith(
-                      color: context.colorScheme.onPrimary,
-                      fontWeight: FontWeight.bold,
-                    ),
+                Icon(
+                  Icons.generating_tokens_outlined,
+                  color: context.colorScheme.onSurface,
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  '${user?.tokens ?? 'No'} Tokens',
+                  style: context.textTheme.bodyMedium?.copyWith(
+                    color: context.colorScheme.onSurface,
                   ),
                 ),
-                Positioned.fill(
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      onTap: () {},
+                const Spacer(),
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        context.colorScheme.primary,
+                        context.colorScheme.primary,
+                      ],
                     ),
                   ),
-                )
+                  clipBehavior: Clip.antiAlias,
+                  child: Stack(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
+                        child: Text(
+                          'Buy Tokens',
+                          style: context.textTheme.bodySmall?.copyWith(
+                            color: context.colorScheme.onPrimary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      Positioned.fill(
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () {
+                              // Coming soon
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    title: const Text('Coming Soon'),
+                                    content: const Text(
+                                        'This feature is coming soon!'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: Text(
+                                          'Dismiss',
+                                          style: context.textTheme.bodySmall
+                                              ?.copyWith(
+                                            color: context
+                                                .colorScheme.onBackground,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
               ],
             ),
-          ),
-        ],
-      ),
-    );
+          );
+        });
   }
 }
 
@@ -299,8 +333,8 @@ class GPTCard extends StatelessWidget {
                 // highlightColor: context.colorScheme.secondaryContainer,
                 onTap: isComingSoon
                     ? null
-                    : () => context
-                        .go('/chat', extra: {'id': prompt.id, 'from': '/home'}),
+                    : () => context.go('/chat',
+                        extra: {'promptID': prompt.id, 'from': '/home'}),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -315,7 +349,7 @@ class GPTCard extends StatelessWidget {
                         prompt.title,
                         maxLines: 2,
                         style: context.textTheme.bodyMedium!.copyWith(
-                          color: context.colorScheme.onPrimaryContainer,
+                          color: context.colorScheme.onPrimary,
                           fontWeight: FontWeight.bold,
                         ),
                       ),

@@ -126,7 +126,7 @@ class _PocketJennaState extends State<PocketJenna> with WindowListener {
       light: FlexThemeData.light(
         colors: const FlexSchemeColor(
           primary: Color(0xff6c4ab0),
-          primaryContainer: Color(0xffa58dd7),
+          primaryContainer: Color(0xffc1acec),
           secondary: Color(0xff007eb6),
           secondaryContainer: Color(0xff82bcff),
           tertiary: Color(0xffceefff),
@@ -134,7 +134,7 @@ class _PocketJennaState extends State<PocketJenna> with WindowListener {
           appBarColor: Color(0xfff2fbff),
           error: Color(0xffb00020),
         ),
-        onPrimaryContainer: Colors.white,
+        onPrimaryContainer: Colors.black,
         scaffoldBackground: Colors.transparent,
         surfaceMode: FlexSurfaceMode.levelSurfacesLowScaffold,
         blendLevel: 7,
@@ -198,7 +198,7 @@ class _PocketJennaState extends State<PocketJenna> with WindowListener {
       initial: widget.mode,
       builder: (theme, darkTheme) {
         return MaterialApp.router(
-          title: 'PocketJenna',
+          title: 'Pocket Jenna',
           debugShowCheckedModeBanner: false,
           theme: theme,
           darkTheme: darkTheme,
@@ -277,7 +277,7 @@ class _NavigationBackgroundState extends State<NavigationBackground>
     });
 
     if (isChatPage) {
-      rotate(180);
+      rotate(45);
     } else if (isSettingsPage) {
       rotate(10);
     } else if (isOnboardingPage) {

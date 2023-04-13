@@ -7,8 +7,8 @@ import 'package:http/http.dart';
 import 'package:universal_io/io.dart';
 
 import '../../constants.dart';
-import '../auth/auth_manager.dart';
 import '../../models/chat.dart';
+import '../auth/auth_manager.dart';
 import 'firebase_data_manager.dart';
 import 'firedart_data_manager.dart';
 import 'user_model.dart';
@@ -97,7 +97,13 @@ abstract class DataManager {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
       },
-    );
+    ).then((value) {
+      print('User registered');
+      print(value.statusCode);
+      print(value.body);
+    }).catchError((error) {
+      print('Error registering user: $error');
+    });
   }
 
   void saveChat(Chat chat) {

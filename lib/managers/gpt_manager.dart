@@ -11,13 +11,12 @@ import '../models/chat_message.dart';
 import '../models/message_status.dart';
 import '../models/prompt.dart';
 import 'data/data_manager.dart';
-import 'prompt_manager.dart';
 
 class GPTManager extends ChangeNotifier {
   List<ChatMessage> get messages => currentChat!.messages;
 
   final StreamController<ChatMessage> responseStreamController =
-  StreamController<ChatMessage>.broadcast();
+      StreamController<ChatMessage>.broadcast();
   final historyBox = Hive.box(Constants.history);
 
   Stream<ChatMessage> get responseStream => responseStreamController.stream;
@@ -73,14 +72,14 @@ class GPTManager extends ChangeNotifier {
     };
   }
 
-  FutureOr<void> openChat({
+  FutureOr<bool> openChat({
     String? chatID,
     Prompt? prompt,
     required bool notify,
   }) async {
     assert(
-    (chatID == null) != (prompt == null),
-    'Either chatID or prompt must be provided',
+      (chatID == null) != (prompt == null),
+      'Either chatID or prompt must be provided',
     );
 
     if (chatID == null) {
@@ -88,12 +87,19 @@ class GPTManager extends ChangeNotifier {
       chatHistory[currentChat!.id] = currentChat!;
     } else {
       currentChat = chatHistory[chatID];
-      currentChat ??= await DataManager.instance.fetchChat(chatID);
+
+      if (currentChat != null) {
+        DataManager.instance.uploadIfNecessary(currentChat!);
+      } else {
+        currentChat ??= await DataManager.instance.fetchChat(chatID);
+      }
       purgeEmptyChats();
     }
     if (notify) {
       notifyListeners();
     }
+
+    return true;
   }
 
   @override
@@ -158,7 +164,7 @@ class GPTManager extends ChangeNotifier {
 
   void _generate() {
     final Stream<OpenAIStreamChatCompletionModel> stream =
-    OpenAI.instance.chat.createStream(
+        OpenAI.instance.chat.createStream(
       model: findTailoredModel(),
       messages: [
         ...currentChat!.prompt.toChatMessages
@@ -178,7 +184,7 @@ class GPTManager extends ChangeNotifier {
     responseStreamController.add(responseMsg);
 
     listener = stream.listen(
-          (streamChatCompletion) {
+      (streamChatCompletion) {
         final content = streamChatCompletion.choices.first.delta.content;
         if (content != null) {
           responseMsg.text += content;

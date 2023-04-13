@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -42,7 +40,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         title: Text(
           'Settings',
           style: context.textTheme.titleMedium?.copyWith(
-            color: context.colorScheme.onPrimaryContainer,
+            color: context.colorScheme.onPrimary,
           ),
         ),
         actions: const [WindowControls()],
@@ -579,7 +577,7 @@ class SettingsTile extends StatelessWidget {
                         alignment: Alignment.centerRight,
                         child: IconTheme(
                           data: Theme.of(context).iconTheme.copyWith(
-                                color: context.colorScheme.onPrimaryContainer,
+                                color: context.colorScheme.onPrimary,
                                 size: 24,
                               ),
                           child: icon!,
@@ -592,7 +590,7 @@ class SettingsTile extends StatelessWidget {
                     child: Text(
                       title,
                       style: context.textTheme.titleSmall?.copyWith(
-                        color: context.colorScheme.onPrimaryContainer,
+                        color: context.colorScheme.onPrimary,
                       ),
                     ),
                   ),
