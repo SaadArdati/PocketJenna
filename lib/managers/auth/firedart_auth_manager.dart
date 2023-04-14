@@ -5,8 +5,8 @@ import 'package:firedart/firedart.dart';
 import 'package:hive/hive.dart';
 
 import '../../constants.dart';
+import '../../models/auth_model.dart';
 import 'auth_manager.dart';
-import 'auth_model.dart';
 
 class HiveStore extends TokenStore {
   final Box _tokenBox;
@@ -85,6 +85,20 @@ class FireDartAuthManager extends AuthManager {
     _userStreamController.close();
   }
 
+  void _fireDartUserToModel(User? user) {
+    if (user == null) {
+      _currentUser = null;
+    } else {
+      _currentUser = AuthModel(
+        id: user.id,
+        email: user.email,
+        displayName: user.displayName,
+        photoUrl: user.photoUrl,
+      );
+    }
+    _userStreamController.add(_currentUser);
+  }
+
   @override
   Future<String> getAuthToken() async =>
       FirebaseAuth.instance.tokenProvider.idToken;
@@ -107,20 +121,6 @@ class FireDartAuthManager extends AuthManager {
 
   @override
   Future<void> signOut() async => FirebaseAuth.instance.signOut();
-
-  void _fireDartUserToModel(User? user) {
-    if (user == null) {
-      _currentUser = null;
-    } else {
-      _currentUser = AuthModel(
-        id: user.id,
-        email: user.email,
-        displayName: user.displayName,
-        photoUrl: user.photoUrl,
-      );
-    }
-    _userStreamController.add(_currentUser);
-  }
 
   @override
   Future<void> forgotPassword(String email) async {

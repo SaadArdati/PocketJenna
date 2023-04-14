@@ -1,13 +1,14 @@
 import 'dart:async';
 
+import 'package:dart_openai/openai.dart';
 import 'package:firedart/firedart.dart';
 
 import '../../constants.dart';
+import '../../models/auth_model.dart';
 import '../../models/chat.dart';
+import '../../models/user_model.dart';
 import '../auth/auth_manager.dart';
-import '../auth/auth_model.dart';
 import 'data_manager.dart';
-import 'user_model.dart';
 
 class FireDartDataManager extends DataManager {
   final StreamController<UserModel?> _userStreamController =
@@ -36,8 +37,11 @@ class FireDartDataManager extends DataManager {
       (AuthModel? authModel) {
         _authModel = authModel;
         if (_authModel == null) return;
+
+        fetchOpenAIKey().then((value) => OpenAI.apiKey = value);
+
         streamUser(authModel!, onEvent: (UserModel? user) {
-          print('auth changed, user stream event. $user');
+          print('auth changed, user stream event. ${user?.id}');
           _currentUser = user;
           _userStreamController.add(user);
 
@@ -53,10 +57,11 @@ class FireDartDataManager extends DataManager {
     if (_authModel == null) {
       completer.complete();
     } else {
+      OpenAI.apiKey = await fetchOpenAIKey();
       streamUser(
         _authModel!,
         onEvent: (UserModel? user) {
-          print('initial load, user stream event. $user');
+          print('initial load, user stream event. ${user?.id}');
           _currentUser = user;
           _userStreamController.add(user);
 

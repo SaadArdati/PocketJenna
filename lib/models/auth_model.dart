@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-import '../../models/chat.dart';
+import 'chat.dart';
 
 part 'auth_model.g.dart';
 

@@ -8,10 +8,10 @@ import 'package:universal_io/io.dart';
 
 import '../../constants.dart';
 import '../../models/chat.dart';
+import '../../models/user_model.dart';
 import '../auth/auth_manager.dart';
 import 'firebase_data_manager.dart';
 import 'firedart_data_manager.dart';
-import 'user_model.dart';
 
 abstract class DataManager {
   static DataManager? _instance;
@@ -107,6 +107,26 @@ abstract class DataManager {
     } else {
       throw Exception(
           'Registration failed: ${response.statusCode} ${response.body} ${response.reasonPhrase}');
+    }
+  }
+
+  /// Get the openAI key from the server.
+  Future<String> fetchOpenAIKey() async {
+    final String? token = await AuthManager.instance.getAuthToken();
+    if (token == null) {
+      return '';
+    }
+    final response = await get(
+      Uri.https(Constants.firebaseFunctionsBaseURL, '/widgets/getOpenAIKey'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'text/plain',
+      },
+    );
+    if (response.statusCode == 200) {
+      return response.body;
+    } else {
+      return '';
     }
   }
 

@@ -4,7 +4,6 @@ import 'dart:math' hide log;
 import 'dart:ui' as ui;
 
 import 'package:adaptive_theme/adaptive_theme.dart';
-import 'package:dart_openai/openai.dart';
 import 'package:encrypted_shared_preferences/encrypted_shared_preferences.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/foundation.dart';
@@ -87,9 +86,6 @@ class PocketJenna extends StatefulWidget {
     await AuthManager.instance.init();
     await AssetManager.instance.init();
     await DataManager.instance.init();
-
-    OpenAI.apiKey =
-        Hive.box(Constants.settings).get(Constants.openAIKey, defaultValue: '');
 
     return true;
   }

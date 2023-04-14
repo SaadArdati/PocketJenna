@@ -14,7 +14,6 @@ import '../managers/auth/auth_manager.dart';
 import '../managers/system_manager.dart';
 import '../ui/theme_extensions.dart';
 import '../ui/window_controls.dart';
-import 'open_ai_key_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -58,8 +57,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 const AppSettingsTile(),
                 const SizedBox(height: 16),
-                const OpenAIKeyTile(),
-                const SizedBox(height: 16),
+                // const OpenAIKeyTile(),
+                // const SizedBox(height: 16),
                 const AccountSettingsTile(),
                 const SizedBox(height: 16),
                 buildInfoTile(context),

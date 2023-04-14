@@ -7,8 +7,6 @@ class Constants {
   static const String firebaseWebAPIKey =
       'AIzaSyABjpkJUp-BDXe4GIhOfYYWl-0twmOhsqs';
 
-  static const String openAIKey = 'openai_api_key';
-
   /// ------- Data
   static const String firebaseFunctionsBaseURL =
       'us-central1-pocket-jenna.cloudfunctions.net';

@@ -1,8 +1,8 @@
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-import '../../models/chat_snippet.dart';
-import '../../models/model_utils.dart';
+import 'chat_snippet.dart';
+import 'model_utils.dart';
 
 part 'user_model.g.dart';
 

@@ -5,8 +5,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/widgets.dart';
 
 import '../../firebase_options.dart';
+import '../../models/auth_model.dart';
 import 'auth_manager.dart';
-import 'auth_model.dart';
 
 class FirebaseAuthManager extends AuthManager {
   final StreamController<AuthModel?> _userStreamController =
@@ -47,7 +47,6 @@ class FirebaseAuthManager extends AuthManager {
     });
 
     await completer.future;
-    // _firebaseUserToModel(await FirebaseAuth.instance.userChanges().first);
   }
 
   void _firebaseUserToModel(User? user) {

@@ -15,6 +15,7 @@ import '../constants.dart';
 import '../managers/asset_manager.dart';
 import '../managers/data/data_manager.dart';
 import '../managers/gpt_manager.dart';
+import '../models/chat.dart';
 import '../models/chat_message.dart';
 import '../models/chat_snippet.dart';
 import '../models/message_status.dart';
@@ -66,7 +67,7 @@ class _ChatScreenState extends State<ChatScreen>
     with SingleTickerProviderStateMixin {
   final ScrollController scrollController = ScrollController();
 
-  late final FutureOr<bool> openChatFuture;
+  late final Stream<Chat?> chatStream;
 
   bool historyOpenOnWide = Hive.box(Constants.settings).get(
     Constants.openHistoryOnWideScreen,
@@ -78,8 +79,12 @@ class _ChatScreenState extends State<ChatScreen>
     super.initState();
 
     final GPTManager gpt = context.read<GPTManager>();
+
     gpt.init();
-    openChatFuture = gpt.openChat(
+
+    chatStream = gpt.chatStream;
+
+    gpt.openChat(
       notify: false,
       prompt: widget.prompt,
       chatID: widget.chatID,
@@ -89,6 +94,10 @@ class _ChatScreenState extends State<ChatScreen>
   @override
   void dispose() {
     scrollController.dispose();
+
+    final GPTManager gpt = context.read<GPTManager>();
+    gpt.dispose();
+
     super.dispose();
   }
 
@@ -103,8 +112,6 @@ class _ChatScreenState extends State<ChatScreen>
             platform == TargetPlatform.macOS);
 
     final double? buttonSize = isDesktop ? 20 : null;
-    final bool isGenerating = gpt.messages.isNotEmpty &&
-        gpt.messages.last.status == MessageStatus.streaming;
 
     return LayoutBuilder(builder: (context, constraints) {
       final bool isWide = constraints.maxWidth > 800;
@@ -213,8 +220,9 @@ class _ChatScreenState extends State<ChatScreen>
                 .merge(GoogleFonts.robotoTextTheme()),
           ),
           child: SizedBox.expand(
-            child: FutureBuilder<bool>(
-                future: Future.value(openChatFuture),
+            child: StreamBuilder<Chat?>(
+                stream: chatStream,
+                initialData: gpt.chat,
                 builder: (context, snapshot) {
                   if (snapshot.hasError) {
                     return Center(
@@ -231,7 +239,9 @@ class _ChatScreenState extends State<ChatScreen>
                     );
                   }
 
-                  final fullChat = gpt.currentChat!.toFullChat..removeAt(0);
+                  final fullChat = gpt.chat!.toFullChat..removeAt(0);
+                  final bool isGenerating = gpt.messages.isNotEmpty &&
+                      gpt.messages.last.status == MessageStatus.streaming;
                   return Row(
                     children: [
                       Expanded(
@@ -362,7 +372,6 @@ class HistoryTile extends StatefulWidget {
   const HistoryTile({
     super.key,
     required this.chatSnippet,
-    // required Prompt prompt;
   });
 
   final ChatSnippet chatSnippet;
@@ -377,7 +386,7 @@ class _HistoryTileState extends State<HistoryTile> {
   @override
   Widget build(BuildContext context) {
     final GPTManager gpt = context.watch<GPTManager>();
-    final bool isActiveChat = widget.chatSnippet.id == gpt.currentChat?.id;
+    final bool isActiveChat = widget.chatSnippet.id == gpt.chat?.id;
     return MouseRegion(
       onEnter: (event) {
         setState(() {

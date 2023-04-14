@@ -11,7 +11,6 @@ import '../screens/chat_screen.dart';
 import '../screens/home_screen.dart';
 import '../screens/onboarding/macos_onboarding_screen.dart';
 import '../screens/onboarding/onboarding_screen.dart';
-import '../screens/open_ai_key_screen.dart';
 import '../screens/settings_screen.dart';
 import '../ui/window_drag_handle.dart';
 import 'auth/auth_manager.dart';
@@ -89,29 +88,29 @@ class NavigationManager {
                   );
                 },
               ),
+              // GoRoute(
+              //   path: 'two',
+              //   pageBuilder: (context, state) {
+              //     return CustomTransitionPage(
+              //       key: state.pageKey,
+              //       child: const OpenAIKeyScreen(),
+              //       opaque: false,
+              //       transitionsBuilder:
+              //           (context, animation, secondaryAnimation, child) {
+              //         return pocketJennaTransition(
+              //           context,
+              //           animation,
+              //           secondaryAnimation,
+              //           child,
+              //           state: state,
+              //           comesFrom: AxisDirection.right,
+              //         );
+              //       },
+              //     );
+              //   },
+              // ),
               GoRoute(
                 path: 'two',
-                pageBuilder: (context, state) {
-                  return CustomTransitionPage(
-                    key: state.pageKey,
-                    child: const OpenAIKeyScreen(),
-                    opaque: false,
-                    transitionsBuilder:
-                        (context, animation, secondaryAnimation, child) {
-                      return pocketJennaTransition(
-                        context,
-                        animation,
-                        secondaryAnimation,
-                        child,
-                        state: state,
-                        comesFrom: AxisDirection.right,
-                      );
-                    },
-                  );
-                },
-              ),
-              GoRoute(
-                path: 'three',
                 pageBuilder: (context, state) {
                   return CustomTransitionPage(
                     key: state.pageKey,

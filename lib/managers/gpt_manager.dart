@@ -13,19 +13,25 @@ import '../models/prompt.dart';
 import 'data/data_manager.dart';
 
 class GPTManager extends ChangeNotifier {
-  List<ChatMessage> get messages => currentChat!.messages;
-
   final StreamController<ChatMessage> responseStreamController =
       StreamController<ChatMessage>.broadcast();
-  final historyBox = Hive.box(Constants.history);
 
   Stream<ChatMessage> get responseStream => responseStreamController.stream;
 
   StreamSubscription<OpenAIStreamChatCompletionModel>? listener;
 
-  Map<String, Chat> chatHistory = {};
+  final StreamController<Chat?> chatStreamController =
+      StreamController<Chat?>.broadcast();
 
-  Chat? currentChat;
+  Stream<Chat?> get chatStream => chatStreamController.stream;
+
+  Chat? chat;
+
+  List<ChatMessage> get messages => chat!.messages;
+
+  final historyBox = Hive.box(Constants.history);
+
+  Map<String, Chat> history = {};
 
   static Future<List<String>> fetchAndStoreModels() async {
     final List<OpenAIModelModel> models = await OpenAI.instance.model.list();
@@ -63,16 +69,17 @@ class GPTManager extends ChangeNotifier {
   }
 
   void init() {
+    historyBox.clear();
     final Map serializedHistory = {
       ...historyBox.get(Constants.history, defaultValue: {}),
     };
-    chatHistory = {
+    history = {
       for (final chat in serializedHistory.entries)
         chat.key: Chat.fromJson(chat.value)
     };
   }
 
-  FutureOr<bool> openChat({
+  Future<void> openChat({
     String? chatID,
     Prompt? prompt,
     required bool notify,
@@ -82,24 +89,27 @@ class GPTManager extends ChangeNotifier {
       'Either chatID or prompt must be provided',
     );
 
-    if (chatID == null) {
-      currentChat = Chat.simple(prompt: prompt!);
-      chatHistory[currentChat!.id] = currentChat!;
-    } else {
-      currentChat = chatHistory[chatID];
+    chatStreamController.add(null);
 
-      if (currentChat != null) {
-        DataManager.instance.uploadIfNecessary(currentChat!);
+    if (chatID == null) {
+      chat = Chat.simple(prompt: prompt!);
+      history[chat!.id] = chat!;
+    } else {
+      chat = history[chatID];
+
+      if (chat != null) {
+        DataManager.instance.uploadIfNecessary(chat!);
       } else {
-        currentChat ??= await DataManager.instance.fetchChat(chatID);
+        chat ??= await DataManager.instance.fetchChat(chatID);
       }
       purgeEmptyChats();
     }
+
+    chatStreamController.add(chat);
+
     if (notify) {
       notifyListeners();
     }
-
-    return true;
   }
 
   @override
@@ -112,20 +122,20 @@ class GPTManager extends ChangeNotifier {
 
   void saveChat({bool upload = true}) {
     historyBox.put(Constants.history, {
-      for (final MapEntry<String, Chat> chat in chatHistory.entries)
+      for (final MapEntry<String, Chat> chat in history.entries)
         chat.key: chat.value.toJson(),
     });
 
     if (!upload) return;
-    DataManager.instance.uploadChat(currentChat!);
+    DataManager.instance.uploadChat(chat!);
   }
 
   void purgeEmptyChats() {
-    chatHistory.removeWhere((key, value) => value.messages.isEmpty);
+    history.removeWhere((key, value) => value.messages.isEmpty);
   }
 
   void deleteChat(String id) {
-    chatHistory.remove(id);
+    history.remove(id);
     saveChat();
     notifyListeners();
   }
@@ -167,7 +177,7 @@ class GPTManager extends ChangeNotifier {
         OpenAI.instance.chat.createStream(
       model: findTailoredModel(),
       messages: [
-        ...currentChat!.prompt.toChatMessages
+        ...chat!.prompt.toChatMessages
             .map((chatMessage) => chatMessage.toOpenAI()),
         ...messages.map((msg) => msg.toOpenAI())
       ],

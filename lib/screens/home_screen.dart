@@ -12,10 +12,10 @@ import 'package:url_launcher/url_launcher_string.dart';
 import '../constants.dart';
 import '../managers/asset_manager.dart';
 import '../managers/data/data_manager.dart';
-import '../managers/data/user_model.dart';
 import '../managers/prompt_manager.dart';
 import '../managers/version_manager.dart';
 import '../models/prompt.dart';
+import '../models/user_model.dart';
 import '../ui/theme_extensions.dart';
 import '../ui/window_controls.dart';
 
