@@ -74,7 +74,7 @@ app.get("/getOpenAIKey", async (
     return res.status(403).send("Not enough tokens");
   }
 
-  return res.status(200).send(openAIKey);
+  return res.status(200).send(openAIKey.value());
 });
 
 app.post("/updateChat", async (
