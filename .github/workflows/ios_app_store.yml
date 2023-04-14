@@ -1,0 +1,43 @@
+name: iOS App Store
+
+on:
+  release:
+    types: [ published ]
+  workflow_dispatch:
+
+env:
+  MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
+  MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+  APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_KEY_ID }}
+  APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_ISSUE_ID }}
+  APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_API_KEY_P8 }}
+
+jobs:
+  release:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set Up XCode
+        uses: devbotsxyz/xcode-select@v1.1.0
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+      - name: Flutter version
+        run: flutter --version
+      - name: Install fastlane
+        run: brew install fastlane
+      - name: Fastlane version
+        run: fastlane --version
+      - name: Install Bundler
+        run: gem install bundler
+      - name: Get gem dependencies.
+        run: bundle install
+      - name: Run fastlane
+        run: fastlane ios release
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          path: Runner.ipa
+          if-no-files-found: error
+          retention-days: 5

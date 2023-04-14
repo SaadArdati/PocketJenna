@@ -1,4 +1,4 @@
-name: Windows Build
+name: Windows Release
 
 on:
   release:
@@ -10,6 +10,7 @@ on:
         required: true
       upload:
         description: 'Upload to release?'
+        type: boolean
         required: true
         default: true
 
@@ -36,10 +37,6 @@ jobs:
         id: GetPubspecVersion
         shell: bash
         run: echo "version=$(dart scripts/pubspec_version.dart)" >> $GITHUB_OUTPUT
-      - name: Should upload?
-        id: GetUpload
-        shell: bash
-        run: echo "upload=${{ github.event.inputs.upload == true || github.event_name == 'release' }}" >> $GITHUB_OUTPUT
       # <-------- END: Utility scripts -------->
       - name: Build
         run: flutter build windows
@@ -56,10 +53,11 @@ jobs:
           if-no-files-found: error
           retention-days: 5
       - name: Upload binaries to Release
-        if: ${{ steps.GetUpload.outputs.upload }}
+        if: ${{ github.event.inputs.upload == true  || github.event_name == 'release' }}
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: PocketJenna-windows-${{ steps.GetTag.outputs.tag }}.msix
-          tag: refs/tags/${{ github.event.inputs.tag }}
+          tag: refs/tags/${{ steps.GetTag.outputs.tag }}'
+          overwrite: true
           file_glob: true

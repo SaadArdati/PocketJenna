@@ -1,0 +1,469 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+# Fixes issue: https://github.com/fastlane/fastlane/issues/21125
+require 'spaceship'
+Spaceship::ConnectAPI::App.const_set('ESSENTIAL_INCLUDES', 'appStoreVersions')
+
+DEFAULT_APP_IDENTIFIER = 'dev.saadardati.pocketjenna'
+
+default_platform(:ios)
+
+platform :android do
+  desc "Publishes a new version to the Play store"
+  lane :release do
+    setup_ci if ENV['CI']
+    build
+    upload
+  end
+
+  desc "Build Android apk and app bundle"
+  lane :build do
+    setup_ci if ENV['CI']
+
+    Dir.chdir '..' do
+      sh 'flutter clean && flutter pub get' do |error|
+        unless error.exitstatus.eql? 0
+          UI.message error
+          UI.user_error! 'Unable to run flutter build command'
+        end
+      end
+      sh 'flutter build appbundle --release' do |error|
+        unless error.exitstatus.eql? 0
+          UI.message error
+          UI.user_error! 'Unable to run flutter build command'
+        end
+      end
+      sh 'flutter build apk --release' do |error|
+        unless error.exitstatus.eql? 0
+          UI.message error
+          UI.user_error! 'Unable to run flutter build command'
+        end
+      end
+    end
+  end
+
+  desc 'Upload built app bundle to play store'
+  desc 'Params'
+  desc ''
+  desc '  path:       Path of the App bundle file to upload. [OPTIONAL]'
+  desc '              Defaults to "build/app/outputs/bundle/release/app-release.aab"'
+  desc ''
+  desc 'Example'
+  desc '  fastlane upload path:app-release.aab'
+  lane :upload do |options|
+    setup_ci if ENV['CI']
+
+    aab_path = options[:path] || 'build/app/outputs/bundle/release/app-release.aab'
+
+    supply(
+      release_status: "draft",
+      json_key_data: ENV['GOOGLE_SERVICE_ACCOUNT_JSON'],
+      aab: aab_path,
+      skip_upload_metadata: true,
+      skip_upload_changelogs: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true,
+    )
+  end
+end
+
+platform :ios do
+  desc "Publishes a new version to the App Store"
+  lane :release do
+    setup_ci if ENV['CI']
+    build
+    upload(ipa: lane_context[SharedValues::IPA_OUTPUT_PATH])
+  end
+
+  desc "Builds iOS app"
+  lane :build do
+    setup_ci if ENV['CI']
+
+    match(
+      type: "appstore",
+      app_identifier: DEFAULT_APP_IDENTIFIER,
+      readonly: true,
+    )
+
+    Dir.chdir '..' do
+      sh 'flutter clean && flutter pub get' do |error|
+        unless error.exitstatus.eql? 0
+          UI.message error
+          UI.user_error! 'Unable to run flutter build command'
+        end
+      end
+    end
+
+    # Pod install
+    cocoapods(
+      clean_install: true,
+      podfile: "ios/Podfile",
+      use_bundle_exec: false,
+    )
+
+    Dir.chdir '..' do
+      sh 'flutter build ipa --release --export-method app-store' do |error|
+        unless error.exitstatus.eql? 0
+          UI.message error
+          UI.user_error! 'Unable to run flutter build command'
+        end
+      end
+    end
+
+    build_ios_app(
+      workspace: 'ios/Runner.xcworkspace',
+      export_method: "app-store",
+      clean: false,
+      skip_build_archive: true,
+      archive_path: "build/ios/archive/Runner.xcarchive",
+    )
+  end
+
+  desc 'Uploads built IPA to App Store'
+  desc 'Params'
+  desc ''
+  desc '  path:        Path of the IPA file to upload. [OPTIONAL]'
+  desc '              Defaults to Runner.ipa'
+  desc ''
+  desc 'Example'
+  desc '  fastlane upload path:Runner.ipa'
+  lane :upload do |options|
+    setup_ci if ENV['CI']
+
+    app_store_connect_api_key(
+      is_key_content_base64: true,
+      in_house: false, # if it is enterprise or not
+    )
+
+    ipa_path = options[:path] || 'Runner.ipa'
+
+    upload_to_app_store(
+      force: true,
+      run_precheck_before_submit: false,
+      submit_for_review: false,
+      ipa: ipa_path,
+      skip_metadata: true,
+      skip_screenshots: true,
+    )
+  end
+
+  desc "Get certificates for local machine"
+  lane :certificates do
+    match(
+      type: "development",
+      app_identifier: DEFAULT_APP_IDENTIFIER,
+      force_for_new_devices: true,
+      readonly: true,
+      platform: "ios",
+    )
+
+    match(
+      type: "appstore",
+      app_identifier: DEFAULT_APP_IDENTIFIER,
+      readonly: true,
+      platform: "ios",
+    )
+  end
+
+  desc "Generate new certificates"
+  lane :generate_new_certificates do
+    match(
+      type: "development",
+      app_identifier: DEFAULT_APP_IDENTIFIER,
+      force_for_new_devices: true,
+      readonly: false,
+      platform: "ios",
+    )
+
+    match(
+      type: "appstore",
+      app_identifier: DEFAULT_APP_IDENTIFIER,
+      readonly: false,
+      platform: "ios",
+    )
+  end
+end
+
+platform :mac do
+  desc "Publishes a new version to the App Store"
+  lane :release do
+    setup_ci if ENV['CI']
+    build_app_store
+    upload(path: 'PocketJenna.pkg')
+  end
+
+  desc "Release a new notarized DevID build"
+  lane :release_dev_id do
+    setup_ci if ENV['CI']
+    build_dev_id
+    notarize_app
+    dmg
+  end
+
+  desc "Builds macOS app"
+  lane :build_app_store do
+    setup_ci if ENV['CI']
+
+    match(
+      type: "appstore",
+      app_identifier: DEFAULT_APP_IDENTIFIER,
+      readonly: true,
+      platform: "macos",
+    )
+
+    # match(
+    #   type: "mac_installer_distribution",
+    #   app_identifier: DEFAULT_APP_IDENTIFIER,
+    #   readonly: true,
+    #   platform: "macos",
+    #   skip_provisioning_profiles: true,
+    # )
+
+    Dir.chdir '..' do
+      sh 'flutter clean && flutter pub get' do |error|
+        unless error.exitstatus.eql? 0
+          UI.message error
+          UI.user_error! 'Unable to run flutter build command'
+        end
+      end
+    end
+
+    # Pod install
+    cocoapods(
+      clean_install: true,
+      podfile: "macos/Podfile",
+      use_bundle_exec: false,
+    )
+
+    Dir.chdir '..' do
+      sh 'flutter build macos --release' do |error|
+        unless error.exitstatus.eql? 0
+          UI.message error
+          UI.user_error! 'Unable to run flutter build command'
+        end
+      end
+    end
+
+    build_mac_app(
+      workspace: 'macos/Runner.xcworkspace',
+      export_method: "app-store",
+      clean: false,
+      installer_cert_name: "3rd Party Mac Developer Installer: Birju Vachhani (TQ37FM6DBD)",
+    )
+  end
+
+  desc "Builds macOS app"
+  lane :build_dev_id do
+    setup_ci if ENV['CI']
+
+    match(
+      type: "appstore",
+      app_identifier: DEFAULT_APP_IDENTIFIER,
+      readonly: true,
+      platform: "macos",
+    )
+
+    match(
+      type: "developer_id",
+      app_identifier: DEFAULT_APP_IDENTIFIER,
+      readonly: true,
+      platform: "macos",
+    )
+
+    # match(
+    #   type: "mac_installer_distribution",
+    #   app_identifier: DEFAULT_APP_IDENTIFIER,
+    #   readonly: true,
+    #   platform: "macos",
+    #   skip_provisioning_profiles: true,
+    # )
+
+    Dir.chdir '..' do
+      sh 'flutter clean && flutter pub get' do |error|
+        unless error.exitstatus.eql? 0
+          UI.message error
+          UI.user_error! 'Unable to run flutter build command'
+        end
+      end
+    end
+
+    # Pod install
+    cocoapods(
+      clean_install: true,
+      podfile: "macos/Podfile",
+      use_bundle_exec: false,
+    )
+
+    Dir.chdir '..' do
+      sh 'flutter build macos --release' do |error|
+        unless error.exitstatus.eql? 0
+          UI.message error
+          UI.user_error! 'Unable to run flutter build command'
+        end
+      end
+    end
+
+    build_mac_app(
+      workspace: 'macos/Runner.xcworkspace',
+      export_method: "developer-id",
+      clean: false,
+      installer_cert_name: "3rd Party Mac Developer Installer: Birju Vachhani (TQ37FM6DBD)",
+    )
+  end
+
+  desc 'Create dmg'
+  desc 'Params'
+  desc ''
+  desc '  path:        Path of the app file to upload. [OPTIONAL]'
+  desc '               Defaults to PocketJenna.app'
+  desc ''
+  desc 'Example'
+  desc '  fastlane dmg path:PocketJenna.app'
+  lane :dmg do |options|
+    setup_ci if ENV['CI']
+
+    app_path = options[:path] || 'PocketJenna.app'
+
+    Dir.chdir '..' do
+      sh("./installers/dmg/create.sh", app_path) do |error|
+        unless error.exitstatus.eql? 0
+          UI.message error
+          UI.user_error! 'Unable to create dmg'
+        end
+      end
+    end
+  end
+
+  desc 'Notarize app'
+  desc 'Params'
+  desc ''
+  desc '  path:        Path of the app file to upload. [OPTIONAL]'
+  desc '               Defaults to PocketJenna.app'
+  desc ''
+  desc 'Example'
+  desc '  fastlane notarize_app path:PocketJenna.app'
+  lane :notarize_app do |options|
+    setup_ci if ENV['CI']
+
+    app_path = options[:path] || 'PocketJenna.app'
+
+    api_key = app_store_connect_api_key(
+      is_key_content_base64: true,
+      in_house: false, # if it is enterprise or not
+    )
+
+    notarize(
+      package: app_path,
+      bundle_id: DEFAULT_APP_IDENTIFIER,
+      api_key: api_key,
+    )
+  end
+
+  desc 'Upload built pkg to App Store'
+  desc 'Params'
+  desc ''
+  desc '  path:        Path of the pkg file to upload. [OPTIONAL]'
+  desc '               Defaults to PocketJenna.pkg'
+  desc ''
+  desc 'Example'
+  desc '  fastlane upload path:PocketJenna.pkg'
+  lane :upload do |options|
+    app_store_connect_api_key(
+      is_key_content_base64: true,
+      in_house: false, # if it is enterprise or not
+    )
+
+    pkg_path = options[:path] || 'PocketJenna.pkg'
+
+    upload_to_app_store(
+      force: true,
+      run_precheck_before_submit: false,
+      submit_for_review: false,
+      pkg: pkg_path,
+      skip_metadata: true,
+      skip_screenshots: true,
+    )
+  end
+
+  desc "Get certificates for local machine"
+  lane :certificates do
+    match(
+      type: "development",
+      app_identifier: DEFAULT_APP_IDENTIFIER,
+      force_for_new_devices: true,
+      readonly: true,
+      platform: "macos",
+    )
+
+    match(
+      type: "appstore",
+      app_identifier: DEFAULT_APP_IDENTIFIER,
+      readonly: true,
+      platform: "macos",
+    )
+
+    match(
+      type: "mac_installer_distribution",
+      app_identifier: DEFAULT_APP_IDENTIFIER,
+      readonly: true,
+      platform: "macos",
+    )
+  end
+
+  desc "Generate new certificates"
+  lane :generate_new_certificates do
+    match(
+      type: "development",
+      app_identifier: DEFAULT_APP_IDENTIFIER,
+      # force_for_new_devices: true,
+      readonly: false,
+      platform: "macos",
+    )
+
+    match(
+      type: "appstore",
+      app_identifier: DEFAULT_APP_IDENTIFIER,
+      readonly: false,
+      platform: "macos",
+    )
+
+    match(
+      type: "mac_installer_distribution",
+      app_identifier: DEFAULT_APP_IDENTIFIER,
+      readonly: false,
+      platform: "macos",
+    )
+  end
+end
+
+def pod_install
+  Dir.chdir '../ios' do
+    sh 'pod install' do |error|
+      unless error.exitstatus.eql? 0
+        UI.message error
+        UI.user_error! 'Unable to run pod install command'
+      end
+    end
+  end
+  Dir.chdir '../macos' do
+    sh 'pod install' do |error|
+      unless error.exitstatus.eql? 0
+        UI.message error
+        UI.user_error! 'Unable to run pod install command'
+      end
+    end
+  end
+end
