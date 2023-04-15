@@ -20,9 +20,9 @@ import '../models/chat_message.dart';
 import '../models/chat_snippet.dart';
 import '../models/message_status.dart';
 import '../models/prompt.dart';
+import '../ui/custom_scaffold.dart';
 import '../ui/markdown_renderer.dart';
 import '../ui/theme_extensions.dart';
-import '../ui/window_controls.dart';
 
 class ChatScreenWrapper extends StatelessWidget {
   final Prompt? prompt;
@@ -115,70 +115,61 @@ class _ChatScreenState extends State<ChatScreen>
 
     return LayoutBuilder(builder: (context, constraints) {
       final bool isWide = constraints.maxWidth > 800;
-      return Scaffold(
+      return CustomScaffold(
         extendBodyBehindAppBar: true,
-        appBar: AppBar(
-          backgroundColor: context.colorScheme.primary,
-          surfaceTintColor: Colors.transparent,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-            onPressed: () {
-              context.go('/home', extra: {'from': 'chat'});
-            },
-          ),
-          title: Text(
-            widget.prompt?.title ?? 'Loading...',
-            style: context.textTheme.titleMedium?.copyWith(
-              color: context.colorScheme.onPrimary,
-            ),
-          ),
-          centerTitle: false,
-          actions: [
-            if (isWide)
-              Padding(
-                padding: EdgeInsets.only(right: historyOpenOnWide ? 142 : 0),
-                child: IconButton(
-                  iconSize: buttonSize,
-                  tooltip: 'Chat History',
-                  onPressed: () {
-                    historyOpenOnWide = !historyOpenOnWide;
-                    Hive.box(Constants.settings).put(
-                      Constants.openHistoryOnWideScreen,
-                      historyOpenOnWide,
-                    );
-                    setState(() {});
-                  },
-                  icon: Icon(
-                    historyOpenOnWide ? Icons.arrow_forward_ios : Icons.history,
-                    size: historyOpenOnWide ? 16 : null,
-                  ),
-                ),
-              ),
-            if (!isWide)
-              Builder(
-                builder: (context) {
-                  return IconButton(
-                    iconSize: buttonSize,
-                    tooltip: 'Chat History',
-                    onPressed: () {
-                      Scaffold.of(context).openEndDrawer();
-                    },
-                    icon: const Icon(Icons.history),
-                  );
-                },
-              ),
-            IconButton(
-              iconSize: buttonSize,
-              tooltip: 'New Chat',
-              onPressed: () {
-                gpt.openChat(notify: true, prompt: widget.prompt);
-              },
-              icon: const Icon(Icons.add),
-            ),
-            const WindowControls(),
-          ],
+        leading: ScaffoldAction(
+          icon: Icons.arrow_back,
+          tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+          onTap: () {
+            context.go('/home', extra: {'from': 'chat'});
+          },
         ),
+        title: Text(
+          widget.prompt?.title ?? 'Loading...',
+          textAlign: TextAlign.left,
+          style: context.textTheme.titleSmall?.copyWith(
+            color: context.colorScheme.onPrimary,
+          ),
+        ),
+        centerTitle: false,
+        actions: [
+          if (isWide)
+            Padding(
+              padding: EdgeInsets.only(right: historyOpenOnWide ? 142 : 0),
+              child: ScaffoldAction(
+                tooltip: 'Chat History',
+                onTap: () {
+                  historyOpenOnWide = !historyOpenOnWide;
+                  Hive.box(Constants.settings).put(
+                    Constants.openHistoryOnWideScreen,
+                    historyOpenOnWide,
+                  );
+                  setState(() {});
+                },
+                icon:
+                    historyOpenOnWide ? Icons.arrow_forward_ios : Icons.history,
+              ),
+            ),
+          if (!isWide)
+            Builder(
+              builder: (context) {
+                return ScaffoldAction(
+                  tooltip: 'Chat History',
+                  onTap: () {
+                    Scaffold.of(context).openEndDrawer();
+                  },
+                  icon: Icons.history,
+                );
+              },
+            ),
+          ScaffoldAction(
+            tooltip: 'New Chat',
+            onTap: () {
+              gpt.openChat(notify: true, prompt: widget.prompt);
+            },
+            icon: Icons.add,
+          ),
+        ],
         endDrawerEnableOpenDragGesture: false,
         endDrawer: isWide
             ? null
@@ -630,8 +621,7 @@ class _UserInteractionRegionState extends State<UserInteractionRegion> {
                           isDense: true,
                           floatingLabelBehavior: FloatingLabelBehavior.never,
                           filled: true,
-                          fillColor: context.colorScheme.primaryContainer
-                              .withOpacity(0.5),
+                          fillColor: context.colorScheme.primaryContainer,
                           hoverColor: Colors.transparent,
                           border: OutlineInputBorder(
                             borderRadius: borderRadius,

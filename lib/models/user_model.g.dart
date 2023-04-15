@@ -9,10 +9,10 @@ part of 'user_model.dart';
 UserModel _$UserModelFromJson(Map json) => UserModel(
       id: json['id'] as String,
       tokens: json['tokens'] as int,
-      chatSnippets: (json['chatSnippets'] as Map).map(
+      updatedOn: jsonToDate(json['updatedOn'] as int?),
+      chatSnippets: (json['chatSnippets'] as Map?)?.map(
         (k, e) => MapEntry(k as String, ChatSnippet.fromJson(e as Map)),
       ),
-      updatedOn: jsonToDate(json['updatedOn'] as int?),
     );
 
 Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{

@@ -2,7 +2,7 @@ import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 import * as express from "express";
 import {NextFunction, Request, Response} from "express";
-import {warn} from "firebase-functions/logger";
+import {log, warn} from "firebase-functions/logger";
 import {Chat, ChatMessage, ChatMessageRole, Prompt, UserModel} from "./models";
 import {encode} from "gpt-3-encoder";
 import {defineSecret} from "firebase-functions/params";
@@ -99,21 +99,33 @@ app.post("/updateChat", async (
   const user = await usersRef.doc(userID).get();
   const userModel = user.data() as UserModel;
 
-  const lastMessage: undefined | ChatMessage =
-    chat.messages && chat.messages[chat.messages.length - 1];
+  log("CHAT: " + JSON.stringify(chat));
+  log("USER: " + JSON.stringify(userModel));
+
+  const lastMessage: ChatMessage = chat.messages[chat.messages.length - 1];
 
   if (userModel.tokens <= 0) {
     return res.status(403).send("Not enough tokens");
   }
 
-  if (lastMessage && lastMessage.role == ChatMessageRole.assistant) {
+  if (lastMessage.role === ChatMessageRole.assistant) {
     // A generated assistant message. Tokenize and subtract tokens from user.
-    const tokens: number = encode(lastMessage.text).length;
+    const encoded = encode(lastMessage.text);
+    const tokens: number = encoded.length;
+    log("Encoded: " + encoded);
+    log("Tokens: " + tokens);
+    log("User tokens: " + userModel.tokens);
 
     userModel.tokens -= tokens;
+
+    log("User tokens after: " + userModel.tokens);
   }
 
   await usersRef.doc(userID).collection("chats").doc(chat.id).set(chat);
+
+  if (!userModel.chatSnippets) {
+    userModel.chatSnippets = {};
+  }
 
   userModel.chatSnippets[chat.id] = {
     id: chat.id,
@@ -121,6 +133,9 @@ app.post("/updateChat", async (
       "No messages",
     prompt: chat.prompt,
   };
+  userModel.updatedOn = new Date().getMilliseconds();
+
+  log("User model: " + JSON.stringify(userModel));
 
   await usersRef.doc(userID).set(userModel);
 
@@ -197,7 +212,7 @@ app.post("/registerUser", async (
 
   const userModel: UserModel = {
     id: userID,
-    tokens: 1000,
+    tokens: 50000,
     chatSnippets: {},
     updatedOn: Date.now(),
   };

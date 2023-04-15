@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -51,7 +49,7 @@ class SystemManager with WindowListener {
       backgroundColor: Colors.transparent,
       skipTaskbar: !showInTaskbar,
       titleBarStyle: showTitleBar ? TitleBarStyle.normal : TitleBarStyle.hidden,
-      title: 'PocketJenna',
+      title: 'Pocket Jenna',
     );
 
     windowManager.waitUntilReadyToShow(windowOptions);
@@ -64,7 +62,7 @@ class SystemManager with WindowListener {
 
       windowManager.addListener(this);
 
-      minimizeWindow();
+      closeWindow();
     });
 
     if (Platform.isMacOS) windowManager.setMovable(true);
@@ -76,8 +74,9 @@ class SystemManager with WindowListener {
 
     await systemTray.initSystemTray(
       title: '',
-      toolTip: 'PocketJenna',
+      toolTip: 'Pocket Jenna',
       iconPath: path,
+      isTemplate: true,
     );
 
     final Menu menu = Menu();
@@ -125,7 +124,7 @@ class SystemManager with WindowListener {
     final bool isVisible = await windowManager.isVisible();
 
     if (isVisible) {
-      minimizeWindow();
+      closeWindow();
     } else {
       revealWindow();
       final AxisDirection dockPosition = await findSystemDockPosition();
@@ -191,6 +190,22 @@ class SystemManager with WindowListener {
       Offset(1, 1),
     ],
   };
+
+  double getToolbarHeight() {
+    if (kIsWeb) return 0;
+    switch (defaultTargetPlatform) {
+      case TargetPlatform.android:
+      case TargetPlatform.fuchsia:
+      case TargetPlatform.iOS:
+      case TargetPlatform.linux:
+        return 0;
+      case TargetPlatform.macOS:
+        return 34;
+      case TargetPlatform.windows:
+        appWindow.titleBarButtonSize;
+        return appWindow.titleBarButtonSize.height + 8;
+    }
+  }
 
   Future<AxisDirection> findSystemDockPosition() async {
     final Display primaryDisplay = await screenRetriever.getPrimaryDisplay();
@@ -297,11 +312,19 @@ class SystemManager with WindowListener {
     return windowManager.setAlwaysOnTop(isAlwaysOnTop);
   }
 
-  Future<void> minimizeWindow() async {
+  Future<void> closeWindow() async {
     if (defaultTargetPlatform == TargetPlatform.windows) {
       return appWindow.hide();
     } else {
       return windowManager.hide();
+    }
+  }
+
+  Future<void> minimizeWindow() async {
+    if (defaultTargetPlatform == TargetPlatform.windows) {
+      return appWindow.minimize();
+    } else {
+      return windowManager.minimize();
     }
   }
 
@@ -320,6 +343,10 @@ class SystemManager with WindowListener {
     } else {
       return SystemNavigator.pop();
     }
+  }
+
+  void maximizeOrRestoreWindow() {
+    appWindow.maximizeOrRestore();
   }
 
   @override
@@ -347,7 +374,7 @@ class SystemManager with WindowListener {
       await Future.delayed(const Duration(milliseconds: 200));
     }
     if (Platform.isWindows && isInitializing) return;
-    await minimizeWindow();
+    await closeWindow();
     windowFocus.value = false;
   }
 

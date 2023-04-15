@@ -12,8 +12,8 @@ import 'package:url_launcher/url_launcher_string.dart';
 import '../constants.dart';
 import '../managers/auth/auth_manager.dart';
 import '../managers/system_manager.dart';
+import '../ui/custom_scaffold.dart';
 import '../ui/theme_extensions.dart';
-import '../ui/window_controls.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -25,25 +25,24 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: context.colorScheme.primary,
-        surfaceTintColor: Colors.transparent,
-        leading: IconButton(
-          onPressed: () {
+    return CustomScaffold(
+      title: Text(
+        'Settings',
+        textAlign: TextAlign.center,
+        style: context.textTheme.titleSmall?.copyWith(
+          color: context.colorScheme.onPrimary,
+        ),
+      ),
+      automaticallyImplyLeading: false,
+      actions: [
+        ScaffoldAction(
+          onTap: () {
             context.go('/home', extra: {'from': 'settings'});
           },
-          icon: const Icon(Icons.arrow_forward),
+          icon: Icons.arrow_forward,
+          tooltip: MaterialLocalizations.of(context).backButtonTooltip,
         ),
-        centerTitle: false,
-        title: Text(
-          'Settings',
-          style: context.textTheme.titleMedium?.copyWith(
-            color: context.colorScheme.onPrimary,
-          ),
-        ),
-        actions: const [WindowControls()],
-      ),
+      ],
       extendBodyBehindAppBar: true,
       body: Builder(builder: (context) {
         return SizedBox.expand(
@@ -469,7 +468,13 @@ class _AppSettingsTileState extends State<AppSettingsTile> {
                                       onPressed: () {
                                         Navigator.pop(context);
                                       },
-                                      child: const Text('Dismiss'),
+                                      child: Text(
+                                        'Dismiss',
+                                        style: context.textTheme.labelMedium
+                                            ?.copyWith(
+                                          color: context.colorScheme.onSurface,
+                                        ),
+                                      ),
                                     ),
                                   ],
                                 ),

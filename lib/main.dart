@@ -122,7 +122,7 @@ class _PocketJennaState extends State<PocketJenna> with WindowListener {
       light: FlexThemeData.light(
         colors: const FlexSchemeColor(
           primary: Color(0xff6c4ab0),
-          primaryContainer: Color(0xffc1acec),
+          primaryContainer: Color(0xffd1c2f1),
           secondary: Color(0xff007eb6),
           secondaryContainer: Color(0xff82bcff),
           tertiary: Color(0xffceefff),
@@ -156,14 +156,14 @@ class _PocketJennaState extends State<PocketJenna> with WindowListener {
           ),
         ),
         textSelectionTheme: TextSelectionThemeData(
-          cursorColor: Colors.black.withOpacity(0.5),
-          selectionColor: Colors.black.withOpacity(0.5),
-          selectionHandleColor: Colors.black.withOpacity(0.5),
+          cursorColor: const Color(0xff6c4ab0).withOpacity(0.5),
+          selectionColor: const Color(0xff6c4ab0).withOpacity(0.5),
+          selectionHandleColor: const Color(0xff6c4ab0).withOpacity(0.5),
         ),
       ),
       dark: FlexThemeData.dark(
         colors: const FlexSchemeColor(
-          primary: Color(0xff352c48),
+          primary: Color(0xff3c3054),
           primaryContainer: Color(0xff282331),
           secondary: Color(0xff00314b),
           secondaryContainer: Color(0xff00273f),
@@ -196,9 +196,9 @@ class _PocketJennaState extends State<PocketJenna> with WindowListener {
           ),
         ),
         textSelectionTheme: TextSelectionThemeData(
-          cursorColor: Colors.white.withOpacity(0.5),
-          selectionColor: Colors.white.withOpacity(0.5),
-          selectionHandleColor: Colors.white.withOpacity(0.5),
+          cursorColor: const Color(0xff6c4ab0).withOpacity(0.5),
+          selectionColor: const Color(0xff6c4ab0).withOpacity(0.5),
+          selectionHandleColor: const Color(0xff6c4ab0).withOpacity(0.5),
         ),
       ),
       initial: widget.mode,
@@ -239,7 +239,7 @@ class _NavigationBackgroundState extends State<NavigationBackground>
   )..repeat(reverse: false);
   late final AnimationController chaosController = AnimationController(
     vsync: this,
-    duration: const Duration(minutes: 1),
+    duration: const Duration(minutes: 3),
     lowerBound: 0,
     upperBound: 1,
   )..animateTo(1);
@@ -410,9 +410,7 @@ class _NavigationBackgroundState extends State<NavigationBackground>
             AnimatedContainer(
               duration: const Duration(milliseconds: 500),
               curve: Curves.fastOutSlowIn,
-              color: context.colorScheme.background.withOpacity(
-                isChatPage ? 0.65 : 0.35,
-              ),
+              color: context.colorScheme.background.withOpacity(0.65),
             ),
             widget.child,
           ],

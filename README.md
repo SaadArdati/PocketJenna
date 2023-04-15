@@ -1,8 +1,16 @@
 ![Banner](.github/assets/banner.png)
 
-<a href="https://github.com/SaadArdati/pocketjenna/releases/download/0.1.1/PocketJenna-android-0.1.1.apk"><img src=".github/assets/android.png" height="70px" /></a>
-<a href="https://github.com/SaadArdati/pocketjenna/releases/download/0.1.1/PocketJenna-macos-0.1.1.dmg"><img src=".github/assets/macos.png" height="70px" /></a>
-<a href="https://github.com/SaadArdati/pocketjenna/releases/download/0.1.1/PocketJenna-windows-0.1.1.dmg"><img src=".github/assets/windows.png" height="70px" /></a>
+<!---- DOWNLOAD LINKS START --->
+
+| Platform | Available on Stores                                                                                                                        | Direct Download                                                                                                                                                        |
+|----------|--------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Android  | <a href="https://play.google.com/store/apps/details?id=dev.birju.targetmate"><img src=".github/assets/playstore.png" height="70px" /></a>  | <a href="https://github.com/SaadArdati/PocketJenna/releases/download/0.1.1/PocketJenna-android-0.1.1.apk"><img src=".github/assets/android.png" height="70px" /></a> |
+| iOS      | <a href="https://apps.apple.com/in/app/target-mate/id6447091819"><img src=".github/assets/appstore.png" height="70px" /></a>               | ❌ &nbsp; Not Available                                                                                                                                                |
+| macOS    | <a href="https://apps.apple.com/in/app/target-mate/id6447091819"><img src=".github/assets/appstore.png" height="70px" /></a>               | <a href="https://github.com/SaadArdati/PocketJenna/releases/download/0.1.1/PocketJenna-macos-0.1.1.dmg"><img src=".github/assets/macos.png" height="70px" /></a>     |
+| Windows  | ❌ &nbsp; Not Available                                                                                                                    | <a href="https://github.com/SaadArdati/PocketJenna/releases/download/0.1.1/PocketJenna-windows-0.1.1.exe"><img src=".github/assets/windows.png" height="70px" /></a> |
+| Linux    | ❌ &nbsp; Not Available                                                                                                                    |  ❌ &nbsp; Not Available                                                                                                                                               |
+
+<!---- DOWNLOAD LINKS END --->
 
 See [Installation Guide](#installation-guide) for installing on desktop.
 
@@ -23,36 +31,6 @@ See [Installation Guide](#installation-guide) for installing on desktop.
 ### Disclaimer
 
 > This is not a product of OpenAI. This is a utility app that uses OpenAI's services.
-
-## Installation Guide
-
-### MacOS
-
-In order to install PocketJenna on MacOS, download the file named `PocketJenna-macos-x.x.x.dmg`.
-
-#### Installing with DMG (Recommended)
-
-1. To install PocketJenna in your Mac simply open `PocketJenna.dmg` and drag the PocketJenna.app to the `Applications` folder
-   next to it. If you are updating the app you'll need to click `Replace`.
-2. PocketJenna should now appear in your LaunchPad. However, if you try to open it you might get a message saying
-   that `"PocketJenna" can't be opened because Apple cannot check it for malicious software.`
-3. To fix this, open `System Preferences` and click on `Security and Privacy`.
-4. you'll see a message saying `"PocketJenna" was blocked from use because it is not from an identified developer`.
-5. Click on `Open Anyway` and then `Open` in the popup.
-6. Done! You should now be able to use PocketJenna normally!
-
-### Windows
-
-#### Installing with MSIX (Recommended)
-
-Download the `PocketJenna-windows-x.x.x.msix`.
-
-## How to get an API key from OpenAI
-
-You can navigate to your [account](https://platform.openai.com/account/api-keys) on [OpenAI][openai] to get your access
-token. Make sure you're logged in!
-
-![api_key](.github/assets/api_key.png)
 
 ## Build from source
 
@@ -81,11 +59,5 @@ Thank you [Birju Vachhani](https://birju.dev/) for being a key contributor to th
 You are most welcome to contribute to this project!
 
 [openai]: https://platform.openai.com/
-
-[android]: https://github.com/SaadArdati/pocketjenna/releases/download/0.1.1/PocketJenna-android-0.1.1.apk
-
-[macos]: https://github.com/SaadArdati/pocketjenna/releases/download/0.1.1/PocketJenna-macos-0.1.1.dmg
-
-[windows]: https://github.com/SaadArdati/pocketjenna/releases/download/0.1.1/PocketJenna-windows-0.1.1.dmg
 
 [web]: https://saad-ardati.dev/pocketjenna

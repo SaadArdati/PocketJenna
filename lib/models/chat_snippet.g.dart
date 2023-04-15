@@ -10,6 +10,7 @@ ChatSnippet _$ChatSnippetFromJson(Map json) => ChatSnippet(
       id: json['id'] as String,
       snippet: json['snippet'] as String,
       prompt: Prompt.fromJson(json['prompt'] as Map),
+      updatedOn: jsonToDate(json['updatedOn'] as int?),
     );
 
 Map<String, dynamic> _$ChatSnippetToJson(ChatSnippet instance) =>
@@ -17,4 +18,5 @@ Map<String, dynamic> _$ChatSnippetToJson(ChatSnippet instance) =>
       'id': instance.id,
       'snippet': instance.snippet,
       'prompt': instance.prompt.toJson(),
+      'updatedOn': dateToJson(instance.updatedOn),
     };

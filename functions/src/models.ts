@@ -14,9 +14,9 @@ export interface ChatSnippet {
 export interface Chat {
   id: string;
   prompt: Prompt;
-  messages?: ChatMessage[];
-  createdOn?: Date;
-  updatedOn?: Date;
+  messages: ChatMessage[];
+  createdOn: Date;
+  updatedOn: Date;
 }
 
 export interface ChatMessage {
@@ -27,7 +27,11 @@ export interface ChatMessage {
   status: MessageStatus;
 }
 
-export enum ChatMessageRole { system, user, assistant }
+export enum ChatMessageRole {
+  system = "system",
+  user = "user",
+  assistant = "assistant",
+}
 
 export enum MessageStatus {
   waiting,

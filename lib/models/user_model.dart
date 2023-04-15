@@ -15,12 +15,12 @@ class UserModel extends Equatable {
   @JsonKey(fromJson: jsonToDate, toJson: dateToJson)
   final DateTime updatedOn;
 
-  const UserModel({
+  UserModel({
     required this.id,
     required this.tokens,
-    required this.chatSnippets,
     required this.updatedOn,
-  });
+    Map<String, ChatSnippet>? chatSnippets,
+  }) : chatSnippets = chatSnippets ?? {};
 
   UserModel copyWith({
     int? tokens,

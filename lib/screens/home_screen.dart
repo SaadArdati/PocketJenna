@@ -16,8 +16,8 @@ import '../managers/prompt_manager.dart';
 import '../managers/version_manager.dart';
 import '../models/prompt.dart';
 import '../models/user_model.dart';
+import '../ui/custom_scaffold.dart';
 import '../ui/theme_extensions.dart';
-import '../ui/window_controls.dart';
 
 bool didCheckForUpdates = false;
 
@@ -91,37 +91,21 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        // backgroundColor: Colors.transparent,
-        backgroundColor: context.colorScheme.primary,
-        surfaceTintColor: Colors.transparent,
-        elevation: 0,
-        title: Text(
-          'Pocket Jenna',
-          style: context.textTheme.titleMedium?.copyWith(
-            color: context.colorScheme.onPrimary,
-          ),
-        ),
-        centerTitle: false,
-        leading: IconButton(
-          tooltip: 'Settings',
-          icon: const Icon(Icons.settings),
-          onPressed: () {
-            context.go('/settings', extra: {'from': 'home'});
-          },
-        ),
-        // flexibleSpace: FlexibleSpaceBar(
-        //   background: CustomPaint(
-        //     painter: FabricRufflesPainter(
-        //       color: context.colorScheme.primary,
-        //       shade: Colors.black.withOpacity(0.5),
-        //       highlight: Colors.white,
-        //     ),
-        //     child: Placeholder(),
-        //   ),
-        // ),
-        actions: const [WindowControls()],
+    return CustomScaffold(
+      // title: Text(
+      //   'Pocket Jenna',
+      //   textAlign: TextAlign.center,
+      //   style: context.textTheme.titleMedium?.copyWith(
+      //     color: context.colorScheme.onPrimary,
+      //   ),
+      // ),
+      automaticallyImplyLeading: false,
+      leading: ScaffoldAction(
+        tooltip: 'Settings',
+        icon: Icons.settings,
+        onTap: () {
+          context.go('/settings', extra: {'from': 'home'});
+        },
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(vertical: 32),
@@ -199,6 +183,7 @@ class TokensCard extends StatelessWidget {
         builder: (context, snapshot) {
           final UserModel? user = snapshot.data;
           return Container(
+            constraints: const BoxConstraints(maxWidth: 400),
             margin: const EdgeInsets.symmetric(horizontal: 64),
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(

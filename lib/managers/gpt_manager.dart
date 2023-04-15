@@ -127,6 +127,7 @@ class GPTManager extends ChangeNotifier {
     });
 
     if (!upload) return;
+    print('Uploading chat ${chat!.id}...');
     DataManager.instance.uploadChat(chat!);
   }
 
@@ -155,7 +156,6 @@ class GPTManager extends ChangeNotifier {
       status: MessageStatus.done,
     );
     messages.add(userMsg);
-    saveChat();
     notifyListeners();
 
     if (generateResponse) {
