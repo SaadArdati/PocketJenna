@@ -177,7 +177,7 @@ class NavigationManager {
           AxisDirection comesFrom = AxisDirection.right;
           if (extra != null && extra is Map) {
             final String? fromParam = extra['from'];
-            if (fromParam == 'chat') {
+            if (fromParam == '/chat') {
               comesFrom = AxisDirection.left;
             }
           }
@@ -284,7 +284,7 @@ class NavigationManager {
                 secondaryAnimation,
                 child,
                 state: state,
-                comesFrom: AxisDirection.up,
+                comesFrom: AxisDirection.right,
               );
             },
           );

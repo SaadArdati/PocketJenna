@@ -9,6 +9,7 @@ export interface ChatSnippet {
   id: string;
   snippet: string;
   prompt: Prompt;
+  updatedOn: number;
 }
 
 export interface Chat {

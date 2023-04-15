@@ -456,7 +456,6 @@ class CustomAppBar extends StatelessWidget {
             platform == TargetPlatform.linux ||
             platform == TargetPlatform.macOS);
 
-    const double buttonSize = 20;
     return Theme(
       data: Theme.of(context).copyWith(
         iconTheme: IconThemeData(
@@ -464,33 +463,35 @@ class CustomAppBar extends StatelessWidget {
         ),
       ),
       child: ValueListenableBuilder(
-          valueListenable: Hive.box(Constants.settings).listenable(),
-          builder: (context, box, child) {
-            final bool showTitleBar =
-                box.get(Constants.showTitleBar, defaultValue: false);
+        valueListenable: Hive.box(Constants.settings).listenable(),
+        builder: (context, box, child) {
+          final bool showTitleBar =
+              box.get(Constants.showTitleBar, defaultValue: false);
 
-            Widget leadingWidget = automaticallyImplyLeading || leading != null
-                ? automaticallyImplyLeading && leading == null
-                    ? const BackButton()
-                    : leading!
-                : const SizedBox();
+          Widget leadingWidget = automaticallyImplyLeading || leading != null
+              ? automaticallyImplyLeading && leading == null
+                  ? const BackButton()
+                  : leading!
+              : const SizedBox();
 
-            // if (showTitleBar) {
-            //   leadingWidget = Flexible(child: leadingWidget);
-            // }
+          // if (showTitleBar) {
+          //   leadingWidget = Flexible(child: leadingWidget);
+          // }
 
-            return Material(
-              color: Colors.transparent,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
+          return Material(
+            color: Colors.transparent,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (isDesktop)
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const SizedBox.shrink(),
+                      const Expanded(child: SizedBox.shrink()),
                       Expanded(
+                        flex: 2,
                         child: GestureDetector(
                           behavior: HitTestBehavior.deferToChild,
                           onDoubleTap: () {
@@ -506,106 +507,128 @@ class CustomAppBar extends StatelessWidget {
                               'Pocket Jenna',
                               textAlign: TextAlign.center,
                               style: context.textTheme.titleSmall?.copyWith(
-                                  color: context.colorScheme.onPrimary),
+                                  color: context.colorScheme.onPrimary,
+                                  letterSpacing: 1.5,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold),
                             ),
                           ),
                         ),
                       ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          if (isDesktop) ...[
-                            ScaffoldAction(
-                              tooltip: 'Toggle window bounds',
-                              icon: Icons.reset_tv_outlined,
-                              onTap: SystemManager.instance.toggleWindowMemory,
-                            ),
-                            if (!showTitleBar) ...[
-                              ScaffoldAction(
-                                tooltip: 'Minimize',
-                                icon: Icons.minimize,
-                                onTap: SystemManager.instance.minimizeWindow,
-                              ),
-                              ScaffoldAction(
-                                tooltip: 'Close',
-                                icon: Icons.close,
-                                onTap: SystemManager.instance.closeWindow,
-                              ),
-                              // IconButton(
-                              //   iconSize: buttonSize,
-                              //   tooltip: 'Quit',
-                              //   icon: const Icon(Icons.close),
-                              //   onPressed: SystemManager.instance.quitApp,
-                              // ),
+                      Expanded(
+                        child: Align(
+                          alignment: Alignment.centerRight,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              if (isDesktop) ...[
+                                ScaffoldAction(
+                                  tooltip: 'Toggle window bounds',
+                                  icon: Icons.reset_tv_outlined,
+                                  onTap:
+                                      SystemManager.instance.toggleWindowMemory,
+                                ),
+                                // if (!showTitleBar) ...[
+                                //   ScaffoldAction(
+                                //     tooltip: 'Minimize',
+                                //     icon: Icons.minimize,
+                                //     onTap:
+                                //         SystemManager.instance.minimizeWindow,
+                                //   ),
+                                //   ScaffoldAction(
+                                //     tooltip: 'Close',
+                                //     icon: Icons.close,
+                                //     onTap: SystemManager.instance.closeWindow,
+                                //   ),
+                                // IconButton(
+                                //   iconSize: buttonSize,
+                                //   tooltip: 'Quit',
+                                //   icon: const Icon(Icons.close),
+                                //   onPressed: SystemManager.instance.quitApp,
+                                // ),
+                                // ],
+                              ],
                             ],
-                          ],
-                        ],
+                          ),
+                        ),
                       )
                     ],
                   ),
-                  // Divider(
-                  //   height: 1,
-                  //   thickness: 1,
-                  //   color:
-                  //       context.colorScheme.primaryContainer.withOpacity(0.25),
-                  // ),
-                  Material(
-                    color: context.colorScheme.primary,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        leadingWidget,
-                        if (title != null) title!,
-                        Row(
+                // Divider(
+                //   height: 1,
+                //   thickness: 1,
+                //   color:
+                //       context.colorScheme.primaryContainer.withOpacity(0.25),
+                // ),
+                Material(
+                  color: context.colorScheme.primary,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: leadingWidget,
+                        ),
+                      ),
+                      if (title != null) Expanded(flex: 2, child: title!),
+                      Expanded(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
                           children: [if (actions != null) ...actions!],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            );
-          }),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 }
 
-class ScaffoldAction extends StatefulWidget {
+class ScaffoldAction extends StatelessWidget {
   const ScaffoldAction({
     super.key,
     required this.onTap,
     required this.icon,
     required this.tooltip,
+    this.color,
+    this.hoverColor,
   });
 
   final VoidCallback onTap;
   final IconData icon;
   final String tooltip;
+  final Color? color;
+  final Color? hoverColor;
 
-  @override
-  State<ScaffoldAction> createState() => _ScaffoldActionState();
-}
-
-class _ScaffoldActionState extends State<ScaffoldAction> {
   @override
   Widget build(BuildContext context) {
+    final TargetPlatform platform = defaultTargetPlatform;
+    final bool isDesktop = (platform == TargetPlatform.windows ||
+        platform == TargetPlatform.linux ||
+        platform == TargetPlatform.macOS);
     return Tooltip(
-      message: widget.tooltip,
+      message: tooltip,
       child: Material(
         color: Colors.transparent,
         borderRadius: BorderRadius.circular(4),
-        // shape: const CircleBorder(),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
-          hoverColor: context.colorScheme.onPrimary.withOpacity(0.1),
-          onTap: widget.onTap,
+          hoverColor:
+              hoverColor ?? context.colorScheme.onPrimary.withOpacity(0.1),
+          onTap: onTap,
           child: Padding(
             padding: const EdgeInsets.all(8),
             child: Icon(
-              widget.icon,
-              size: 20,
-              color: context.colorScheme.onPrimary,
+              icon,
+              size: isDesktop ? 20 : 24,
+              color: color ?? context.colorScheme.onPrimary,
             ),
           ),
         ),

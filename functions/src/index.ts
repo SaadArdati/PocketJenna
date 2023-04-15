@@ -132,6 +132,7 @@ app.post("/updateChat", async (
     snippet: chat.messages && chat.messages[0].text ||
       "No messages",
     prompt: chat.prompt,
+    updatedOn: new Date().getMilliseconds(),
   };
   userModel.updatedOn = new Date().getMilliseconds();
 

@@ -20,6 +20,7 @@ import '../models/chat_message.dart';
 import '../models/chat_snippet.dart';
 import '../models/message_status.dart';
 import '../models/prompt.dart';
+import '../ui/coming_soon.dart';
 import '../ui/custom_scaffold.dart';
 import '../ui/markdown_renderer.dart';
 import '../ui/theme_extensions.dart';
@@ -121,34 +122,32 @@ class _ChatScreenState extends State<ChatScreen>
           icon: Icons.arrow_back,
           tooltip: MaterialLocalizations.of(context).backButtonTooltip,
           onTap: () {
-            context.go('/home', extra: {'from': 'chat'});
+            context.go('/home', extra: {'from': '/chat'});
           },
         ),
         title: Text(
           widget.prompt?.title ?? 'Loading...',
-          textAlign: TextAlign.left,
-          style: context.textTheme.titleSmall?.copyWith(
+          textAlign: TextAlign.center,
+          style: context.textTheme.titleMedium?.copyWith(
             color: context.colorScheme.onPrimary,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.5,
           ),
         ),
         centerTitle: false,
         actions: [
-          if (isWide)
-            Padding(
-              padding: EdgeInsets.only(right: historyOpenOnWide ? 142 : 0),
-              child: ScaffoldAction(
-                tooltip: 'Chat History',
-                onTap: () {
-                  historyOpenOnWide = !historyOpenOnWide;
-                  Hive.box(Constants.settings).put(
-                    Constants.openHistoryOnWideScreen,
-                    historyOpenOnWide,
-                  );
-                  setState(() {});
-                },
-                icon:
-                    historyOpenOnWide ? Icons.arrow_forward_ios : Icons.history,
-              ),
+          if (isWide && !historyOpenOnWide)
+            ScaffoldAction(
+              tooltip: 'Chat History',
+              onTap: () {
+                historyOpenOnWide = !historyOpenOnWide;
+                Hive.box(Constants.settings).put(
+                  Constants.openHistoryOnWideScreen,
+                  historyOpenOnWide,
+                );
+                setState(() {});
+              },
+              icon: Icons.history,
             ),
           if (!isWide)
             Builder(
@@ -204,156 +203,193 @@ class _ChatScreenState extends State<ChatScreen>
                   );
                 }),
               ),
-        body: Theme(
-          data: Theme.of(context).copyWith(
-            textTheme: Theme.of(context)
-                .textTheme
-                .merge(GoogleFonts.robotoTextTheme()),
-          ),
-          child: SizedBox.expand(
-            child: StreamBuilder<Chat?>(
-                stream: chatStream,
-                initialData: gpt.chat,
-                builder: (context, snapshot) {
-                  if (snapshot.hasError) {
-                    return Center(
-                      child: Text(
-                        snapshot.error.toString(),
-                        style: context.textTheme.bodyMedium,
-                      ),
-                    );
-                  }
+        body: Builder(builder: (context) {
+          return Theme(
+            data: Theme.of(context).copyWith(
+              textTheme: Theme.of(context)
+                  .textTheme
+                  .merge(GoogleFonts.robotoTextTheme()),
+            ),
+            child: SizedBox.expand(
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: StreamBuilder<Chat?>(
+                              stream: chatStream,
+                              initialData: gpt.chat,
+                              builder: (context, snapshot) {
+                                if (snapshot.hasError) {
+                                  return Center(
+                                    child: Text(
+                                      snapshot.error.toString(),
+                                      style: context.textTheme.bodyMedium,
+                                    ),
+                                  );
+                                }
 
-                  if (!snapshot.hasData) {
-                    return const Center(
-                      child: CupertinoActivityIndicator(),
-                    );
-                  }
+                                if (!snapshot.hasData) {
+                                  return const Center(
+                                    child: CupertinoActivityIndicator(),
+                                  );
+                                }
 
-                  final fullChat = gpt.chat!.toFullChat..removeAt(0);
-                  final bool isGenerating = gpt.messages.isNotEmpty &&
-                      gpt.messages.last.status == MessageStatus.streaming;
-                  return Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          children: [
-                            Expanded(
-                              child: SelectionArea(
-                                child: ListView.separated(
-                                  keyboardDismissBehavior:
-                                      ScrollViewKeyboardDismissBehavior.onDrag,
-                                  controller: scrollController,
-                                  reverse: true,
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 16),
-                                  itemCount: fullChat.length,
-                                  separatorBuilder: (context, index) =>
-                                      const SizedBox(height: 8),
-                                  itemBuilder: (context, index) {
-                                    final int reversedIndex =
-                                        fullChat.length - 1 - index;
-                                    final ChatMessage message =
-                                        fullChat[reversedIndex];
-                                    return Padding(
-                                      padding: EdgeInsets.only(
-                                        top: index == fullChat.length - 1
-                                            ? (Scaffold.of(context)
-                                                        .appBarMaxHeight ??
-                                                    48) +
-                                                16
-                                            : 0,
-                                        bottom: index == 0 ? 16 : 0,
-                                      ),
-                                      child: ChatMessageBubble(
-                                        message: message,
+                                final fullChat = gpt.chat!.toFullChat
+                                  ..removeAt(0);
+                                return SelectionArea(
+                                  child: ListView.separated(
+                                    keyboardDismissBehavior:
+                                        ScrollViewKeyboardDismissBehavior
+                                            .onDrag,
+                                    controller: scrollController,
+                                    reverse: true,
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 16),
+                                    itemCount: fullChat.length,
+                                    separatorBuilder: (context, index) =>
+                                        const SizedBox(height: 8),
+                                    itemBuilder: (context, index) {
+                                      final int reversedIndex =
+                                          fullChat.length - 1 - index;
+                                      final ChatMessage message =
+                                          fullChat[reversedIndex];
+                                      return Padding(
+                                        padding: EdgeInsets.only(
+                                          top: index == fullChat.length - 1
+                                              ? (Scaffold.of(context)
+                                                          .appBarMaxHeight ??
+                                                      48) +
+                                                  16
+                                              : 0,
+                                          bottom: index == 0 ? 16 : 0,
+                                        ),
+                                        child: ChatMessageBubble(
+                                          message: message,
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                );
+                              }),
+                        ),
+                        StreamBuilder<Chat?>(
+                            stream: chatStream,
+                            initialData: gpt.chat,
+                            builder: (context, snapshot) {
+                              if (!snapshot.hasData) return const SizedBox();
+
+                              final bool isGenerating =
+                                  gpt.messages.isNotEmpty &&
+                                      gpt.messages.last.status ==
+                                          MessageStatus.streaming;
+
+                              return AnimatedSize(
+                                duration: const Duration(milliseconds: 600),
+                                curve: Curves.easeOutQuart,
+                                child: AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 300),
+                                  switchOutCurve: Curves.easeOutQuart,
+                                  switchInCurve: Curves.easeOutQuart,
+                                  transitionBuilder: (child, animation) {
+                                    return FadeTransition(
+                                      opacity: animation,
+                                      child: SlideTransition(
+                                        position: Tween<Offset>(
+                                          begin: const Offset(0, 1),
+                                          end: Offset.zero,
+                                        ).animate(animation),
+                                        child: child,
                                       ),
                                     );
                                   },
+                                  child: isGenerating
+                                      ? Padding(
+                                          padding: const EdgeInsets.all(8),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Tooltip(
+                                                message:
+                                                    'Stop generating response',
+                                                child: FilledButton.tonalIcon(
+                                                  onPressed: gpt.stopGenerating,
+                                                  icon: const Icon(
+                                                      Icons.stop_circle),
+                                                  label: const Text(
+                                                      'Stop generating'),
+                                                ),
+                                              )
+                                            ],
+                                          ),
+                                        )
+                                      : const SizedBox.shrink(),
                                 ),
+                              );
+                            }),
+                        const UserInteractionRegion(),
+                      ],
+                    ),
+                  ),
+                  if (isWide && historyOpenOnWide)
+                    SizedBox(
+                      width: 300,
+                      child: Drawer(
+                        child: Column(
+                          children: [
+                            SizedBox(
+                                height: Scaffold.of(context).appBarMaxHeight),
+                            Container(
+                              alignment: Alignment.centerLeft,
+                              padding: const EdgeInsets.all(8),
+                              child: Row(
+                                children: [
+                                  ScaffoldAction(
+                                    onTap: () {
+                                      historyOpenOnWide = !historyOpenOnWide;
+                                      Hive.box(Constants.settings).put(
+                                        Constants.openHistoryOnWideScreen,
+                                        historyOpenOnWide,
+                                      );
+                                      setState(() {});
+                                    },
+                                    icon: Icons.last_page,
+                                    tooltip: 'Close History',
+                                    color: context.colorScheme.onSurface,
+                                    hoverColor: context
+                                        .colorScheme.primaryContainer
+                                        .withOpacity(0.25),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Chat History',
+                                    style: context.textTheme.titleSmall,
+                                  ),
+                                ],
                               ),
                             ),
-                            AnimatedSize(
-                              duration: const Duration(milliseconds: 600),
-                              curve: Curves.easeOutQuart,
-                              child: AnimatedSwitcher(
-                                duration: const Duration(milliseconds: 300),
-                                switchOutCurve: Curves.easeOutQuart,
-                                switchInCurve: Curves.easeOutQuart,
-                                transitionBuilder: (child, animation) {
-                                  return FadeTransition(
-                                    opacity: animation,
-                                    child: SlideTransition(
-                                      position: Tween<Offset>(
-                                        begin: const Offset(0, 1),
-                                        end: Offset.zero,
-                                      ).animate(animation),
-                                      child: child,
-                                    ),
-                                  );
-                                },
-                                child: isGenerating
-                                    ? Padding(
-                                        padding: const EdgeInsets.all(8),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Tooltip(
-                                              message:
-                                                  'Stop generating response',
-                                              child: FilledButton.tonalIcon(
-                                                onPressed: gpt.stopGenerating,
-                                                icon: const Icon(
-                                                    Icons.stop_circle),
-                                                label: const Text(
-                                                    'Stop generating'),
-                                              ),
-                                            )
-                                          ],
-                                        ),
-                                      )
-                                    : const SizedBox.shrink(),
+                            Expanded(
+                              child: ListView(
+                                padding: EdgeInsets.zero,
+                                children: [
+                                  for (final ChatSnippet chatSnippet
+                                      in DataManager.instance.currentUser!
+                                          .chatSnippets.values)
+                                    HistoryTile(chatSnippet: chatSnippet),
+                                ],
                               ),
                             ),
-                            const UserInteractionRegion(),
                           ],
                         ),
                       ),
-                      if (isWide && historyOpenOnWide)
-                        SizedBox(
-                          width: 300,
-                          child: Drawer(
-                            child: Column(
-                              children: [
-                                Container(
-                                  alignment: Alignment.centerLeft,
-                                  padding: const EdgeInsets.all(18),
-                                  child: Text(
-                                    'Chat History',
-                                    style: context.textTheme.bodyMedium,
-                                  ),
-                                ),
-                                Expanded(
-                                  child: ListView(
-                                    padding: EdgeInsets.zero,
-                                    children: [
-                                      for (final ChatSnippet chatSnippet
-                                          in DataManager.instance.currentUser!
-                                              .chatSnippets.values)
-                                        HistoryTile(chatSnippet: chatSnippet),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                    ],
-                  );
-                }),
-          ),
-        ),
+                    ),
+                ],
+              ),
+            ),
+          );
+        }),
       );
     });
   }
@@ -402,7 +438,11 @@ class _HistoryTileState extends State<HistoryTile> {
           widget.chatSnippet.snippet,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          style: context.textTheme.bodySmall,
+          style: context.textTheme.bodySmall?.copyWith(
+            color: isActiveChat
+                ? context.colorScheme.onPrimaryContainer
+                : context.colorScheme.onBackground,
+          ),
         ),
         onTap: () {
           gpt.openChat(chatID: widget.chatSnippet.id, notify: true);
@@ -493,30 +533,7 @@ class _UserInteractionRegionState extends State<UserInteractionRegion> {
 
   void triggerSend(BuildContext context, {required bool generateResponse}) {
     if (textController.text.isEmpty) {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: const Text('Audio recording'),
-            content: const Text(
-              'This feature is coming soon! Type a message to show the send button.',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text(
-                  'Dismiss',
-                  style: context.textTheme.bodySmall?.copyWith(
-                    color: context.colorScheme.onBackground,
-                  ),
-                ),
-              ),
-            ],
-          );
-        },
-      );
+      showComingSoonDialog(context, 'Audio message');
     }
     // if (!Form.of(context).validate()) return;
     if (textController.text.trim().isEmpty) return;
@@ -555,30 +572,7 @@ class _UserInteractionRegionState extends State<UserInteractionRegion> {
                   IconButton(
                     tooltip: 'Add attachment',
                     onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          return AlertDialog(
-                            title: const Text('Add Attachment'),
-                            content: const Text(
-                              'This feature is coming soon!',
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                                child: Text(
-                                  'Dismiss',
-                                  style: context.textTheme.bodySmall?.copyWith(
-                                    color: context.colorScheme.onBackground,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          );
-                        },
-                      );
+                      showComingSoonDialog(context, 'Add attachment');
                     },
                     icon: Icon(
                       Icons.add,

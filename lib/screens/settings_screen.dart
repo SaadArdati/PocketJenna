@@ -5,13 +5,13 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive_flutter/adapters.dart';
-import 'package:launch_at_startup/launch_at_startup.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import '../constants.dart';
 import '../managers/auth/auth_manager.dart';
 import '../managers/system_manager.dart';
+import '../ui/coming_soon.dart';
 import '../ui/custom_scaffold.dart';
 import '../ui/theme_extensions.dart';
 
@@ -29,18 +29,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
       title: Text(
         'Settings',
         textAlign: TextAlign.center,
-        style: context.textTheme.titleSmall?.copyWith(
+        style: context.textTheme.titleMedium?.copyWith(
           color: context.colorScheme.onPrimary,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 1.5,
         ),
       ),
       automaticallyImplyLeading: false,
       actions: [
         ScaffoldAction(
           onTap: () {
-            context.go('/home', extra: {'from': 'settings'});
+            final box = Hive.box(Constants.settings);
+            final bool onboarding =
+            box.get(Constants.isFirstTime, defaultValue: true);
+            context.go(onboarding ? '/onboarding' : '/home',
+                extra: {'from': 'settings'});
           },
           icon: Icons.arrow_forward,
-          tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+          tooltip: MaterialLocalizations
+              .of(context)
+              .backButtonTooltip,
         ),
       ],
       extendBodyBehindAppBar: true,
@@ -52,7 +60,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               children: [
                 SizedBox(
-                  height: (Scaffold.of(context).appBarMaxHeight ?? 48) + 16,
+                  height: (Scaffold
+                      .of(context)
+                      .appBarMaxHeight ?? 48) + 16,
                 ),
                 const AppSettingsTile(),
                 const SizedBox(height: 16),
@@ -98,7 +108,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const SizedBox(height: 8),
                 buildContactTile(
                   title: 'Github',
-                  icon: Theme.of(context).brightness == Brightness.dark
+                  icon: Theme
+                      .of(context)
+                      .brightness == Brightness.dark
                       ? 'assets/github_dark_256x.png'
                       : 'assets/github_light_256x.png',
                   url: 'https://github.com/SaadArdati',
@@ -271,7 +283,7 @@ class _AppSettingsTileState extends State<AppSettingsTile> {
                           style: context.textTheme.bodySmall?.copyWith(
                             fontSize: 12,
                             color:
-                                context.colorScheme.onSurface.withOpacity(0.7),
+                            context.colorScheme.onSurface.withOpacity(0.7),
                           ),
                         ),
                         trailing: SizedBox(
@@ -287,11 +299,12 @@ class _AppSettingsTileState extends State<AppSettingsTile> {
                               padding: EdgeInsets.only(right: 4),
                               child: Icon(Icons.arrow_drop_down),
                             ),
-                            selectedItemBuilder: (context) => [
+                            selectedItemBuilder: (context) =>
+                            [
                               for (final mode in AdaptiveThemeMode.values)
                                 Padding(
                                   padding:
-                                      const EdgeInsets.fromLTRB(10, 8, 4, 8),
+                                  const EdgeInsets.fromLTRB(10, 8, 4, 8),
                                   child: Text(mode.modeName),
                                 ),
                             ],
@@ -347,7 +360,7 @@ class _AppSettingsTileState extends State<AppSettingsTile> {
                     children: [
                       CheckboxListTile(
                         value:
-                            box.get(Constants.alwaysOnTop, defaultValue: true),
+                        box.get(Constants.alwaysOnTop, defaultValue: true),
                         title: Text(
                           'Always on top',
                           style: context.textTheme.titleSmall,
@@ -357,7 +370,7 @@ class _AppSettingsTileState extends State<AppSettingsTile> {
                           style: context.textTheme.bodySmall?.copyWith(
                             fontSize: 12,
                             color:
-                                context.colorScheme.onSurface.withOpacity(0.7),
+                            context.colorScheme.onSurface.withOpacity(0.7),
                           ),
                         ),
                         onChanged: (bool? value) {
@@ -385,7 +398,7 @@ class _AppSettingsTileState extends State<AppSettingsTile> {
                           style: context.textTheme.bodySmall?.copyWith(
                             fontSize: 12,
                             color:
-                                context.colorScheme.onSurface.withOpacity(0.7),
+                            context.colorScheme.onSurface.withOpacity(0.7),
                           ),
                         ),
                         onChanged: (bool? value) {
@@ -412,78 +425,80 @@ class _AppSettingsTileState extends State<AppSettingsTile> {
                           style: context.textTheme.bodySmall?.copyWith(
                             fontSize: 12,
                             color:
-                                context.colorScheme.onSurface.withOpacity(0.7),
+                            context.colorScheme.onSurface.withOpacity(0.7),
                           ),
                         ),
                         onChanged: (bool? value) {
-                          box.put(
-                            Constants.launchOnStartup,
-                            value ??
-                                !box.get(
-                                  Constants.launchOnStartup,
-                                  defaultValue: true,
-                                ),
-                          );
-                          if (value == false) {
-                            LaunchAtStartup.instance.disable();
-                          } else {
-                            LaunchAtStartup.instance.enable();
-                          }
+                          showComingSoonDialog(
+                              context, 'Launch app on startup');
+                          // box.put(
+                          //   Constants.launchOnStartup,
+                          //   value ??
+                          //       !box.get(
+                          //         Constants.launchOnStartup,
+                          //         defaultValue: true,
+                          //       ),
+                          // );
+                          // if (value == false) {
+                          //   LaunchAtStartup.instance.disable();
+                          // } else {
+                          //   LaunchAtStartup.instance.enable();
+                          // }
                         },
                       ),
                       const SizedBox(height: 8),
-                      CheckboxListTile(
-                        value: box.get(Constants.showTitleBar,
-                            defaultValue: false),
-                        title: Text(
-                          'Show window title bar',
-                          style: context.textTheme.titleSmall,
-                        ),
-                        subtitle: Text(
-                          'Shows the minimize, maximize, and close buttons from the system. (Restart required)',
-                          style: context.textTheme.bodySmall?.copyWith(
-                            fontSize: 12,
-                            color:
-                                context.colorScheme.onSurface.withOpacity(0.7),
-                          ),
-                        ),
-                        onChanged: (bool? value) {
-                          SystemManager.instance
-                              .toggleTitleBar(show: value ?? false);
-
-                          // Force user to restart app.
-                          showDialog(
-                            context: context,
-                            barrierDismissible: false,
-                            builder: (context) {
-                              return WillPopScope(
-                                onWillPop: () async => false,
-                                child: AlertDialog(
-                                  title: const Text('Restart required'),
-                                  content: const Text(
-                                    'You will need to restart the app for changes to take effect.',
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                      },
-                                      child: Text(
-                                        'Dismiss',
-                                        style: context.textTheme.labelMedium
-                                            ?.copyWith(
-                                          color: context.colorScheme.onSurface,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          );
-                        },
-                      ),
-                      const SizedBox(height: 8),
+                      // CheckboxListTile(
+                      //   value: box.get(Constants.showTitleBar,
+                      //       defaultValue: false),
+                      //   title: Text(
+                      //     'Show window title bar',
+                      //     style: context.textTheme.titleSmall,
+                      //   ),
+                      //   subtitle: Text(
+                      //     'Shows the minimize, maximize, and close buttons from the system. (Restart required)',
+                      //     style: context.textTheme.bodySmall?.copyWith(
+                      //       fontSize: 12,
+                      //       color:
+                      //           context.colorScheme.onSurface.withOpacity(0.7),
+                      //     ),
+                      //   ),
+                      //   onChanged: (bool? value) {
+                      //     SystemManager.instance
+                      //         .toggleTitleBar(show: value ?? false);
+                      //
+                      //     // Force user to restart app.
+                      //     showDialog(
+                      //       context: context,
+                      //       barrierDismissible: false,
+                      //       builder: (context) {
+                      //         return WillPopScope(
+                      //           onWillPop: () async => false,
+                      //           child: AlertDialog(
+                      //             title: const Text('Restart required'),
+                      //             content: const Text(
+                      //               'You will need to restart the app for changes to take effect.',
+                      //             ),
+                      //             actions: [
+                      //               TextButton(
+                      //                 onPressed: () {
+                      //                   Navigator.pop(context);
+                      //                 },
+                      //                 child: Text(
+                      //                   'Dismiss',
+                      //                   style: context.textTheme.labelMedium
+                      //                       ?.copyWith(
+                      //                     color: context.colorScheme.onSurface,
+                      //                   ),
+                      //                 ),
+                      //               ),
+                      //             ],
+                      //           ),
+                      //         );
+                      //       },
+                      //     );
+                      //   },
+                      // ),
+                      // const SizedBox(height: 8),
                       CheckboxListTile(
                         value: box.get(Constants.moveToSystemDock,
                             defaultValue: false),
@@ -496,7 +511,7 @@ class _AppSettingsTileState extends State<AppSettingsTile> {
                           style: context.textTheme.bodySmall?.copyWith(
                             fontSize: 12,
                             color:
-                                context.colorScheme.onSurface.withOpacity(0.7),
+                            context.colorScheme.onSurface.withOpacity(0.7),
                           ),
                         ),
                         onChanged: (bool? value) {
@@ -590,10 +605,13 @@ class SettingsTile extends StatelessWidget {
                       child: Align(
                         alignment: Alignment.centerRight,
                         child: IconTheme(
-                          data: Theme.of(context).iconTheme.copyWith(
-                                color: context.colorScheme.onPrimary,
-                                size: 24,
-                              ),
+                          data: Theme
+                              .of(context)
+                              .iconTheme
+                              .copyWith(
+                            color: context.colorScheme.onPrimary,
+                            size: 24,
+                          ),
                           child: icon!,
                         ),
                       ),
@@ -721,16 +739,16 @@ class _SignOutDialogState extends State<SignOutDialog> {
           onPressed: isLoading
               ? null
               : () {
-                  Navigator.pop(context);
-                },
+            Navigator.pop(context);
+          },
           child: const Text('Cancel'),
         ),
         TextButton.icon(
           onPressed: isLoading
               ? null
               : () {
-                  signOut();
-                },
+            signOut();
+          },
           icon: isLoading
               ? CupertinoActivityIndicator(color: context.colorScheme.primary)
               : const Icon(Icons.logout),
@@ -778,8 +796,8 @@ class DeleteAccountDialogState extends State<DeleteAccountDialog> {
           onPressed: isLoading
               ? null
               : () {
-                  Navigator.pop(context);
-                },
+            Navigator.pop(context);
+          },
           child: const Text('Cancel'),
         ),
         TextButton.icon(
@@ -789,8 +807,8 @@ class DeleteAccountDialogState extends State<DeleteAccountDialog> {
           onPressed: isLoading
               ? null
               : () {
-                  signOut();
-                },
+            signOut();
+          },
           icon: isLoading
               ? CupertinoActivityIndicator(color: context.colorScheme.onError)
               : Icon(Icons.delete_forever, color: context.colorScheme.onError),

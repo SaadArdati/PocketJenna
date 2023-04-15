@@ -2,11 +2,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hive/hive.dart';
 
+import '../../constants.dart';
 import '../../managers/auth/auth_manager.dart';
+import '../../ui/custom_scaffold.dart';
 import '../../ui/switchers.dart';
 import '../../ui/theme_extensions.dart';
-import '../../ui/window_controls.dart';
 
 enum AuthScreenMode {
   signIn('Sign In'),
@@ -68,7 +70,10 @@ class _AuthScreenState extends State<AuthScreen> {
         );
 
         if (mounted) {
-          context.go('/home');
+          final box = Hive.box(Constants.settings);
+          final bool onboarding =
+              box.get(Constants.isFirstTime, defaultValue: true);
+          context.go(onboarding ? '/onboarding/two' : '/home');
         }
       } catch (e) {
         error = e.toString();
@@ -125,23 +130,23 @@ class _AuthScreenState extends State<AuthScreen> {
   Widget build(BuildContext context) {
     final BorderRadius borderRadius = BorderRadius.circular(12);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          mode.label,
-          style: context.textTheme.titleMedium?.copyWith(
-            color: context.colorScheme.onPrimary,
-          ),
+    return CustomScaffold(
+      title: Text(
+        mode.label,
+        textAlign: TextAlign.center,
+        style: context.textTheme.titleMedium?.copyWith(
+          color: context.colorScheme.onPrimary,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 1.5,
         ),
-        centerTitle: false,
-        leading: IconButton(
-          tooltip: 'Settings',
-          icon: const Icon(Icons.settings),
-          onPressed: () {
-            context.go('/settings', extra: {'from': 'home'});
-          },
-        ),
-        actions: const [WindowControls()],
+      ),
+      centerTitle: false,
+      leading: ScaffoldAction(
+        tooltip: 'Settings',
+        icon: Icons.settings,
+        onTap: () {
+          context.go('/settings', extra: {'from': '/auth'});
+        },
       ),
       body: Form(
         key: formKey,
@@ -253,7 +258,9 @@ class _AuthScreenState extends State<AuthScreen> {
                           obscureText: !showPassword,
                           decoration: InputDecoration(
                             counterText: '',
-                            labelText: 'Enter a password',
+                            labelText: mode.isSignUp
+                                ? 'Enter a password'
+                                : 'Enter your password',
                             isDense: true,
                             floatingLabelBehavior: FloatingLabelBehavior.never,
                             filled: true,
@@ -431,7 +438,7 @@ class _AuthScreenState extends State<AuthScreen> {
                           child: Text(
                             error ?? '',
                             style: context.textTheme.bodySmall?.copyWith(
-                              color: context.colorScheme.error,
+                              color: context.colorScheme.onErrorContainer,
                             ),
                           ),
                         ),

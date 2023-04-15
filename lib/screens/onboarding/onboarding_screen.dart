@@ -4,8 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:hive_flutter/adapters.dart';
 
 import '../../constants.dart';
+import '../../ui/custom_scaffold.dart';
 import '../../ui/theme_extensions.dart';
-import '../../ui/window_controls.dart';
 
 class OnboardingScreen extends StatefulWidget {
   final Widget child;
@@ -22,11 +22,25 @@ class OnboardingScreen extends StatefulWidget {
 class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        actions: const [WindowControls()],
-      ),
+    final bool viewingImage =
+        GoRouter.of(context).location.contains('tray_position');
+    return CustomScaffold(
+      automaticallyImplyLeading: false,
+      leading: viewingImage
+          ? ScaffoldAction(
+              onTap: () {
+                context.go('/onboarding/two');
+              },
+              icon: Icons.arrow_back,
+              tooltip: 'Back',
+            )
+          : ScaffoldAction(
+              tooltip: 'Onboarding',
+              icon: Icons.settings,
+              onTap: () {
+                context.go('/settings', extra: {'from': '/onboarding'});
+              },
+            ),
       resizeToAvoidBottomInset: true,
       extendBodyBehindAppBar: true,
       body: WillPopScope(
@@ -56,9 +70,17 @@ class OnboardingWelcome extends StatelessWidget {
         children: [
           const Spacer(),
           Text(
-            'Welcome',
+            'Welcome to',
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.headlineLarge,
+          ),
+          Text(
+            'Pocket Jenna',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.75,
+                ),
           ),
           const SizedBox(height: 16),
           Text(
@@ -70,10 +92,11 @@ class OnboardingWelcome extends StatelessWidget {
           Material(
             color: context.colorScheme.primaryContainer,
             shape: const CircleBorder(),
+            clipBehavior: Clip.antiAlias,
             child: IconButton(
               tooltip: 'Next',
               onPressed: () {
-                context.go('/onboarding/two');
+                context.go('/auth');
               },
               iconSize: 32,
               icon: const Icon(Icons.navigate_next),
@@ -139,14 +162,19 @@ class OnboardingDone extends StatelessWidget {
               Material(
                 color: context.colorScheme.primaryContainer,
                 shape: const CircleBorder(),
+                clipBehavior: Clip.antiAlias,
                 child: IconButton(
                   tooltip: 'Finish',
                   onPressed: () {
+                    Hive.box(Constants.settings).put(
+                      Constants.isFirstTime,
+                      false,
+                    );
                     if (!kIsWeb &&
                         defaultTargetPlatform == TargetPlatform.macOS) {
-                      context.go('/onboarding/three/macos_onboarding');
+                      context.go('/onboarding/two/macos_onboarding');
                     } else {
-                      context.go('/home', extra: {'from': 'onboarding'});
+                      context.go('/home', extra: {'from': '/onboarding'});
                     }
                   },
                   iconSize: 32,
@@ -172,7 +200,7 @@ class OnboardingDone extends StatelessWidget {
               onTap: () {
                 // Show full screen image in a dialog
                 context.go(
-                  '/onboarding/three/tray_position',
+                  '/onboarding/two/tray_position',
                   extra: {'instructionID': id},
                 );
               },
@@ -193,19 +221,6 @@ class InstructionView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: context.colorScheme.background,
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.arrow_forward),
-            tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-            onPressed: () {
-              context.pop();
-            },
-          ),
-          const SizedBox(width: 8),
-        ],
-      ),
       body: Builder(builder: (context) {
         if (!instructionIDs.containsKey(instructionID)) {
           return const SizedBox.expand(

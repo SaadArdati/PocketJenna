@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive_flutter/adapters.dart';
@@ -27,12 +26,12 @@ class MacOSOnboarding extends StatelessWidget {
                   children: [
                     Center(
                       child: Text(
-                        'One more thing...',
+                        'One last thing...',
                         textAlign: TextAlign.center,
-                        style: context.textTheme.headlineLarge,
+                        style: context.textTheme.headlineMedium,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 16),
                     Text(
                       'The menu bar icon in your system will open the options menu by left-clicking. Right-clicking it will open the app.',
                       textAlign: TextAlign.left,
@@ -55,10 +54,10 @@ class MacOSOnboarding extends StatelessWidget {
                           Constants.macOSLeftClickOpensApp,
                           defaultValue: false,
                         ),
-                        title: Text(
-                          'Open app on left-click',
-                          style: context.textTheme.titleSmall,
-                        ),
+                        // title: Text(
+                        //   'Open app on left-click',
+                        //   style: context.textTheme.titleSmall,
+                        // ),
                         subtitle: Text(
                           'Left-clicking on the menu bar icon will open the app, right-clicking will open the options menu.',
                           style: context.textTheme.bodySmall?.copyWith(
@@ -84,10 +83,11 @@ class MacOSOnboarding extends StatelessWidget {
                       child: Material(
                         color: context.colorScheme.primaryContainer,
                         shape: const CircleBorder(),
+                        clipBehavior: Clip.antiAlias,
                         child: IconButton(
                           tooltip: 'Finish',
                           onPressed: () {
-                            context.go('/home', extra: {'from': 'onboarding'});
+                            context.go('/home', extra: {'from': '/onboarding'});
                           },
                           iconSize: 32,
                           icon: const Icon(Icons.navigate_next),

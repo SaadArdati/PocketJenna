@@ -96,5 +96,6 @@ flutter:
   assets:
     - assets/
     - assets/prompts/
+    - assets/instructions/
 
 scripts: scripts.yaml

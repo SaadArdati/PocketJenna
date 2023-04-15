@@ -66,6 +66,8 @@ class PocketJenna extends StatefulWidget {
       encryptionCipher: HiveAesCipher(encryptionKeyData),
     );
 
+    Hive.box(Constants.settings).clear();
+
     if (!kIsWeb) {
       if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
         await SystemManager.instance.init();
@@ -235,7 +237,7 @@ class _NavigationBackgroundState extends State<NavigationBackground>
     vsync: this,
     duration: const Duration(minutes: 4),
     upperBound: 360,
-    value: isOnboardingPage ? 150 : 90,
+    value: 90,
   )..repeat(reverse: false);
   late final AnimationController chaosController = AnimationController(
     vsync: this,
@@ -291,7 +293,7 @@ class _NavigationBackgroundState extends State<NavigationBackground>
       final bool isStep2 = widget.state.location == '/onboarding/two';
       rotate(
         isStep1
-            ? 150
+            ? 90
             : isStep2
                 ? 230
                 : 300,

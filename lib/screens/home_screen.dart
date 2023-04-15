@@ -16,6 +16,7 @@ import '../managers/prompt_manager.dart';
 import '../managers/version_manager.dart';
 import '../models/prompt.dart';
 import '../models/user_model.dart';
+import '../ui/coming_soon.dart';
 import '../ui/custom_scaffold.dart';
 import '../ui/theme_extensions.dart';
 
@@ -92,29 +93,24 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return CustomScaffold(
-      // title: Text(
-      //   'Pocket Jenna',
-      //   textAlign: TextAlign.center,
-      //   style: context.textTheme.titleMedium?.copyWith(
-      //     color: context.colorScheme.onPrimary,
-      //   ),
-      // ),
       automaticallyImplyLeading: false,
       leading: ScaffoldAction(
         tooltip: 'Settings',
         icon: Icons.settings,
         onTap: () {
-          context.go('/settings', extra: {'from': 'home'});
+          context.go('/settings', extra: {'from': '/home'});
         },
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(vertical: 32),
+        padding: const EdgeInsets.symmetric(vertical: 16),
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 800),
             child: Column(
               children: [
-                const TokensCard(),
+                const TokensTile(),
+                const SizedBox(height: 16),
+                const ExploreTile(),
                 const SizedBox(height: 8),
                 LayoutBuilder(builder: (context, constraints) {
                   final int crossAxisCount;
@@ -172,8 +168,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class TokensCard extends StatelessWidget {
-  const TokensCard({super.key});
+class TokensTile extends StatelessWidget {
+  const TokensTile({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -198,13 +194,13 @@ class TokensCard extends StatelessWidget {
               children: [
                 Icon(
                   Icons.generating_tokens_outlined,
-                  color: context.colorScheme.onSurface,
+                  color: context.colorScheme.onPrimaryContainer,
                 ),
                 const SizedBox(width: 12),
                 Text(
                   '${user?.tokens ?? 'No'} Tokens',
                   style: context.textTheme.bodyMedium?.copyWith(
-                    color: context.colorScheme.onSurface,
+                    color: context.colorScheme.onPrimaryContainer,
                   ),
                 ),
                 const Spacer(),
@@ -215,8 +211,8 @@ class TokensCard extends StatelessWidget {
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        context.colorScheme.primary,
-                        context.colorScheme.primary,
+                        context.colorScheme.secondary,
+                        context.colorScheme.secondary,
                       ],
                     ),
                   ),
@@ -229,7 +225,7 @@ class TokensCard extends StatelessWidget {
                         child: Text(
                           'Buy Tokens',
                           style: context.textTheme.bodySmall?.copyWith(
-                            color: context.colorScheme.onPrimary,
+                            color: context.colorScheme.onSecondary,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -239,32 +235,7 @@ class TokensCard extends StatelessWidget {
                           color: Colors.transparent,
                           child: InkWell(
                             onTap: () {
-                              // Coming soon
-                              showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return AlertDialog(
-                                    title: const Text('Coming Soon'),
-                                    content: const Text(
-                                        'This feature is coming soon!'),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                        },
-                                        child: Text(
-                                          'Dismiss',
-                                          style: context.textTheme.bodySmall
-                                              ?.copyWith(
-                                            color: context
-                                                .colorScheme.onBackground,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
+                              showComingSoonDialog(context, 'Buy Tokens');
                             },
                           ),
                         ),
@@ -276,6 +247,105 @@ class TokensCard extends StatelessWidget {
             ),
           );
         });
+  }
+}
+
+class ExploreTile extends StatelessWidget {
+  const ExploreTile({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(
+          constraints: const BoxConstraints(minWidth: 175),
+          margin: const EdgeInsets.symmetric(horizontal: 8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(100),
+            color: context.colorScheme.surface,
+            border: Border.all(
+              color: context.colorScheme.primary,
+              width: 2,
+            ),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              hoverColor: context.colorScheme.primary.withOpacity(0.1),
+              splashColor: context.colorScheme.primary.withOpacity(0.2),
+              onTap: () {
+                showComingSoonDialog(context, 'Customize Cards');
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.dashboard_customize_outlined,
+                      color: context.colorScheme.onSurface,
+                      size: 18,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Customize Cards',
+                      style: context.textTheme.bodySmall?.copyWith(
+                        color: context.colorScheme.onSurface,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+        Container(
+          constraints: const BoxConstraints(minWidth: 175),
+          margin: const EdgeInsets.symmetric(horizontal: 8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(100),
+            color: context.colorScheme.surface,
+            border: Border.all(
+              color: context.colorScheme.primary,
+              width: 2,
+            ),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              hoverColor: context.colorScheme.primary.withOpacity(0.1),
+              splashColor: context.colorScheme.primary.withOpacity(0.2),
+              onTap: () {
+                showComingSoonDialog(context, 'Explore');
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.explore_outlined,
+                      color: context.colorScheme.onSurface,
+                      size: 18,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Explore Cards',
+                      style: context.textTheme.bodySmall?.copyWith(
+                        color: context.colorScheme.onSurface,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }
 

@@ -29,8 +29,8 @@ class SystemManager with WindowListener {
     final bool alwaysOnTop = box.get(Constants.alwaysOnTop, defaultValue: true);
     final bool showInTaskbar =
         box.get(Constants.moveToSystemDock, defaultValue: false);
-    final bool showTitleBar =
-        box.get(Constants.showTitleBar, defaultValue: false);
+    final bool showTitleBar = true;
+    // box.get(Constants.showTitleBar, defaultValue: false);
 
     WidgetsFlutterBinding.ensureInitialized();
 
@@ -49,7 +49,7 @@ class SystemManager with WindowListener {
       backgroundColor: Colors.transparent,
       skipTaskbar: !showInTaskbar,
       titleBarStyle: showTitleBar ? TitleBarStyle.normal : TitleBarStyle.hidden,
-      title: 'Pocket Jenna',
+      title: '',
     );
 
     windowManager.waitUntilReadyToShow(windowOptions);
