@@ -8,6 +8,7 @@ import '../../models/auth_model.dart';
 import '../../models/chat.dart';
 import '../../models/user_model.dart';
 import '../auth/auth_manager.dart';
+import '../gpt_manager.dart';
 import 'data_manager.dart';
 
 class FireDartDataManager extends DataManager {
@@ -38,7 +39,10 @@ class FireDartDataManager extends DataManager {
         _authModel = authModel;
         if (_authModel == null) return;
 
-        fetchOpenAIKey().then((value) => OpenAI.apiKey = value);
+        fetchOpenAIKey().then((value) {
+          OpenAI.apiKey = value;
+          GPTManager.fetchAndStoreModels();
+        });
 
         streamUser(authModel!, onEvent: (UserModel? user) {
           print('auth changed, user stream event. ${user?.id}');
@@ -58,6 +62,7 @@ class FireDartDataManager extends DataManager {
       completer.complete();
     } else {
       OpenAI.apiKey = await fetchOpenAIKey();
+      await GPTManager.fetchAndStoreModels();
       streamUser(
         _authModel!,
         onEvent: (UserModel? user) {

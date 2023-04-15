@@ -8,11 +8,12 @@ import '../../models/auth_model.dart';
 import '../../models/chat.dart';
 import '../../models/user_model.dart';
 import '../auth/auth_manager.dart';
+import '../gpt_manager.dart';
 import 'data_manager.dart';
 
 class FirebaseDataManager extends DataManager {
   final StreamController<UserModel?> _userStreamController =
-  StreamController<UserModel?>.broadcast();
+      StreamController<UserModel?>.broadcast();
 
   UserModel? _currentUser;
 
@@ -34,11 +35,14 @@ class FirebaseDataManager extends DataManager {
 
     _authModel = AuthManager.instance.currentAuth;
     _authStreamSubscription = AuthManager.instance.authStream.listen(
-          (AuthModel? authModel) {
+      (AuthModel? authModel) {
         _authModel = authModel;
         if (_authModel == null) return;
 
-        fetchOpenAIKey().then((value) => OpenAI.apiKey = value);
+        fetchOpenAIKey().then((value) {
+          OpenAI.apiKey = value;
+          GPTManager.fetchAndStoreModels();
+        });
         streamUser(authModel!, onEvent: (UserModel? user) {
           print('auth changed, user stream event. ${user?.id}');
           _currentUser = user;
@@ -57,6 +61,7 @@ class FirebaseDataManager extends DataManager {
       completer.complete();
     } else {
       OpenAI.apiKey = await fetchOpenAIKey();
+      await GPTManager.fetchAndStoreModels();
       streamUser(
         _authModel!,
         onEvent: (UserModel? user) {
@@ -111,8 +116,8 @@ class FirebaseDataManager extends DataManager {
   @override
   Stream<Chat?> getChatStream(String chatId) {
     assert(
-    AuthManager.instance.currentAuth != null,
-    'Chat streaming should never be allowed when auth is not ready',
+      AuthManager.instance.currentAuth != null,
+      'Chat streaming should never be allowed when auth is not ready',
     );
 
     return FirebaseFirestore.instance
@@ -127,8 +132,8 @@ class FirebaseDataManager extends DataManager {
   @override
   Future<Chat?> fetchChat(String chatId) async {
     assert(
-    AuthManager.instance.currentAuth != null,
-    'Chat streaming should never be allowed when auth is not ready',
+      AuthManager.instance.currentAuth != null,
+      'Chat streaming should never be allowed when auth is not ready',
     );
 
     final snapshot = await FirebaseFirestore.instance

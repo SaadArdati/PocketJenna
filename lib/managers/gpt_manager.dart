@@ -52,7 +52,7 @@ class GPTManager extends ChangeNotifier {
   static List<String> getModels() {
     return Hive.box(Constants.settings).get(
       Constants.gptModels,
-      defaultValue: [],
+      defaultValue: <String>[],
     );
   }
 
