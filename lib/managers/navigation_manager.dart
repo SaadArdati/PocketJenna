@@ -6,7 +6,7 @@ import 'package:hive/hive.dart';
 
 import '../constants.dart';
 import '../main.dart';
-import '../screens/auth/auth_screen.dart';
+import '../screens/auth_screen.dart';
 import '../screens/chat_screen.dart';
 import '../screens/home_screen.dart';
 import '../screens/onboarding/macos_onboarding_screen.dart';

@@ -450,7 +450,7 @@ class CustomAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TargetPlatform platform = defaultTargetPlatform;
+    final TargetPlatform platform = Theme.of(context).platform;
     final bool isDesktop = !kIsWeb &&
         (platform == TargetPlatform.windows ||
             platform == TargetPlatform.linux ||
@@ -478,6 +478,16 @@ class CustomAppBar extends StatelessWidget {
           //   leadingWidget = Flexible(child: leadingWidget);
           // }
 
+          final appTitle = Text(
+            'Pocket Jenna',
+            textAlign: TextAlign.center,
+            style: context.textTheme.titleSmall?.copyWith(
+                color: context.colorScheme.onPrimary,
+                letterSpacing: 1.5,
+                fontSize: 12,
+                fontWeight: FontWeight.bold),
+          );
+
           return Material(
             color: Colors.transparent,
             child: Column(
@@ -503,15 +513,7 @@ class CustomAppBar extends StatelessWidget {
                               right: 16,
                               top: 4,
                             ),
-                            child: Text(
-                              'Pocket Jenna',
-                              textAlign: TextAlign.center,
-                              style: context.textTheme.titleSmall?.copyWith(
-                                  color: context.colorScheme.onPrimary,
-                                  letterSpacing: 1.5,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold),
-                            ),
+                            child: appTitle,
                           ),
                         ),
                       ),
@@ -572,7 +574,10 @@ class CustomAppBar extends StatelessWidget {
                           child: leadingWidget,
                         ),
                       ),
-                      if (title != null) Expanded(flex: 2, child: title!),
+                      if (title != null)
+                        Expanded(flex: 2, child: title!)
+                      else if (!isDesktop)
+                        Expanded(flex: 2, child: appTitle),
                       Expanded(
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.end,
@@ -609,7 +614,7 @@ class ScaffoldAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TargetPlatform platform = defaultTargetPlatform;
+    final TargetPlatform platform = Theme.of(context).platform;
     final bool isDesktop = (platform == TargetPlatform.windows ||
         platform == TargetPlatform.linux ||
         platform == TargetPlatform.macOS);

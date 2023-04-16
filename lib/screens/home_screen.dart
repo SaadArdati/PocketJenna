@@ -255,96 +255,109 @@ class ExploreTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Container(
-          constraints: const BoxConstraints(minWidth: 175),
-          margin: const EdgeInsets.symmetric(horizontal: 8),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(100),
-            color: context.colorScheme.surface,
-            border: Border.all(
-              color: context.colorScheme.primary,
-              width: 2,
-            ),
-          ),
-          clipBehavior: Clip.antiAlias,
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              hoverColor: context.colorScheme.primary.withOpacity(0.1),
-              splashColor: context.colorScheme.primary.withOpacity(0.2),
-              onTap: () {
-                showComingSoonDialog(context, 'Customize Cards');
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.dashboard_customize_outlined,
-                      color: context.colorScheme.onSurface,
-                      size: 18,
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 500),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Expanded(
+            child: Container(
+              constraints: const BoxConstraints(minWidth: 175),
+              margin: const EdgeInsets.symmetric(horizontal: 8),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(100),
+                color: context.colorScheme.surface,
+                border: Border.all(
+                  color: context.colorScheme.primary,
+                  width: 2,
+                ),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  hoverColor: context.colorScheme.primary.withOpacity(0.1),
+                  splashColor: context.colorScheme.primary.withOpacity(0.2),
+                  onTap: () {
+                    showComingSoonDialog(context, 'Customize Cards');
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.dashboard_customize_outlined,
+                          color: context.colorScheme.onSurface,
+                          size: 18,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Customize Cards',
+                            textAlign: TextAlign.center,
+                            style: context.textTheme.bodySmall?.copyWith(
+                              color: context.colorScheme.onSurface,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Customize Cards',
-                      style: context.textTheme.bodySmall?.copyWith(
-                        color: context.colorScheme.onSurface,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-        Container(
-          constraints: const BoxConstraints(minWidth: 175),
-          margin: const EdgeInsets.symmetric(horizontal: 8),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(100),
-            color: context.colorScheme.surface,
-            border: Border.all(
-              color: context.colorScheme.primary,
-              width: 2,
-            ),
-          ),
-          clipBehavior: Clip.antiAlias,
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              hoverColor: context.colorScheme.primary.withOpacity(0.1),
-              splashColor: context.colorScheme.primary.withOpacity(0.2),
-              onTap: () {
-                showComingSoonDialog(context, 'Explore');
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.explore_outlined,
-                      color: context.colorScheme.onSurface,
-                      size: 18,
+          Expanded(
+            child: Container(
+              constraints: const BoxConstraints(minWidth: 175),
+              margin: const EdgeInsets.symmetric(horizontal: 8),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(100),
+                color: context.colorScheme.surface,
+                border: Border.all(
+                  color: context.colorScheme.primary,
+                  width: 2,
+                ),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  hoverColor: context.colorScheme.primary.withOpacity(0.1),
+                  splashColor: context.colorScheme.primary.withOpacity(0.2),
+                  onTap: () {
+                    showComingSoonDialog(context, 'Explore');
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.explore_outlined,
+                          color: context.colorScheme.onSurface,
+                          size: 18,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Explore Cards',
+                            textAlign: TextAlign.center,
+                            style: context.textTheme.bodySmall?.copyWith(
+                              color: context.colorScheme.onSurface,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Explore Cards',
-                      style: context.textTheme.bodySmall?.copyWith(
-                        color: context.colorScheme.onSurface,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -415,7 +428,7 @@ class GPTCard extends StatelessWidget {
                         child: Text(
                           prompt.prompts[1],
                           overflow: TextOverflow.ellipsis,
-                          maxLines: 6,
+                          maxLines: 4,
                           style: context.textTheme.bodySmall!.copyWith(
                               color: context.colorScheme.onSurface,
                               fontSize: 10),

@@ -4,11 +4,11 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive/hive.dart';
 
-import '../../constants.dart';
-import '../../managers/auth/auth_manager.dart';
-import '../../ui/custom_scaffold.dart';
-import '../../ui/switchers.dart';
-import '../../ui/theme_extensions.dart';
+import '../constants.dart';
+import '../managers/auth/auth_manager.dart';
+import '../ui/custom_scaffold.dart';
+import '../ui/switchers.dart';
+import '../ui/theme_extensions.dart';
 
 enum AuthScreenMode {
   signIn('Sign In'),

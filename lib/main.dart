@@ -14,7 +14,6 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:launch_at_startup/launch_at_startup.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:universal_io/io.dart';
 import 'package:url_strategy/url_strategy.dart';
 import 'package:window_manager/window_manager.dart';
@@ -66,17 +65,14 @@ class PocketJenna extends StatefulWidget {
       encryptionCipher: HiveAesCipher(encryptionKeyData),
     );
 
-    Hive.box(Constants.settings).clear();
-
     if (!kIsWeb) {
       if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
         await SystemManager.instance.init();
 
         final box = Hive.box(Constants.settings);
         if (box.get(Constants.launchOnStartup, defaultValue: true)) {
-          final packageInfo = await PackageInfo.fromPlatform();
           LaunchAtStartup.instance.setup(
-            appName: packageInfo.appName,
+            appName: 'Pocket Jenna',
             appPath: Platform.resolvedExecutable,
           );
           await LaunchAtStartup.instance.enable();

@@ -114,7 +114,7 @@ abstract class DataManager {
   Future<String> fetchOpenAIKey() async {
     final String? token = await AuthManager.instance.getAuthToken();
     if (token == null) {
-      return '';
+      throw Exception('No token: Authentication token is missing');
     }
     final response = await get(
       Uri.https(Constants.firebaseFunctionsBaseURL, '/widgets/getOpenAIKey'),
@@ -124,9 +124,11 @@ abstract class DataManager {
       },
     );
     if (response.statusCode == 200) {
+      print('OpenAI key fetched: ${response.body}');
       return response.body;
     } else {
-      return '';
+      throw Exception(
+          'OpenAI key fetch failed: ${response.statusCode} ${response.body} ${response.reasonPhrase}');
     }
   }
 

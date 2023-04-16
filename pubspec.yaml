@@ -1,7 +1,7 @@
 name: pocketjenna
-description: A pocket-sized GPT assistant
+description: A pocket-sized AI-powered assistant
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 0.2.1
+version: 0.1.0
 
 environment:
   sdk: '>=2.19.2 <3.0.0'
@@ -52,6 +52,9 @@ dependencies:
   flutter_svg: ^2.0.5
   vector_graphics: ^1.1.5
   flex_color_scheme: ^7.0.1
+  device_preview: ^1.1.0
+  device_preview_screenshot: ^1.0.0
+  path_provider: ^2.0.14
 
 dev_dependencies:
   flutter_test:
@@ -63,7 +66,7 @@ dev_dependencies:
   json_serializable: ^6.6.1
   dart_code_metrics: ^5.7.2
   dart_code_metrics_presets: ^1.6.0
-#  flutter_launcher_icons: ^0.12.0
+  flutter_launcher_icons: ^0.13.0
 #  flutter_native_splash: ^2.2.19
 
 flutter_native_splash:
@@ -74,16 +77,15 @@ flutter_native_splash:
   fullscreen: true
 
 flutter_icons:
-  image_path: "assets/app_logo_1000x.png"
-  adaptive_icon_background: "#191C1E"
-  adaptive_icon_foreground: "assets/app_logo_1000x.png"
+  image_path_android: "assets/app_icons/android_app_icon.png"
   android: true
   image_path_ios: "assets/app_icons/ios_app_icon.png"
   ios: true
   web:
     generate: true
-    background_color: "#191C1E"
-    theme_color: "#191C1E"
+    image_path: "assets/app_icons/web_app_icon.png"
+    background_color: "#6c4ab0"
+    theme_color: "#FFFFFF"
   windows:
     generate: true
     image_path: "assets/app_icons/windows_app_icon.png"

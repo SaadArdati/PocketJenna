@@ -1,0 +1,146 @@
+import 'package:device_preview_screenshot/device_preview_screenshot.dart';
+import 'package:flutter/material.dart';
+
+typedef ScreenshotProcessor = Future<void> Function(
+  BuildContext context,
+  DeviceScreenshot screenshot,
+  String? pathAndPrefix,
+);
+
+/// A plugin that allows the user to take screenshots of its preview.
+///
+/// To activate the plugin, add a [FixedDevicePreviewScreenshot] instance to
+/// the `tools` property of the [DevicePreview].
+///
+/// This sample shows how to define an app with the plugin.
+///
+/// ```dart
+/// DevicePreview(
+///   builder: (context) => MaterialApp(
+///      useInheritedMediaQuery: true,
+///      locale: DevicePreview.locale(context),
+///      builder: DevicePreview.appBuilder,
+///      theme: ThemeData.light(),
+///      darkTheme: ThemeData.dark(),
+///      home: const Home(),
+///    ),
+///   tools: [
+///      ...DevicePreview.defaultTools,
+///      const DevicePreviewScreenshot(),
+///   ]
+/// )
+/// ```
+class FixedDevicePreviewScreenshot extends StatefulWidget {
+  const FixedDevicePreviewScreenshot({
+    super.key,
+    required this.onScreenshot,
+    this.multipleScreenshots = false,
+  });
+
+  final ScreenshotProcessor onScreenshot;
+
+  /// If enabled, a new item is added to the menu which allwo screenshots to be
+  /// taken for all available device.
+  ///
+  /// Make sure to have an adapted [onScreenshot] processor for this ([screenshotAsBase64] won't
+  /// be really useful in this case).
+  final bool multipleScreenshots;
+
+  @override
+  State<FixedDevicePreviewScreenshot> createState() =>
+      _FixedDevicePreviewScreenshotState();
+}
+
+class _FixedDevicePreviewScreenshotState
+    extends State<FixedDevicePreviewScreenshot> {
+  bool _isLoading = false;
+  final TextEditingController controller = TextEditingController();
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ToolPanelSection(
+      title: 'Screenshot',
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 32, right: 16, top: 16),
+          child: TextField(
+            controller: controller,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: 'Screenshot Path & Prefix',
+            ),
+          ),
+        ),
+        ListTile(
+          key: const Key('single-screenshot'),
+          title: const Text('Take a screenshot'),
+          subtitle: const Text('Currently selected device'),
+          trailing: _isLoading ? const CircularProgressIndicator() : null,
+          onTap: _isLoading
+              ? null
+              : () async {
+                  setState(() {
+                    _isLoading = true;
+                  });
+                  try {
+                    final result = await DevicePreview.screenshot(context);
+                    await widget.onScreenshot(this.context, result,
+                        controller.text.isEmpty ? null : controller.text);
+                  } finally {
+                    setState(() {
+                      _isLoading = false;
+                    });
+                  }
+                },
+        ),
+        if (widget.multipleScreenshots)
+          ListTile(
+            key: const Key('multiple-screenshot'),
+            title: const Text('Take multiple screenshots'),
+            subtitle: const Text('All available devices'),
+            trailing: _isLoading ? const CircularProgressIndicator() : null,
+            onTap: _isLoading
+                ? null
+                : () async {
+                    setState(() {
+                      _isLoading = true;
+                    });
+                    try {
+                      // final initialDevice =
+                      // DevicePreview.selectedDevice(context);
+                      for (final DeviceIdentifier device
+                          in DevicePreview.availableDeviceIdentifiers(
+                              context)) {
+                        DevicePreview.selectDevice(context, device);
+                        await Future.delayed(const Duration(milliseconds: 500));
+                        if (mounted) {
+                          final result =
+                              await DevicePreview.screenshot(context);
+                          await widget.onScreenshot(
+                            this.context,
+                            result,
+                            controller.text.isEmpty ? null : controller.text,
+                          );
+                        }
+                      }
+                      // DevicePreview.selectDevice(
+                      //   context,
+                      //   initialDevice.identifier,
+                      // );
+                    } finally {
+                      setState(() {
+                        _isLoading = false;
+                      });
+                    }
+                  },
+          ),
+      ],
+    );
+  }
+}
