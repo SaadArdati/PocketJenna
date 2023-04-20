@@ -7,13 +7,21 @@ void showComingSoonDialog(BuildContext context, String title) {
     context: context,
     builder: (context) {
       return AlertDialog(
-        title: Text(title),
-        content: const Text('This feature is coming soon!'),
+        title: Text(
+          title,
+          style: context.textTheme.titleLarge?.copyWith(
+            color: context.colorScheme.onSurface,
+          ),
+        ),
+        content: Text(
+          'This feature is coming soon!',
+          style: context.textTheme.bodyLarge?.copyWith(
+            color: context.colorScheme.onSurface,
+          ),
+        ),
         actions: [
           TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
+            onPressed: () => Navigator.of(context).pop(),
             child: Text(
               'Dismiss',
               style: context.textTheme.bodySmall?.copyWith(

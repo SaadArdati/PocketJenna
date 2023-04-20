@@ -106,16 +106,23 @@ abstract class DataManager {
       print(response.body);
     } else {
       throw Exception(
-          'Registration failed: ${response.statusCode} ${response.body} ${response.reasonPhrase}');
+          'Registration failed: ${response.statusCode} ${response
+              .body} ${response.reasonPhrase}');
     }
   }
 
   /// Get the openAI key from the server.
   Future<String> fetchOpenAIKey() async {
-    final String? token = await AuthManager.instance.getAuthToken();
-    if (token == null) {
+    String? token;
+    try {
+      token = await AuthManager.instance.getAuthToken();
+      if (token == null) {
+        throw Exception('No token: Authentication token is missing');
+      }
+    } catch (e) {
       throw Exception('No token: Authentication token is missing');
     }
+
     final response = await get(
       Uri.https(Constants.firebaseFunctionsBaseURL, '/widgets/getOpenAIKey'),
       headers: {
@@ -128,7 +135,8 @@ abstract class DataManager {
       return response.body;
     } else {
       throw Exception(
-          'OpenAI key fetch failed: ${response.statusCode} ${response.body} ${response.reasonPhrase}');
+          'OpenAI key fetch failed: ${response.statusCode} ${response
+              .body} ${response.reasonPhrase}');
     }
   }
 

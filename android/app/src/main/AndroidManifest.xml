@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="dev.saadardati.pocketjenna.pocketjenna">
+    package="dev.saadardati.pocketjenna">
    <application
-        android:label="pocketjenna"
+        android:label="Pocket Jenna"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

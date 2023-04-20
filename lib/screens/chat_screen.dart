@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:bubble/bubble.dart';
 import 'package:dart_openai/openai.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -68,6 +67,8 @@ class _ChatScreenState extends State<ChatScreen>
     with SingleTickerProviderStateMixin {
   final ScrollController scrollController = ScrollController();
 
+  late GPTManager gpt = context.read<GPTManager>();
+
   late final Stream<Chat?> chatStream;
 
   bool historyOpenOnWide = Hive.box(Constants.settings).get(
@@ -78,8 +79,6 @@ class _ChatScreenState extends State<ChatScreen>
   @override
   void initState() {
     super.initState();
-
-    final GPTManager gpt = context.read<GPTManager>();
 
     gpt.init();
 
@@ -96,7 +95,6 @@ class _ChatScreenState extends State<ChatScreen>
   void dispose() {
     scrollController.dispose();
 
-    final GPTManager gpt = context.read<GPTManager>();
     gpt.dispose();
 
     super.dispose();
@@ -105,14 +103,6 @@ class _ChatScreenState extends State<ChatScreen>
   @override
   Widget build(BuildContext context) {
     final GPTManager gpt = context.watch<GPTManager>();
-
-    final TargetPlatform platform = defaultTargetPlatform;
-    final bool isDesktop = !kIsWeb &&
-        (platform == TargetPlatform.windows ||
-            platform == TargetPlatform.linux ||
-            platform == TargetPlatform.macOS);
-
-    final double? buttonSize = isDesktop ? 20 : null;
 
     return LayoutBuilder(builder: (context, constraints) {
       final bool isWide = constraints.maxWidth > 800;
@@ -240,6 +230,8 @@ class _ChatScreenState extends State<ChatScreen>
                                   ..removeAt(0);
                                 return SelectionArea(
                                   child: ListView.separated(
+                                    physics:
+                                        const AlwaysScrollableScrollPhysics(),
                                     keyboardDismissBehavior:
                                         ScrollViewKeyboardDismissBehavior
                                             .onDrag,

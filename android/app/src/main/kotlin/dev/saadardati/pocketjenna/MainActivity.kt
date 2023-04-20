@@ -1,4 +1,4 @@
-package dev.saadardati.pocketjenna.pocketjenna
+package dev.saadardati.pocketjenna
 
 import io.flutter.embedding.android.FlutterActivity
 
