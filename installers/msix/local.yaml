@@ -4,10 +4,10 @@ msix_config:
   logo_path: installers\msix\app_icon.png
   architecture: x64
   capabilities: "internetClient"
-  certificate_path: installers\msix\POCKETGPT-CERT.pfx
-  certificate_password: {{ password }}
+  certificate_path: installers\msix\PocketJennaCertificate.pfx
+  certificate_password: { { password } }
   output_name: PocketJenna
-  output_path: . 
+  output_path: .
   build_windows: false
   install_certificate: true
   store: false
