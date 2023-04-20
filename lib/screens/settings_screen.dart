@@ -41,14 +41,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
           onTap: () {
             final box = Hive.box(Constants.settings);
             final bool onboarding =
-            box.get(Constants.isFirstTime, defaultValue: true);
+                box.get(Constants.isFirstTime, defaultValue: true);
             context.go(onboarding ? '/onboarding' : '/home',
                 extra: {'from': 'settings'});
           },
           icon: Icons.arrow_forward,
-          tooltip: MaterialLocalizations
-              .of(context)
-              .backButtonTooltip,
+          tooltip: MaterialLocalizations.of(context).backButtonTooltip,
         ),
       ],
       extendBodyBehindAppBar: true,
@@ -60,9 +58,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               children: [
                 SizedBox(
-                  height: (Scaffold
-                      .of(context)
-                      .appBarMaxHeight ?? 48) + 16,
+                  height: (Scaffold.of(context).appBarMaxHeight ?? 48) + 16,
                 ),
                 const AppSettingsTile(),
                 const SizedBox(height: 16),
@@ -108,9 +104,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const SizedBox(height: 8),
                 buildContactTile(
                   title: 'Github',
-                  icon: Theme
-                      .of(context)
-                      .brightness == Brightness.dark
+                  icon: Theme.of(context).brightness == Brightness.dark
                       ? 'assets/github_dark_256x.png'
                       : 'assets/github_light_256x.png',
                   url: 'https://github.com/SaadArdati',
@@ -283,7 +277,7 @@ class _AppSettingsTileState extends State<AppSettingsTile> {
                           style: context.textTheme.bodySmall?.copyWith(
                             fontSize: 12,
                             color:
-                            context.colorScheme.onSurface.withOpacity(0.7),
+                                context.colorScheme.onSurface.withOpacity(0.7),
                           ),
                         ),
                         trailing: SizedBox(
@@ -299,12 +293,11 @@ class _AppSettingsTileState extends State<AppSettingsTile> {
                               padding: EdgeInsets.only(right: 4),
                               child: Icon(Icons.arrow_drop_down),
                             ),
-                            selectedItemBuilder: (context) =>
-                            [
+                            selectedItemBuilder: (context) => [
                               for (final mode in AdaptiveThemeMode.values)
                                 Padding(
                                   padding:
-                                  const EdgeInsets.fromLTRB(10, 8, 4, 8),
+                                      const EdgeInsets.fromLTRB(10, 8, 4, 8),
                                   child: Text(mode.modeName),
                                 ),
                             ],
@@ -360,7 +353,7 @@ class _AppSettingsTileState extends State<AppSettingsTile> {
                     children: [
                       CheckboxListTile(
                         value:
-                        box.get(Constants.alwaysOnTop, defaultValue: true),
+                            box.get(Constants.alwaysOnTop, defaultValue: true),
                         title: Text(
                           'Always on top',
                           style: context.textTheme.titleSmall,
@@ -370,7 +363,7 @@ class _AppSettingsTileState extends State<AppSettingsTile> {
                           style: context.textTheme.bodySmall?.copyWith(
                             fontSize: 12,
                             color:
-                            context.colorScheme.onSurface.withOpacity(0.7),
+                                context.colorScheme.onSurface.withOpacity(0.7),
                           ),
                         ),
                         onChanged: (bool? value) {
@@ -398,7 +391,7 @@ class _AppSettingsTileState extends State<AppSettingsTile> {
                           style: context.textTheme.bodySmall?.copyWith(
                             fontSize: 12,
                             color:
-                            context.colorScheme.onSurface.withOpacity(0.7),
+                                context.colorScheme.onSurface.withOpacity(0.7),
                           ),
                         ),
                         onChanged: (bool? value) {
@@ -425,7 +418,7 @@ class _AppSettingsTileState extends State<AppSettingsTile> {
                           style: context.textTheme.bodySmall?.copyWith(
                             fontSize: 12,
                             color:
-                            context.colorScheme.onSurface.withOpacity(0.7),
+                                context.colorScheme.onSurface.withOpacity(0.7),
                           ),
                         ),
                         onChanged: (bool? value) {
@@ -511,7 +504,7 @@ class _AppSettingsTileState extends State<AppSettingsTile> {
                           style: context.textTheme.bodySmall?.copyWith(
                             fontSize: 12,
                             color:
-                            context.colorScheme.onSurface.withOpacity(0.7),
+                                context.colorScheme.onSurface.withOpacity(0.7),
                           ),
                         ),
                         onChanged: (bool? value) {
@@ -605,13 +598,10 @@ class SettingsTile extends StatelessWidget {
                       child: Align(
                         alignment: Alignment.centerRight,
                         child: IconTheme(
-                          data: Theme
-                              .of(context)
-                              .iconTheme
-                              .copyWith(
-                            color: context.colorScheme.onPrimary,
-                            size: 24,
-                          ),
+                          data: Theme.of(context).iconTheme.copyWith(
+                                color: context.colorScheme.onPrimary,
+                                size: 24,
+                              ),
                           child: icon!,
                         ),
                       ),
@@ -664,6 +654,18 @@ class _AccountSettingsTileState extends State<AccountSettingsTile> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           ListTile(
+            leading: const Icon(Icons.password),
+            title: const Text('Reset Password'),
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return const ResetPasswordDialog();
+                },
+              );
+            },
+          ),
+          ListTile(
             leading: const Icon(Icons.logout),
             title: const Text('Sign out'),
             onTap: () {
@@ -702,6 +704,58 @@ class _AccountSettingsTileState extends State<AccountSettingsTile> {
   }
 }
 
+class ResetPasswordDialog extends StatelessWidget {
+  const ResetPasswordDialog({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    if (AuthManager.instance.currentAuth?.email == null) {
+      return AlertDialog(
+        title: const Text('Reset Password'),
+        content: Text(
+          'This account does not have an email associated with it. Please sign in with an email account to reset your password.',
+          style: context.textTheme.bodyMedium,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Dismiss'),
+          ),
+        ],
+      );
+    }
+
+    return AlertDialog(
+      title: const Text('Reset Password'),
+      content: Text(
+        'Are you sure you want to reset your password?\n\nYou will be sent an email with a link to reset your password.',
+        style: context.textTheme.bodyMedium,
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Dismiss'),
+        ),
+        TextButton(
+          onPressed: () {
+            AuthManager.instance.sendPasswordResetEmail(
+                AuthManager.instance.currentAuth!.email!);
+            Navigator.pop(context);
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                    'A password reset email has been sent to your account'),
+                showCloseIcon: true,
+              ),
+            );
+          },
+          child: const Text('Reset'),
+        ),
+      ],
+    );
+  }
+}
+
 class SignOutDialog extends StatefulWidget {
   const SignOutDialog({super.key});
 
@@ -731,24 +785,25 @@ class _SignOutDialogState extends State<SignOutDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: const Text('Sign out'),
-      content: const Text(
+      content: Text(
         'Are you sure you want to sign out of your account?',
+        style: context.textTheme.bodyMedium,
       ),
       actions: [
         TextButton(
           onPressed: isLoading
               ? null
               : () {
-            Navigator.pop(context);
-          },
+                  Navigator.pop(context);
+                },
           child: const Text('Cancel'),
         ),
         TextButton.icon(
           onPressed: isLoading
               ? null
               : () {
-            signOut();
-          },
+                  signOut();
+                },
           icon: isLoading
               ? CupertinoActivityIndicator(color: context.colorScheme.primary)
               : const Icon(Icons.logout),
@@ -788,16 +843,17 @@ class DeleteAccountDialogState extends State<DeleteAccountDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: const Text('Sign out'),
-      content: const Text(
+      content: Text(
         'Are you sure you want to sign out of your account?',
+        style: context.textTheme.bodyMedium,
       ),
       actions: [
         TextButton(
           onPressed: isLoading
               ? null
               : () {
-            Navigator.pop(context);
-          },
+                  Navigator.pop(context);
+                },
           child: const Text('Cancel'),
         ),
         TextButton.icon(
@@ -807,8 +863,8 @@ class DeleteAccountDialogState extends State<DeleteAccountDialog> {
           onPressed: isLoading
               ? null
               : () {
-            signOut();
-          },
+                  signOut();
+                },
           icon: isLoading
               ? CupertinoActivityIndicator(color: context.colorScheme.onError)
               : Icon(Icons.delete_forever, color: context.colorScheme.onError),

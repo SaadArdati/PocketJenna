@@ -12,7 +12,6 @@ class BackgroundPainter extends CustomPainter {
   final Offset motion;
   final double rotation;
   final double chaos;
-  final ui.Image asset;
   final List<Color> shades;
 
   final Path path = logoPath(const Size.square(_logoSize));
@@ -36,7 +35,6 @@ class BackgroundPainter extends CustomPainter {
     required this.motion,
     required this.rotation,
     required this.chaos,
-    required this.asset,
     required this.shades,
   });
 
@@ -130,6 +128,5 @@ class BackgroundPainter extends CustomPainter {
   bool shouldRepaint(covariant BackgroundPainter oldDelegate) =>
       motion != oldDelegate.motion ||
       rotation != oldDelegate.rotation ||
-      asset != oldDelegate.asset ||
       shades != oldDelegate.shades;
 }

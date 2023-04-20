@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:math' hide log;
-import 'dart:ui' as ui;
 
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:encrypted_shared_preferences/encrypted_shared_preferences.dart';
@@ -258,10 +257,6 @@ class _NavigationBackgroundState extends State<NavigationBackground>
 
   bool get isSettingsPage => widget.state.location == '/settings';
 
-  final ui.Image logoFilledBlack = AssetManager
-      .instance.logoFilledBlackPicInfo.picture
-      .toImageSync(100, 100);
-
   @override
   void didUpdateWidget(covariant NavigationBackground oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -332,7 +327,6 @@ class _NavigationBackgroundState extends State<NavigationBackground>
   @override
   void dispose() {
     rotationController.dispose();
-    logoFilledBlack.dispose();
     chaosController.dispose();
 
     final manager = AdaptiveTheme.of(context);
@@ -383,37 +377,34 @@ class _NavigationBackgroundState extends State<NavigationBackground>
   Widget build(BuildContext context) {
     return Material(
       color: context.colorScheme.background,
-      child: LayoutBuilder(builder: (context, constraints) {
-        return Stack(
-          fit: StackFit.expand,
-          children: [
-            AnimatedBuilder(
-                animation: chaosAnimation,
-                builder: (context, child) {
-                  return AnimatedBuilder(
-                    animation: rotationController,
-                    builder: (context, child) {
-                      return CustomPaint(
-                        painter: BackgroundPainter(
-                          motion: Offset.zero,
-                          rotation: rotationController.value,
-                          chaos: chaosAnimation.value,
-                          asset: logoFilledBlack,
-                          shades: colors ?? [context.colorScheme.secondary],
-                        ),
-                      );
-                    },
-                  );
-                }),
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 500),
-              curve: Curves.fastOutSlowIn,
-              color: context.colorScheme.background.withOpacity(0.65),
-            ),
-            widget.child,
-          ],
-        );
-      }),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          AnimatedBuilder(
+              animation: chaosAnimation,
+              builder: (context, child) {
+                return AnimatedBuilder(
+                  animation: rotationController,
+                  builder: (context, child) {
+                    return CustomPaint(
+                      painter: BackgroundPainter(
+                        motion: Offset.zero,
+                        rotation: rotationController.value,
+                        chaos: chaosAnimation.value,
+                        shades: colors ?? [context.colorScheme.secondary],
+                      ),
+                    );
+                  },
+                );
+              }),
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.fastOutSlowIn,
+            color: context.colorScheme.background.withOpacity(0.65),
+          ),
+          widget.child,
+        ],
+      ),
     );
   }
 }

@@ -4,8 +4,7 @@ deps: flutter pub get
 clean:
   - flutter clean && flutter pub get
   - dart scripts/pods_fix.dart
-svg:
-  - dart run vector_graphics_compiler --input-dir assets/prompts
+svg: dart run vector_graphics_compiler --input-dir assets/prompts
 build:
   web: flutter build web --web-renderer canvaskit
   apk: flutter build apk --release
