@@ -82,7 +82,7 @@ class PocketJenna extends StatefulWidget {
 
     await AuthManager.instance.init();
     await AssetManager.instance.init();
-    await DataManager.instance.init();
+    await DataManager.instance.init().catchError((e) {});
 
     return true;
   }

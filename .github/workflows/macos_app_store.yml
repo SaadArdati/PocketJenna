@@ -4,6 +4,12 @@ on:
   release:
     types: [ published ]
   workflow_dispatch:
+    inputs:
+      upload:
+        description: 'Upload to App Store?'
+        type: boolean
+        required: true
+        default: true
 
 env:
   MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
@@ -33,11 +39,20 @@ jobs:
         run: gem install bundler
       - name: Get gem dependencies.
         run: bundle install
-      - name: Run fastlane
-        run: fastlane mac release
-      - name: Upload Artifacts
+      - name: Run Fastlane Build
+        run: fastlane mac build_app_store
+      - name: Upload to App Store
+        if: ${{ inputs.upload || github.event_name == 'release' }}
+        run: fastlane mac upload
+      - name: Upload .App Artifact
         uses: actions/upload-artifact@v3
         with:
-          path: Runner.app
+          path: PocketJenna.app
+          if-no-files-found: error
+          retention-days: 5
+      - name: Upload .pkg Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          path: PocketJenna.pkg
           if-no-files-found: error
           retention-days: 5

@@ -12,7 +12,7 @@ on:
         description: 'Upload to release?'
         type: boolean
         required: true
-        default: true
+        default: false
 
 env:
   MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
@@ -58,14 +58,14 @@ jobs:
         run: spctl -a -vvv -t install PocketJenna.app
       - name: Rename file
         run: mv "PocketJenna.dmg" "PocketJenna-macos-${{ steps.GetTag.outputs.tag }}.dmg"
-      - name: Upload Artifacts
+      - name: Upload dmg Artifact
         uses: actions/upload-artifact@v3
         with:
           path: PocketJenna-macos-${{ steps.GetTag.outputs.tag }}.dmg
           if-no-files-found: error
           retention-days: 5
       - name: Upload binaries to Release
-        if: ${{ github.event.inputs.upload == true  || github.event_name == 'release' }}
+        if: ${{ inputs.upload || github.event_name == 'release' }}
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
