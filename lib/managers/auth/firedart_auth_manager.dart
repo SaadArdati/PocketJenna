@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:firedart/auth/user_gateway.dart';
 import 'package:firedart/firedart.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:hive/hive.dart';
 
 import '../../constants.dart';
@@ -17,41 +18,60 @@ class HiveStore extends TokenStore {
 
   @override
   Token? read() {
-    final Map<String, dynamic>? userJson = _tokenBox.get(
-      Constants.userModel,
-      defaultValue: null,
-    );
-    if (userJson != null) {
-      user = AuthModel.fromJson(userJson);
+    try {
+      final Map<String, dynamic>? userJson =
+          _tokenBox.get(Constants.userModel)?.cast<String, dynamic>();
+      if (userJson != null) {
+        user = AuthModel.fromJson(userJson);
+      }
+
+      final Map<String, dynamic>? tokenJson =
+          _tokenBox.get(Constants.authToken)?.cast<String, dynamic>();
+
+      if (tokenJson == null || tokenJson.isEmpty) return null;
+
+      return Token.fromMap(tokenJson);
+    } catch (ex, str) {
+      debugPrintStack(label: ex.toString(), stackTrace: str);
+      return null;
     }
-
-    final tokenJson = _tokenBox.get(Constants.authToken, defaultValue: null);
-
-    if (tokenJson == null) return null;
-
-    return Token.fromMap(tokenJson);
   }
 
   @override
   void write(Token? token) {
     _tokenBox.clear();
     if (token != null) {
-      _tokenBox.add(token);
+      _tokenBox.put(Constants.authToken, token.toMap());
+    } else {
+      _tokenBox.delete(Constants.authToken);
     }
     if (user != null) {
-      _tokenBox.add(user);
+      _tokenBox.put(Constants.userModel, user!.toJson());
+    } else {
+      _tokenBox.delete(Constants.userModel);
+    }
+  }
+
+  void saveUser(AuthModel? user) {
+    if (user != null) {
+      _tokenBox.put(Constants.userModel, user.toJson());
+    } else {
+      _tokenBox.delete(Constants.userModel);
     }
   }
 
   @override
   void delete() {
     _tokenBox.clear();
+    user = null;
   }
 }
 
 class FireDartAuthManager extends AuthManager {
   final StreamController<AuthModel?> _userStreamController =
       StreamController<AuthModel?>.broadcast();
+
+  late final HiveStore store;
 
   AuthModel? _currentUser;
 
@@ -67,9 +87,9 @@ class FireDartAuthManager extends AuthManager {
   Future<void> init() async {
     // Open a box for storing tokens
     // TODO: Encryption
-    final tokenBox = await Hive.openBox<Map<String, dynamic>>(Constants.auth);
+    final tokenBox = await Hive.openBox(Constants.auth);
 
-    final HiveStore store = HiveStore(tokenBox);
+    store = HiveStore(tokenBox);
 
     FirebaseAuth.initialize(
       Constants.firebaseWebAPIKey,
@@ -96,6 +116,7 @@ class FireDartAuthManager extends AuthManager {
         photoUrl: user.photoUrl,
       );
     }
+    store.saveUser(_currentUser);
     _userStreamController.add(_currentUser);
   }
 

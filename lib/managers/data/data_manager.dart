@@ -106,8 +106,7 @@ abstract class DataManager {
       print(response.body);
     } else {
       throw Exception(
-          'Registration failed: ${response.statusCode} ${response
-              .body} ${response.reasonPhrase}');
+          'Registration failed: ${response.statusCode} ${response.body} ${response.reasonPhrase}');
     }
   }
 
@@ -135,8 +134,7 @@ abstract class DataManager {
       return response.body;
     } else {
       throw Exception(
-          'OpenAI key fetch failed: ${response.statusCode} ${response
-              .body} ${response.reasonPhrase}');
+          'OpenAI key fetch failed: ${response.statusCode} ${response.body} ${response.reasonPhrase}');
     }
   }
 

@@ -3,16 +3,15 @@ class Constants {
 
   static const String encryptionKey = 'encryption_key';
 
-  /// ------- Sensitive
+  /// ------- Firebase
   static const String firebaseWebAPIKey =
       'AIzaSyABjpkJUp-BDXe4GIhOfYYWl-0twmOhsqs';
-
-  /// ------- Data
+  static const String firebaseProjectID = 'pocket-jenna';
   static const String firebaseFunctionsBaseURL =
       'us-central1-pocket-jenna.cloudfunctions.net';
-  static const String user = 'user';
 
   // FireDart
+  static const String user = 'user';
   static const String auth = 'auth';
   static const String authToken = 'authToken';
   static const String userModel = 'userModel';

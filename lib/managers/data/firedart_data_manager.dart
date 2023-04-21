@@ -33,6 +33,8 @@ class FireDartDataManager extends DataManager {
   Future<void> init() async {
     super.init();
 
+    Firestore.initialize(Constants.firebaseProjectID);
+
     _authModel = AuthManager.instance.currentAuth;
     _authStreamSubscription = AuthManager.instance.authStream.listen(
       (AuthModel? authModel) {
