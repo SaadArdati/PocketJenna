@@ -5,8 +5,8 @@
 | Platform | Available on Stores                                                                                                                       | Direct Download                                                                                                                                                      |
 |----------|-------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Android  | <a href="https://play.google.com/store/apps/details?id=dev.birju.targetmate"><img src=".github/assets/playstore.png" height="70px" /></a> | <a href="https://github.com/SaadArdati/PocketJenna/releases/download/0.1.1/PocketJenna-android-0.1.1.apk"><img src=".github/assets/android.png" height="70px" /></a> |
-| iOS      | <a href="https://apps.apple.com/in/app/target-mate/id6447091819"><img src=".github/assets/appstore.png" height="70px" /></a>              | ❌ &nbsp; Not Available                                                                                                                                               |
-| macOS    | <a href="https://apps.apple.com/in/app/target-mate/id6447091819"><img src=".github/assets/appstore.png" height="70px" /></a>              | <a href="https://github.com/SaadArdati/PocketJenna/releases/download/0.1.1/PocketJenna-macos-0.1.1.dmg"><img src=".github/assets/macos.png" height="70px" /></a>     |
+| iOS      | <a href="https://apps.apple.com/us/app/pocket-jenna/id6447211532"><img src=".github/assets/appstore.png" height="70px" /></a>             | ❌ &nbsp; Not Available                                                                                                                                               |
+| macOS    | <a href="https://apps.apple.com/us/app/pocket-jenna/id6447211532"><img src=".github/assets/appstore.png" height="70px" /></a>             | <a href="https://github.com/SaadArdati/PocketJenna/releases/download/0.1.1/PocketJenna-macos-0.1.1.dmg"><img src=".github/assets/macos.png" height="70px" /></a>     |
 | Windows  | ❌ &nbsp; Not Available                                                                                                                    | <a href="https://github.com/SaadArdati/PocketJenna/releases/download/0.1.1/PocketJenna-windows-0.1.1.exe"><img src=".github/assets/windows.png" height="70px" /></a> |
 | Linux    | ❌ &nbsp; Not Available                                                                                                                    | ❌ &nbsp; Not Available                                                                                                                                               |
 
@@ -14,7 +14,7 @@
 
 Website: https://hyperdesigned.dev/pocket-jenna
 
-Web App:
+Web App: https://pocket-jenna.hyperdesigned.dev
 
 # Features
 
@@ -43,7 +43,7 @@ Web App:
 
 <a href="https://saad-ardati.dev" ><img alt="Website" width="32px" src=".github/assets/profile.png" />  [saad-ardati.dev](https://saad-ardati.dev) </a>
 
-<a href="https://discord.gg/yrahEhCqTJ" ><img alt="Discord" width="32px" src=".github/assets/discord_256x.png" />  [discord.gg/ARxJzxU](https://discord.gg/ARxJzxU) </a>
+<a href="https://discord.gg/yrahEhCqTJ" ><img alt="Discord" width="32px" src=".github/assets/discord_256x.png" />  [discord.gg/yrahEhCqTJ](https://discord.gg/yrahEhCqTJ) </a>
 
 <a href="https://www.linkedin.com/in/saad-ardati/" ><img alt="LinkedIn" width="32px" src=".github/assets/linked_in_256x.png" />  [linkedin.com/in/saad-ardati/](https://www.linkedin.com/in/saad-ardati/) </a>
 
