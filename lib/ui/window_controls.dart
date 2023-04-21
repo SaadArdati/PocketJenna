@@ -11,6 +11,7 @@ class WindowControls extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final TargetPlatform platform = defaultTargetPlatform;
+    final bool isWindows = !kIsWeb && platform == TargetPlatform.windows;
     final bool isDesktop = !kIsWeb &&
         (platform == TargetPlatform.windows ||
             platform == TargetPlatform.linux ||
@@ -20,8 +21,7 @@ class WindowControls extends StatelessWidget {
     return ValueListenableBuilder(
         valueListenable: Hive.box(Constants.settings).listenable(),
         builder: (context, box, child) {
-          final bool showTitleBar =
-              box.get(Constants.showTitleBar, defaultValue: false);
+          final bool showTitleBar = !isWindows && !kIsWeb;
           return Row(
             children: [
               if (isDesktop) ...[
@@ -37,6 +37,12 @@ class WindowControls extends StatelessWidget {
                     tooltip: 'Minimize',
                     icon: const Icon(Icons.minimize),
                     onPressed: SystemManager.instance.closeWindow,
+                  ),
+                  IconButton(
+                    iconSize: buttonSize,
+                    tooltip: 'Maximize',
+                    icon: const Icon(Icons.maximize),
+                    onPressed: SystemManager.instance.maximizeOrRestoreWindow,
                   ),
                   IconButton(
                     iconSize: buttonSize,

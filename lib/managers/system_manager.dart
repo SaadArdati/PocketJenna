@@ -29,8 +29,7 @@ class SystemManager with WindowListener {
     final bool alwaysOnTop = box.get(Constants.alwaysOnTop, defaultValue: true);
     final bool showInTaskbar =
         box.get(Constants.moveToSystemDock, defaultValue: false);
-    final bool showTitleBar = true;
-    // box.get(Constants.showTitleBar, defaultValue: false);
+    final bool showTitleBar = !Platform.isWindows;
 
     WidgetsFlutterBinding.ensureInitialized();
 
@@ -290,17 +289,17 @@ class SystemManager with WindowListener {
     windowManager.removeListener(this);
   }
 
-  void toggleTitleBar({required bool show}) {
-    // Requires restart for borderless frame to be disabled.
-    // if (show) {
-    //   windowManager.setTitleBarStyle(TitleBarStyle.normal);
-    // } else {
-    //   windowManager.setTitleBarStyle(TitleBarStyle.hidden);
-    // }
-
-    final box = Hive.box(Constants.settings);
-    box.put(Constants.showTitleBar, show);
-  }
+  // void toggleTitleBar({required bool show}) {
+  //   // Requires restart for borderless frame to be disabled.
+  //   // if (show) {
+  //   //   windowManager.setTitleBarStyle(TitleBarStyle.normal);
+  //   // } else {
+  //   //   windowManager.setTitleBarStyle(TitleBarStyle.hidden);
+  //   // }
+  //
+  //   final box = Hive.box(Constants.settings);
+  //   box.put(Constants.showTitleBar, show);
+  // }
 
   void toggleSystemDock({required bool show}) {
     windowManager.setSkipTaskbar(!show);

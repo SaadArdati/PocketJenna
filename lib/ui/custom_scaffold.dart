@@ -451,6 +451,7 @@ class CustomAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final TargetPlatform platform = Theme.of(context).platform;
+    final bool isWindows = !kIsWeb && platform == TargetPlatform.windows;
     final bool isDesktop = !kIsWeb &&
         (platform == TargetPlatform.windows ||
             platform == TargetPlatform.linux ||
@@ -465,8 +466,9 @@ class CustomAppBar extends StatelessWidget {
       child: ValueListenableBuilder(
         valueListenable: Hive.box(Constants.settings).listenable(),
         builder: (context, box, child) {
-          final bool showTitleBar =
-              box.get(Constants.showTitleBar, defaultValue: false);
+          // final bool showTitleBar =
+          //     box.get(Constants.showTitleBar, defaultValue: false);
+          final bool showTitleBar = !isWindows && !kIsWeb;
 
           Widget leadingWidget = automaticallyImplyLeading || leading != null
               ? automaticallyImplyLeading && leading == null
@@ -480,7 +482,7 @@ class CustomAppBar extends StatelessWidget {
 
           final appTitle = Text(
             'Pocket Jenna',
-            textAlign: TextAlign.center,
+            textAlign: isWindows ? TextAlign.left : TextAlign.center,
             style: context.textTheme.titleSmall?.copyWith(
                 color: context.colorScheme.onPrimary,
                 letterSpacing: 1.5,
@@ -499,7 +501,7 @@ class CustomAppBar extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Expanded(child: SizedBox.shrink()),
+                      if (!isWindows) const Expanded(child: SizedBox.shrink()),
                       Expanded(
                         flex: 2,
                         child: GestureDetector(
@@ -508,8 +510,8 @@ class CustomAppBar extends StatelessWidget {
                             SystemManager.instance.maximizeOrRestoreWindow();
                           },
                           child: Padding(
-                            padding: const EdgeInsets.only(
-                              left: 16,
+                            padding: EdgeInsets.only(
+                              left: isWindows ? 8 : 16,
                               right: 16,
                               top: 4,
                             ),
@@ -530,25 +532,32 @@ class CustomAppBar extends StatelessWidget {
                                   onTap:
                                       SystemManager.instance.toggleWindowMemory,
                                 ),
-                                // if (!showTitleBar) ...[
-                                //   ScaffoldAction(
-                                //     tooltip: 'Minimize',
-                                //     icon: Icons.minimize,
-                                //     onTap:
-                                //         SystemManager.instance.minimizeWindow,
-                                //   ),
-                                //   ScaffoldAction(
-                                //     tooltip: 'Close',
-                                //     icon: Icons.close,
-                                //     onTap: SystemManager.instance.closeWindow,
-                                //   ),
-                                // IconButton(
-                                //   iconSize: buttonSize,
-                                //   tooltip: 'Quit',
-                                //   icon: const Icon(Icons.close),
-                                //   onPressed: SystemManager.instance.quitApp,
-                                // ),
-                                // ],
+                                if (!showTitleBar) ...[
+                                  IconButton(
+                                    tooltip: 'Minimize',
+                                    icon: const Icon(Icons.minimize),
+                                    onPressed:
+                                        SystemManager.instance.closeWindow,
+                                  ),
+                                  IconButton(
+                                    tooltip: 'Maximize',
+                                    icon: const Icon(Icons.maximize),
+                                    onPressed: SystemManager
+                                        .instance.maximizeOrRestoreWindow,
+                                  ),
+                                  IconButton(
+                                    tooltip: 'Close',
+                                    icon: const Icon(Icons.close),
+                                    onPressed:
+                                        SystemManager.instance.closeWindow,
+                                  ),
+                                  // IconButton(
+                                  //   iconSize: buttonSize,
+                                  //   tooltip: 'Quit',
+                                  //   icon: const Icon(Icons.close),
+                                  //   onPressed: SystemManager.instance.quitApp,
+                                  // ),
+                                ],
                               ],
                             ],
                           ),
