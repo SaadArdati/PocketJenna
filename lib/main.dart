@@ -12,7 +12,6 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:launch_at_startup/launch_at_startup.dart';
 import 'package:universal_io/io.dart';
 import 'package:url_strategy/url_strategy.dart';
 import 'package:window_manager/window_manager.dart';
@@ -65,18 +64,13 @@ class PocketJenna extends StatefulWidget {
     );
 
     if (!kIsWeb) {
-      if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+      if (Platform.isWindows ||
+          Platform.isLinux ||
+          Platform.isMacOS ||
+          Platform.isFuchsia) {
         await SystemManager.instance.init();
-
-        final box = Hive.box(Constants.settings);
-        if (box.get(Constants.launchOnStartup, defaultValue: true)) {
-          LaunchAtStartup.instance.setup(
-            appName: 'Pocket Jenna',
-            appPath: Platform.resolvedExecutable,
-          );
-          await LaunchAtStartup.instance.enable();
-        }
       }
+    } else {
       setPathUrlStrategy();
     }
 

@@ -1,6 +1,7 @@
 import Cocoa
 import FlutterMacOS
 import bitsdojo_window_macos
+import LaunchAtLogin
 
 class MainFlutterWindow: BitsdojoWindow {
 
@@ -23,8 +24,28 @@ class MainFlutterWindow: BitsdojoWindow {
 
       self.collectionBehavior = .canJoinAllSpaces
 
-    RegisterGeneratedPlugins(registry: flutterViewController)
-
-    super.awakeFromNib()
+      let controller = self.contentViewController as! FlutterViewController
+      let channel = FlutterMethodChannel(name: "dev.saadardati.pocketjenna/launchAtStartup", binaryMessenger: controller.engine.binaryMessenger)
+      channel.setMethodCallHandler(handleMessage)
+      
+      RegisterGeneratedPlugins(registry: flutterViewController)
+      
+      super.awakeFromNib()
   }
+    
+    private func handleMessage(call: FlutterMethodCall, result: FlutterResult) {
+        switch call.method {
+        case "toggleLaunchAtStartup":
+            LaunchAtLogin.Toggle()
+            result(LaunchAtLogin.isEnabled)
+        case "isLaunchAtStartupEnabled":
+            result(LaunchAtLogin.isEnabled)
+        default:
+            result(FlutterMethodNotImplemented)
+        }
+    }
+    
+    private func isLaunchAtStartupEnabled() -> Bool {
+        return LaunchAtLogin.isEnabled
+    }
 }

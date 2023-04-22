@@ -11,7 +11,6 @@ import 'package:url_launcher/url_launcher_string.dart';
 import '../constants.dart';
 import '../managers/auth/auth_manager.dart';
 import '../managers/system_manager.dart';
-import '../ui/coming_soon.dart';
 import '../ui/custom_scaffold.dart';
 import '../ui/theme_extensions.dart';
 
@@ -408,7 +407,7 @@ class _AppSettingsTileState extends State<AppSettingsTile> {
                       const SizedBox(height: 8),
                       CheckboxListTile(
                         value: box.get(Constants.launchOnStartup,
-                            defaultValue: true),
+                            defaultValue: false),
                         title: Text(
                           'Launch app on startup',
                           style: context.textTheme.titleSmall,
@@ -422,21 +421,13 @@ class _AppSettingsTileState extends State<AppSettingsTile> {
                           ),
                         ),
                         onChanged: (bool? value) {
-                          showComingSoonDialog(
-                              context, 'Launch app on startup');
-                          // box.put(
-                          //   Constants.launchOnStartup,
-                          //   value ??
-                          //       !box.get(
-                          //         Constants.launchOnStartup,
-                          //         defaultValue: true,
-                          //       ),
-                          // );
-                          // if (value == false) {
-                          //   LaunchAtStartup.instance.disable();
-                          // } else {
-                          //   LaunchAtStartup.instance.enable();
-                          // }
+                          box.put(Constants.launchOnStartup, value ?? false);
+                          final shouldLaunchAtStartup = box.get(
+                              Constants.launchOnStartup,
+                              defaultValue: false);
+                          SystemManager.instance.handleLaunchAtStartup(
+                            shouldLaunchAtStartup: shouldLaunchAtStartup,
+                          );
                         },
                       ),
                       const SizedBox(height: 8),

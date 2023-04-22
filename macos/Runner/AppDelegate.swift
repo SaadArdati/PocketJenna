@@ -1,5 +1,6 @@
 import Cocoa
 import FlutterMacOS
+import LaunchAtLogin
 
 @NSApplicationMain
 class AppDelegate: FlutterAppDelegate {

@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
+import 'package:launch_at_startup/launch_at_startup.dart';
 import 'package:screen_retriever/screen_retriever.dart';
 import 'package:system_tray/system_tray.dart';
 import 'package:universal_io/io.dart';
@@ -11,6 +12,8 @@ import 'package:window_manager/window_manager.dart';
 import '../constants.dart';
 
 class SystemManager with WindowListener {
+  late final MethodChannel? _channel;
+
   bool isInitializing = true;
   late Offset trayPosition;
   Size defaultWindowSize = const Size(400, 600);
@@ -25,8 +28,13 @@ class SystemManager with WindowListener {
   factory SystemManager() => _instance;
 
   Future<void> init() async {
+    _channel =
+        const MethodChannel('dev.saadardati.pocketjenna/launchAtStartup');
+
     final box = Hive.box(Constants.settings);
     final bool alwaysOnTop = box.get(Constants.alwaysOnTop, defaultValue: true);
+    final bool launchAtStartup =
+        box.get(Constants.launchOnStartup, defaultValue: false);
     final bool showInTaskbar =
         box.get(Constants.moveToSystemDock, defaultValue: false);
     final bool showTitleBar = !Platform.isWindows;
@@ -65,6 +73,8 @@ class SystemManager with WindowListener {
     });
 
     if (Platform.isMacOS) windowManager.setMovable(true);
+
+    await handleLaunchAtStartup(shouldLaunchAtStartup: launchAtStartup);
 
     final String path =
         Platform.isWindows ? 'assets/app_icon.ico' : 'assets/app_icon.png';
@@ -151,6 +161,49 @@ class SystemManager with WindowListener {
       }
       isInitializing = false;
     }
+  }
+
+  Future<void> handleLaunchAtStartup(
+      {required bool shouldLaunchAtStartup}) async {
+    if (Platform.isWindows ||
+        Platform.isLinux ||
+        Platform.isMacOS ||
+        Platform.isFuchsia) {
+      if (shouldLaunchAtStartup) {
+        if (Platform.isMacOS) {
+          assert(_channel != null, 'SystemManager not initialized!');
+          final bool isEnabled = await isLaunchAtStartupEnabled();
+          if (!isEnabled) {
+            await _channel!.invokeMethod('toggleLaunchAtStartup');
+          }
+        } else {
+          LaunchAtStartup.instance.setup(
+            appName: 'Pocket Jenna',
+            appPath: Platform.resolvedExecutable,
+          );
+          await LaunchAtStartup.instance.enable();
+        }
+      } else {
+        if (Platform.isMacOS) {
+          assert(_channel != null, 'SystemManager not initialized!');
+          final bool isEnabled = await isLaunchAtStartupEnabled();
+          if (isEnabled) {
+            await _channel!.invokeMethod('toggleLaunchAtStartup');
+          }
+        } else {
+          await LaunchAtStartup.instance.disable();
+        }
+      }
+    }
+  }
+
+  Future<bool> isLaunchAtStartupEnabled() async {
+    assert(_channel != null, 'SystemManager not initialized!');
+
+    final bool? isEnabled =
+        await _channel!.invokeMethod('isLaunchAtStartupEnabled');
+
+    return isEnabled ?? false;
   }
 
   /// From: https://stackoverflow.com/a/20861130/4327834
