@@ -1,11 +1,12 @@
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:universal_io/io.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import '../constants.dart';
@@ -48,24 +49,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
           tooltip: MaterialLocalizations.of(context).backButtonTooltip,
         ),
       ],
-      extendBodyBehindAppBar: true,
       body: Builder(builder: (context) {
         return SizedBox.expand(
           child: Container(
             constraints: const BoxConstraints(maxWidth: 350),
             child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.all(16),
               children: [
-                SizedBox(
-                  height: (Scaffold.of(context).appBarMaxHeight ?? 48) + 16,
-                ),
                 const AppSettingsTile(),
                 const SizedBox(height: 16),
                 // const OpenAIKeyTile(),
                 // const SizedBox(height: 16),
                 const AccountSettingsTile(),
                 const SizedBox(height: 16),
-                buildInfoTile(context),
+                buildAboutTile(context),
                 const SizedBox(height: 32)
               ],
             ),
@@ -75,58 +72,41 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget buildInfoTile(BuildContext context) {
+  Widget buildAboutTile(BuildContext context) {
     return SettingsTile(
       title: 'About'.toUpperCase(),
       icon: const Icon(Icons.info_outlined),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: const [
+              ContactCard(
+                asset: 'assets/hyperdesigned_banner.png',
+                name: 'Hyperdesigned',
+                url: 'https://hyperdesigned.dev/',
+              ),
+              ContactCard(
+                asset: 'assets/profile_256x.png',
+                name: 'Saad Ardati',
+                url: 'https://saad-ardati.dev/',
+              ),
+              ContactCard(
+                asset: 'assets/birju.png',
+                name: 'Birju Vachhani',
+                url: 'https://birju.dev/',
+              ),
+            ],
+          ),
           const SizedBox(height: 16),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                buildContactTile(
-                  title: 'Website',
-                  icon: 'assets/profile_256x.png',
-                  url: 'https://saad-ardati.dev/',
-                  avatar: true,
-                ),
-                const SizedBox(height: 8),
-                buildContactTile(
-                  title: 'Twitter',
-                  icon: 'assets/twitter_256x.png',
-                  url: 'https://twitter.com/SaadArdati',
-                ),
-                const SizedBox(height: 8),
-                buildContactTile(
-                  title: 'Github',
-                  icon: Theme.of(context).brightness == Brightness.dark
-                      ? 'assets/github_dark_256x.png'
-                      : 'assets/github_light_256x.png',
-                  url: 'https://github.com/SaadArdati',
-                ),
-                const SizedBox(height: 8),
-                buildContactTile(
-                  title: 'Discord',
-                  icon: 'assets/discord_256x.png',
-                  url: 'https://discord.gg/ARxJzxU',
-                ),
-                const SizedBox(height: 8),
-                buildContactTile(
-                  title: 'LinkedIn',
-                  icon: 'assets/linked_in_256x.png',
-                  url: 'https://www.linkedin.com/in/saad-ardati',
-                ),
-                const SizedBox(height: 8),
-                buildContactTile(
-                  title: 'Instagram',
-                  icon: 'assets/instagram_256x.png',
-                  url: 'https://www.instagram.com/saad_ardati',
-                ),
-                const SizedBox(height: 16),
                 FutureBuilder(
                     future: PackageInfo.fromPlatform(),
                     builder: (BuildContext context,
@@ -139,23 +119,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       } else {
                         version = 'Checking...';
                       }
-                      return Text('Version: $version');
+                      return Text(
+                        'Version: $version',
+                        textAlign: TextAlign.center,
+                      );
                     }),
                 const SizedBox(height: 8),
                 Text(
                   'Copyright © 2020-2021. All Rights Reserved',
+                  textAlign: TextAlign.center,
                   style: context.textTheme.bodySmall?.copyWith(
                     fontSize: 12,
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 8),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     TextButton(
                       onPressed: () {
                         launchUrlString(
-                            'https://saad-ardati.dev/pocketjenna/privacy-policy');
+                            'https://hyperdesigned.dev/pocket-jenna/privacy-policy');
                       },
                       child: Text(
                         'View Privacy Policy',
@@ -180,13 +164,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ],
             ),
           ),
-          const SizedBox(height: 8),
         ],
       ),
     );
   }
 
-  Row buildContactTile({
+  Widget buildContactTile({
     required String icon,
     required String title,
     required String url,
@@ -209,28 +192,99 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         ),
         const SizedBox(width: 8),
-        Expanded(
-          child: Text.rich(
-            overflow: TextOverflow.ellipsis,
-            style: context.textTheme.bodyMedium,
-            TextSpan(
-              text: '$title: ',
-              children: [
-                TextSpan(
-                  text: url,
-                  style: const TextStyle(
-                    decoration: TextDecoration.underline,
-                  ),
-                  recognizer: TapGestureRecognizer()
-                    ..onTap = () {
-                      launchUrlString(url);
-                    },
-                ),
-              ],
+      ],
+    );
+  }
+}
+
+class ContactCard extends StatefulWidget {
+  final String asset;
+  final String name;
+  final String url;
+
+  const ContactCard({
+    super.key,
+    required this.asset,
+    required this.name,
+    required this.url,
+  });
+
+  @override
+  State<ContactCard> createState() => _ContactCardState();
+}
+
+class _ContactCardState extends State<ContactCard> {
+  bool isHovering = false;
+  bool isPressingDown = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) {
+        setState(() {
+          isHovering = true;
+        });
+      },
+      onExit: (_) {
+        setState(() {
+          isHovering = false;
+        });
+      },
+      child: GestureDetector(
+        onTapDown: (_) {
+          setState(() {
+            isPressingDown = true;
+          });
+        },
+        onTapUp: (_) {
+          setState(() {
+            isPressingDown = false;
+            launchUrlString(widget.url);
+          });
+        },
+        onTapCancel: () {
+          setState(() {
+            isPressingDown = false;
+          });
+        },
+        child: Container(
+          height: 72,
+          width: 72,
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: DecoratedBox(
+            position: DecorationPosition.foreground,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: context.colorScheme.primary,
+                width: 3,
+              ),
+            ),
+            child: Animate(
+              target: isPressingDown
+                  ? 1
+                  : isHovering
+                      ? 0.5
+                      : 0,
+              child: Image.asset(
+                widget.asset,
+                fit: BoxFit.cover,
+              ),
+            ).custom(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOutQuart,
+              builder: (context, value, child) => Transform.scale(
+                scale: 1 + (value / 8),
+                child: child,
+              ),
             ),
           ),
         ),
-      ],
+      ),
     );
   }
 }
@@ -260,6 +314,7 @@ class _AppSettingsTileState extends State<AppSettingsTile> {
               SettingsTile(
                 title: 'App Settings'.toUpperCase(),
                 icon: const Icon(Icons.settings),
+                padding: const EdgeInsets.symmetric(vertical: 4),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -316,29 +371,30 @@ class _AppSettingsTileState extends State<AppSettingsTile> {
                         ),
                       );
                     }),
-                    const SizedBox(height: 8),
-                    CheckboxListTile(
-                      value: box.get(Constants.checkForUpdates,
-                          defaultValue: true),
-                      title: Text(
-                        'Automatically check for updates',
-                        style: context.textTheme.titleSmall,
-                      ),
-                      subtitle: Text(
-                        'Checks for updates when the app starts and notifies you if there is an update available.',
-                        style: context.textTheme.bodySmall?.copyWith(
-                          fontSize: 12,
-                          color: context.colorScheme.onSurface.withOpacity(0.7),
+                    if (!kIsWeb && Platform.isWindows) ...[
+                      CheckboxListTile(
+                        value: box.get(Constants.checkForUpdates,
+                            defaultValue: true),
+                        title: Text(
+                          'Automatically check for updates',
+                          style: context.textTheme.titleSmall,
                         ),
+                        subtitle: Text(
+                          'Checks for updates when the app starts and notifies you if there is an update available.',
+                          style: context.textTheme.bodySmall?.copyWith(
+                            fontSize: 12,
+                            color:
+                                context.colorScheme.onSurface.withOpacity(0.7),
+                          ),
+                        ),
+                        onChanged: (bool? value) {
+                          box.put(
+                            Constants.checkForUpdates,
+                            value ?? !box.get(Constants.checkForUpdates),
+                          );
+                        },
                       ),
-                      onChanged: (bool? value) {
-                        box.put(
-                          Constants.checkForUpdates,
-                          value ?? !box.get(Constants.checkForUpdates),
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 12),
+                    ],
                   ],
                 ),
               ),
@@ -347,6 +403,7 @@ class _AppSettingsTileState extends State<AppSettingsTile> {
                 SettingsTile(
                   title: 'Desktop Settings'.toUpperCase(),
                   icon: const Icon(Icons.desktop_windows_outlined),
+                  padding: const EdgeInsets.symmetric(vertical: 8),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
@@ -534,7 +591,6 @@ class _AppSettingsTileState extends State<AppSettingsTile> {
                           },
                         ),
                       ],
-                      const SizedBox(height: 12),
                     ],
                   ),
                 ),
@@ -611,12 +667,6 @@ class SettingsTile extends StatelessWidget {
                 ],
               ),
             ),
-            // Divider(
-            //   height: 2,
-            //   thickness: 2,
-            //   color: context.colorScheme.primary,
-            // ),
-            const SizedBox(height: 8),
             Padding(
               padding: padding,
               child: child,
@@ -647,6 +697,8 @@ class _AccountSettingsTileState extends State<AccountSettingsTile> {
           ListTile(
             leading: const Icon(Icons.password),
             title: const Text('Reset Password'),
+            dense: true,
+            minLeadingWidth: 32,
             onTap: () {
               showDialog(
                 context: context,
@@ -659,6 +711,8 @@ class _AccountSettingsTileState extends State<AccountSettingsTile> {
           ListTile(
             leading: const Icon(Icons.logout),
             title: const Text('Sign out'),
+            dense: true,
+            minLeadingWidth: 32,
             onTap: () {
               showDialog(
                 context: context,
@@ -668,26 +722,25 @@ class _AccountSettingsTileState extends State<AccountSettingsTile> {
               );
             },
           ),
-          ColoredBox(
-            color: context.colorScheme.error,
-            child: ListTile(
-              leading: Icon(
-                Icons.delete_forever,
-                color: context.colorScheme.onError,
-              ),
-              title: Text(
-                'Delete account',
-                style: TextStyle(color: context.colorScheme.onError),
-              ),
-              onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    return const DeleteAccountDialog();
-                  },
-                );
-              },
+          ListTile(
+            leading: Icon(
+              Icons.delete_forever,
+              color: context.colorScheme.error,
             ),
+            title: Text(
+              'Delete account',
+              style: TextStyle(color: context.colorScheme.error),
+            ),
+            dense: true,
+            minLeadingWidth: 32,
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return const DeleteAccountDialog();
+                },
+              );
+            },
           ),
         ],
       ),
