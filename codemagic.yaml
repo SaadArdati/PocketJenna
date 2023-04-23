@@ -61,9 +61,6 @@ workflows:
     environment:
       groups:
         - appstore_credentials
-      vars:
-        BUNDLE_ID: "dev.saadardati.pocketjenna"
-        APP_NAME: "Pocket Jenna"
       xcode: latest
       cocoapods: default
     cache:
@@ -116,9 +113,9 @@ workflows:
           | .common_name' \
           | xargs)
 
-          xcrun productsign --sign "$INSTALLER_CERT_NAME" unsigned.pkg "$BUNDLE_ID" # Sign the package
+          xcrun productsign --sign "$INSTALLER_CERT_NAME" unsigned.pkg "$BUNDLE_ID"
           
-          rm -f unsigned.pkg                                                       # Optionally remove the not needed unsigned package
+          rm -f unsigned.pkg
     #      - name: Notarize App
     #        script: |
     #          xcrun altool --notarize-app -f <file> --primary-bundle-id <bundle_id>
