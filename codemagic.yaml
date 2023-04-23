@@ -101,31 +101,31 @@ workflows:
           flutter build macos --release
       - name: Package application
         script: |
-        set -x
-        
-        # Command to find the path to your generated app, may be different
-        APP_NAME=$(find $(pwd) -name "*.app")
-        cd $(dirname "$APP_NAME")
-        
-        PACKAGE_NAME=$(basename "$APP_NAME" .app).pkg
-        xcrun productbuild --component "$APP_NAME" /Applications/ unsigned.pkg  # Create and unsigned package
-        
-        # Find the installer certificate common name in keychain
-        INSTALLER_CERT_NAME=$(keychain list-certificates \
-        | jq '.[]
-        | select(.common_name
-        | contains("Mac Developer Installer"))
-        | .common_name' \
-        | xargs)
+          set -x
+          
+          # Command to find the path to your generated app, may be different
+          APP_NAME=$(find $(pwd) -name "*.app")
+          cd $(dirname "$APP_NAME")
+          
+          PACKAGE_NAME=$(basename "$APP_NAME" .app).pkg
+          xcrun productbuild --component "$APP_NAME" /Applications/ unsigned.pkg  # Create and unsigned package
+          
+          # Find the installer certificate common name in keychain
+          INSTALLER_CERT_NAME=$(keychain list-certificates \
+          | jq '.[]
+          | select(.common_name
+          | contains("Mac Developer Installer"))
+          | .common_name' \
+          | xargs)
 
-        xcrun productsign --sign "$INSTALLER_CERT_NAME" unsigned.pkg "$BUNDLE_ID" # Sign the package
-        
-        rm -f unsigned.pkg                                                       # Optionally remove the not needed unsigned package
-#      - name: Notarize App
-#        script: |
-#          xcrun altool --notarize-app -f <file> --primary-bundle-id <bundle_id>
-#                     {-u <username> [-p <password>] | --apiKey <api_key> --apiIssuer <issuer_id>}
-#                     [--asc-provider <name> | --team-id <id> | --asc-public-id <id>]
+          xcrun productsign --sign "$INSTALLER_CERT_NAME" unsigned.pkg "$BUNDLE_ID" # Sign the package
+          
+          rm -f unsigned.pkg                                                       # Optionally remove the not needed unsigned package
+    #      - name: Notarize App
+    #        script: |
+    #          xcrun altool --notarize-app -f <file> --primary-bundle-id <bundle_id>
+    #                     {-u <username> [-p <password>] | --apiKey <api_key> --apiIssuer <issuer_id>}
+    #                     [--asc-provider <name> | --team-id <id> | --asc-public-id <id>]
     artifacts:
       - build/macos/**/*.pkg
     publishing:
