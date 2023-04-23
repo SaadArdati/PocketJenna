@@ -11,6 +11,7 @@ workflows:
       android_signing:
         - pocket_jenna_keystore
       groups:
+        - keystore_credentials
         - google_play
       vars:
         PACKAGE_NAME: "dev.saadardati.pocketjenna" # <-- Put your package name here
@@ -59,10 +60,7 @@ workflows:
     max_build_duration: 120
     environment:
       groups:
-        - APP_STORE_CONNECT_ISSUER_ID
-        - APP_STORE_CONNECT_KEY_IDENTIFIER
-        - APP_STORE_CONNECT_PRIVATE_KEY
-        - CERTIFICATE_PRIVATE_KEY
+        - appstore_credentials
       vars:
         BUNDLE_ID: "dev.saadardati.pocketjenna"
         APP_NAME: "Pocket Jenna"
