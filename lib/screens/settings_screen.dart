@@ -73,7 +73,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget buildAboutTile(BuildContext context) {
-    return SettingsTile(
+    return JennaTile(
       title: 'About'.toUpperCase(),
       icon: const Icon(Icons.info_outlined),
       padding: const EdgeInsets.all(16),
@@ -166,33 +166,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget buildContactTile({
-    required String icon,
-    required String title,
-    required String url,
-    bool avatar = false,
-  }) {
-    return Row(
-      children: [
-        Container(
-          clipBehavior: Clip.antiAlias,
-          decoration: BoxDecoration(
-            color: context.colorScheme.inverseSurface,
-            shape: BoxShape.circle,
-          ),
-          padding: avatar ? EdgeInsets.zero : const EdgeInsets.all(8),
-          child: Image.asset(
-            icon,
-            width: avatar ? 32 : 18,
-            height: avatar ? 32 : 18,
-            fit: avatar ? BoxFit.cover : null,
-          ),
-        ),
-        const SizedBox(width: 8),
-      ],
     );
   }
 }
@@ -311,7 +284,7 @@ class _AppSettingsTileState extends State<AppSettingsTile> {
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              SettingsTile(
+              JennaTile(
                 title: 'App Settings'.toUpperCase(),
                 icon: const Icon(Icons.settings),
                 padding: const EdgeInsets.symmetric(vertical: 4),
@@ -400,7 +373,7 @@ class _AppSettingsTileState extends State<AppSettingsTile> {
               ),
               if (isDesktop) ...[
                 const SizedBox(height: 16),
-                SettingsTile(
+                JennaTile(
                   title: 'Desktop Settings'.toUpperCase(),
                   icon: const Icon(Icons.desktop_windows_outlined),
                   padding: const EdgeInsets.symmetric(vertical: 8),
@@ -601,13 +574,13 @@ class _AppSettingsTileState extends State<AppSettingsTile> {
   }
 }
 
-class SettingsTile extends StatelessWidget {
+class JennaTile extends StatelessWidget {
   final String title;
   final Widget? icon;
   final Widget child;
   final EdgeInsets padding;
 
-  const SettingsTile({
+  const JennaTile({
     super.key,
     required this.title,
     this.icon,
@@ -688,7 +661,7 @@ class AccountSettingsTile extends StatefulWidget {
 class _AccountSettingsTileState extends State<AccountSettingsTile> {
   @override
   Widget build(BuildContext context) {
-    return SettingsTile(
+    return JennaTile(
       title: 'Account Settings'.toUpperCase(),
       icon: const Icon(Icons.person),
       child: Column(

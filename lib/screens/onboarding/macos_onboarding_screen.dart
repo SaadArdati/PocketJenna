@@ -46,7 +46,7 @@ class MacOSOnboarding extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    SettingsTile(
+                    JennaTile(
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       title: 'Open app on left-click',
                       child: CheckboxListTile(
