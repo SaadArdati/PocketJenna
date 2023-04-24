@@ -39,4 +39,4 @@ jobs:
         with:
           add: 'README.md'
           message: ":memo: [CI] Update Download links in README.md"
-          signoff: true
+          commit: --signoff
