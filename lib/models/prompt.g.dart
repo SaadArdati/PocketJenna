@@ -15,6 +15,7 @@ Prompt _$PromptFromJson(Map json) => Prompt(
       icon: json['icon'] as String,
       createdOn: jsonToDate(json['createdOn'] as int?),
       updatedOn: jsonToDate(json['updatedOn'] as int?),
+      upvotes: json['upvotes'] as int? ?? 0,
     );
 
 Map<String, dynamic> _$PromptToJson(Prompt instance) => <String, dynamic>{
@@ -25,4 +26,5 @@ Map<String, dynamic> _$PromptToJson(Prompt instance) => <String, dynamic>{
       'icon': instance.icon,
       'createdOn': dateToJson(instance.createdOn),
       'updatedOn': dateToJson(instance.updatedOn),
+      'upvotes': instance.upvotes,
     };

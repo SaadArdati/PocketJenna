@@ -6,6 +6,7 @@ import 'package:dart_openai/openai.dart';
 import '../../constants.dart';
 import '../../models/auth_model.dart';
 import '../../models/chat.dart';
+import '../../models/prompt.dart';
 import '../../models/user_model.dart';
 import '../auth/auth_manager.dart';
 import '../gpt_manager.dart';
@@ -148,5 +149,17 @@ class FirebaseDataManager extends DataManager {
     final Map<String, dynamic>? data = snapshot.data();
 
     return data == null ? null : Chat.fromJson(data);
+  }
+
+  @override
+  Future<List<Prompt>> fetchMarket(int page, int pageSize) {
+    return FirebaseFirestore.instance
+        .collection(Constants.collectionMarket)
+        .orderBy('upvotes', descending: true)
+        .limit(pageSize)
+        .get()
+        .then(
+          (value) => value.docs.map((e) => Prompt.fromJson(e.data())).toList(),
+        );
   }
 }

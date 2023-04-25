@@ -11,6 +11,8 @@ import '../screens/chat_screen.dart';
 import '../screens/home_screen.dart';
 import '../screens/onboarding/macos_onboarding_screen.dart';
 import '../screens/onboarding/onboarding_screen.dart';
+import '../screens/prompt_creator.dart';
+import '../screens/prompt_market.dart';
 import '../screens/settings_screen.dart';
 import '../ui/window_drag_handle.dart';
 import 'auth/auth_manager.dart';
@@ -170,7 +172,6 @@ class NavigationManager {
       ),
       GoRoute(
         path: '/home',
-        builder: (context, state) => const HomeScreen(),
         redirect: authGuard,
         pageBuilder: (context, state) {
           final extra = state.extra;
@@ -185,6 +186,60 @@ class NavigationManager {
           return CustomTransitionPage(
             key: state.pageKey,
             child: const HomeScreen(),
+            opaque: false,
+            transitionDuration: const Duration(milliseconds: 600),
+            reverseTransitionDuration: const Duration(milliseconds: 600),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return pocketJennaTransition(
+                context,
+                animation,
+                secondaryAnimation,
+                child,
+                state: state,
+                comesFrom: comesFrom,
+              );
+            },
+          );
+        },
+      ),
+      GoRoute(
+        path: '/prompt-market',
+        redirect: authGuard,
+        pageBuilder: (context, state) {
+          final extra = state.extra;
+          AxisDirection comesFrom = AxisDirection.right;
+
+          return CustomTransitionPage(
+            key: state.pageKey,
+            child: const PromptMarket(),
+            opaque: false,
+            transitionDuration: const Duration(milliseconds: 600),
+            reverseTransitionDuration: const Duration(milliseconds: 600),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return pocketJennaTransition(
+                context,
+                animation,
+                secondaryAnimation,
+                child,
+                state: state,
+                comesFrom: comesFrom,
+              );
+            },
+          );
+        },
+      ),
+      GoRoute(
+        path: '/prompt-creator',
+        redirect: authGuard,
+        pageBuilder: (context, state) {
+          final extra = state.extra;
+          AxisDirection comesFrom = AxisDirection.right;
+
+          return CustomTransitionPage(
+            key: state.pageKey,
+            child: const PromptCreator(),
             opaque: false,
             transitionDuration: const Duration(milliseconds: 600),
             reverseTransitionDuration: const Duration(milliseconds: 600),

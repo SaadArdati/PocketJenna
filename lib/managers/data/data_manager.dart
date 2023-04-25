@@ -8,6 +8,7 @@ import 'package:universal_io/io.dart';
 
 import '../../constants.dart';
 import '../../models/chat.dart';
+import '../../models/prompt.dart';
 import '../../models/user_model.dart';
 import '../auth/auth_manager.dart';
 import 'firebase_data_manager.dart';
@@ -141,4 +142,6 @@ abstract class DataManager {
   void saveChat(Chat chat) {
     userBox.put(chat.id, chat.toJson());
   }
+
+  Future<List<Prompt>> fetchMarket(int page, int pageSize);
 }

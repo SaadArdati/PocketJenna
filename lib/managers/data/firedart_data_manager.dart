@@ -6,6 +6,7 @@ import 'package:firedart/firedart.dart';
 import '../../constants.dart';
 import '../../models/auth_model.dart';
 import '../../models/chat.dart';
+import '../../models/prompt.dart';
 import '../../models/user_model.dart';
 import '../auth/auth_manager.dart';
 import '../gpt_manager.dart';
@@ -154,5 +155,18 @@ class FireDartDataManager extends DataManager {
     final Map<String, dynamic> data = doc.map;
 
     return Chat.fromJson(data);
+  }
+
+  @override
+  Future<List<Prompt>> fetchMarket(int page, int pageSize) {
+    return Firestore.instance
+        .collection(Constants.collectionMarket)
+        .orderBy('upvotes', descending: true)
+        .limit(pageSize)
+        .get()
+        .then(
+          (List<Document> value) =>
+              value.map((e) => Prompt.fromJson(e.map)).toList(),
+        );
   }
 }

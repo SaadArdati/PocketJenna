@@ -192,6 +192,7 @@ class TokensTile extends StatelessWidget {
               ),
             ),
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
                   Icons.generating_tokens_outlined,
@@ -200,50 +201,51 @@ class TokensTile extends StatelessWidget {
                 const SizedBox(width: 12),
                 Text(
                   '${user?.tokens ?? 'No'} Tokens',
+                  textAlign: TextAlign.center,
                   style: context.textTheme.bodyMedium?.copyWith(
                     color: context.colorScheme.onPrimaryContainer,
                   ),
                 ),
-                const Spacer(),
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        context.colorScheme.secondary,
-                        context.colorScheme.secondary,
-                      ],
-                    ),
-                  ),
-                  clipBehavior: Clip.antiAlias,
-                  child: Stack(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 4),
-                        child: Text(
-                          'Buy Tokens',
-                          style: context.textTheme.bodySmall?.copyWith(
-                            color: context.colorScheme.onSecondary,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      Positioned.fill(
-                        child: Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            onTap: () {
-                              showComingSoonDialog(context, 'Buy Tokens');
-                            },
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
-                ),
+                // const Spacer(),
+                // Container(
+                //   decoration: BoxDecoration(
+                //     borderRadius: BorderRadius.circular(8),
+                //     gradient: LinearGradient(
+                //       begin: Alignment.topLeft,
+                //       end: Alignment.bottomRight,
+                //       colors: [
+                //         context.colorScheme.secondary,
+                //         context.colorScheme.secondary,
+                //       ],
+                //     ),
+                //   ),
+                //   clipBehavior: Clip.antiAlias,
+                //   child: Stack(
+                //     children: [
+                //       Padding(
+                //         padding: const EdgeInsets.symmetric(
+                //             horizontal: 8, vertical: 4),
+                //         child: Text(
+                //           'Buy Tokens',
+                //           style: context.textTheme.bodySmall?.copyWith(
+                //             color: context.colorScheme.onSecondary,
+                //             fontWeight: FontWeight.bold,
+                //           ),
+                //         ),
+                //       ),
+                //       Positioned.fill(
+                //         child: Material(
+                //           color: Colors.transparent,
+                //           child: InkWell(
+                //             onTap: () {
+                //               showComingSoonDialog(context, 'Buy Tokens');
+                //             },
+                //           ),
+                //         ),
+                //       )
+                //     ],
+                //   ),
+                // ),
               ],
             ),
           );
@@ -280,7 +282,8 @@ class ExploreTile extends StatelessWidget {
                   hoverColor: context.colorScheme.primary.withOpacity(0.1),
                   splashColor: context.colorScheme.primary.withOpacity(0.2),
                   onTap: () {
-                    showComingSoonDialog(context, 'Customize Cards');
+                    showComingSoonDialog(context, 'Make a new prompt');
+                    // context.go('/prompt-creator');
                   },
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -288,14 +291,14 @@ class ExploreTile extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(
-                          Icons.dashboard_customize_outlined,
+                          Icons.add,
                           color: context.colorScheme.onSurface,
                           size: 18,
                         ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            'Customize Cards',
+                            'Make A New Prompt',
                             textAlign: TextAlign.center,
                             style: context.textTheme.bodySmall?.copyWith(
                               color: context.colorScheme.onSurface,
@@ -328,7 +331,8 @@ class ExploreTile extends StatelessWidget {
                   hoverColor: context.colorScheme.primary.withOpacity(0.1),
                   splashColor: context.colorScheme.primary.withOpacity(0.2),
                   onTap: () {
-                    showComingSoonDialog(context, 'Explore');
+                    showComingSoonDialog(context, 'Make a new prompt');
+                    // context.go('/prompt-market');
                   },
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -343,7 +347,7 @@ class ExploreTile extends StatelessWidget {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            'Explore Cards',
+                            'Prompt Market',
                             textAlign: TextAlign.center,
                             style: context.textTheme.bodySmall?.copyWith(
                               color: context.colorScheme.onSurface,

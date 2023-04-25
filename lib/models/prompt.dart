@@ -21,6 +21,8 @@ class Prompt with EquatableMixin {
   @JsonKey(fromJson: jsonToDate, toJson: dateToJson)
   final DateTime updatedOn;
 
+  final int upvotes;
+
   Prompt({
     required this.id,
     required this.userID,
@@ -29,6 +31,7 @@ class Prompt with EquatableMixin {
     required this.icon,
     required this.createdOn,
     required this.updatedOn,
+    this.upvotes = 0,
   });
 
   Prompt.simple({
@@ -38,7 +41,8 @@ class Prompt with EquatableMixin {
     required this.userID,
   })  : id = const Uuid().v4(),
         createdOn = DateTime.now(),
-        updatedOn = DateTime.now();
+        updatedOn = DateTime.now(),
+        upvotes = 0;
 
   List<ChatMessage> get toChatMessages => [
         ...prompts.map((prompt) => ChatMessage.simple(

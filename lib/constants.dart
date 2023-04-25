@@ -19,6 +19,7 @@ class Constants {
   /// ------- Firestore
   static const String collectionUsers = 'users';
   static const String collectionChats = 'chats';
+  static const String collectionMarket = 'market';
 
   /// ------- General
   static const String gptModels = 'gpt_models';
