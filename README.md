@@ -2,13 +2,13 @@
 
 <!---- DOWNLOAD LINKS START --->
 
-| Platform | Available on Stores                                                                                                                             | Direct Download                                                                                                                                                      |
-|----------|-------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Platform | Available on Stores                                                                                                                             | Direct Download                                                                                                                                                        |
+|----------|-------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Android  | <a href="https://play.google.com/store/apps/details?id=dev.saadardati.pocketjenna"><img src=".github/assets/playstore.png" height="70px" /></a> | <a href="https://github.com/SaadArdati/PocketJenna/releases/download/v0.2.0/PocketJenna-android-v0.2.0.apk"><img src=".github/assets/android.png" height="70px" /></a> |
-| iOS      | <a href="https://apps.apple.com/us/app/pocket-jenna/id6447211532"><img src=".github/assets/appstore.png" height="70px" /></a>                   | ❌ &nbsp; Not Available                                                                                                                                               |
+| iOS      | <a href="https://apps.apple.com/us/app/pocket-jenna/id6447211532"><img src=".github/assets/appstore.png" height="70px" /></a>                   | ❌&nbsp; Not Available                                                                                                                                                  |
 | macOS    | <a href="https://apps.apple.com/us/app/pocket-jenna/id6447211532"><img src=".github/assets/appstore.png" height="70px" /></a>                   | <a href="https://github.com/SaadArdati/PocketJenna/releases/download/v0.2.0/PocketJenna-macos-v0.2.0.dmg"><img src=".github/assets/macos.png" height="70px" /></a>     |
-| Windows  | ❌ &nbsp; Not Available                                                                                                                          | <a href="https://github.com/SaadArdati/PocketJenna/releases/download/v0.2.0/PocketJenna-windows-v0.2.0.exe"><img src=".github/assets/windows.png" height="70px" /></a> |
-| Linux    | ❌ &nbsp; Not Available                                                                                                                          | ❌ &nbsp; Not Available                                                                                                                                               |
+| Windows  | ❌&nbsp; Not Available                                                                                                                           | <a href="https://github.com/SaadArdati/PocketJenna/releases/download/v0.2.0/PocketJenna-windows-v0.2.0.exe"><img src=".github/assets/windows.png" height="70px" /></a> |
+| Linux    | ❌&nbsp; Not Available                                                                                                                           | ❌&nbsp; Not Available                                                                                                                                                  |
 
 <!---- DOWNLOAD LINKS END --->
 
@@ -39,21 +39,11 @@ Web App: https://pocket-jenna.hyperdesigned.dev
 2. Install dependencies with `flutter pub get` or `derry deps`. They are identical.
 3. Run app with `flutter run` on supported platforms.
 
-## Socials
+## Authors
 
-<a href="https://saad-ardati.dev" ><img alt="Website" width="32px" src=".github/assets/profile.png" />  [saad-ardati.dev](https://saad-ardati.dev) </a>
-
-<a href="https://discord.gg/yrahEhCqTJ" ><img alt="Discord" width="32px" src=".github/assets/discord_256x.png" />  [discord.gg/yrahEhCqTJ](https://discord.gg/yrahEhCqTJ) </a>
-
-<a href="https://www.linkedin.com/in/saad-ardati/" ><img alt="LinkedIn" width="32px" src=".github/assets/linked_in_256x.png" />  [linkedin.com/in/saad-ardati/](https://www.linkedin.com/in/saad-ardati/) </a>
-
-<a href="https://twitter.com/SaadArdati" ><img alt="Twitter" width="32px" src=".github/assets/twitter_256x.png" />  [twitter.com/SaadArdati](https://twitter.com/SaadArdati) </a>
-
-<a href="https://instagram.com/saad_ardati" ><img alt="Instagram" width="32px" src=".github/assets/instagram_256x.png" />  [instagram.com/saad_ardati](https://instagram.com/saad_ardati) </a>
-
-## Contributors
-
-Thank you [Birju Vachhani](https://birju.dev/) for being a key contributor to this project!
+<a href="https://saad-ardati.dev" target="_blank"><img src=".github/assets/saad_256x.png" alt="Saad Ardati's Website" style="height: 128px !important;width: 128px !important;" ></a>
+<a href="https://hyperdesigned.dev" target="_blank"><img src=".github/assets/hyperdesigned_256x.png" alt="Hyper Designed Website" style="height: 128px !important;width: 128px !important;" ></a>
+<a href="https://birju.dev" target="_blank"><img src=".github/assets/birju_256x.png" alt="Birju Vachhani's Website" style="height: 128px !important;width: 128px !important;" ></a>
 
 ## Contribution
 
