@@ -65,17 +65,19 @@ android {
 
     signingConfigs {
         release {
-            if (System.getenv()["CI"]) { // CI=true is exported by Codemagic
-                storeFile file(System.getenv()["CM_KEYSTORE_PATH"])
-                storePassword System.getenv()["CM_KEYSTORE_PASSWORD"]
-                keyAlias System.getenv()["CM_KEY_ALIAS"]
-                keyPassword System.getenv()["CM_KEY_PASSWORD"]
+            def keystoreProperties = new Properties()
+            def keystoreFile = rootProject.file('keystore.properties')
+            if (keystoreFile.exists()) {
+                keystoreFile.withReader('UTF-8') { reader -> keystoreProperties.load(reader)
+                }
             } else {
-                keyAlias keystoreProperties['keyAlias']
-                keyPassword keystoreProperties['keyPassword']
-                storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
-                storePassword keystoreProperties['storePassword']
+                throw new GradleException("keystore.properties file not found. Cannot sign release build.")
             }
+
+            storeFile = file(keystoreProperties.getProperty("KEYSTORE_FILE_PATH"))
+            storePassword keystoreProperties.getProperty("SIGNING_STORE_PASSWORD")
+            keyAlias keystoreProperties.getProperty("SIGNING_KEY_ALIAS")
+            keyPassword keystoreProperties.getProperty("SIGNING_KEY_PASSWORD")
         }
     }
     buildTypes {
