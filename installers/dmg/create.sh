@@ -72,5 +72,4 @@ create-dmg \
   "./$app_name"
 
 # Delete the copied .app file
-
-rm -R "./$app_name"
+#rm -R "./$app_name"
