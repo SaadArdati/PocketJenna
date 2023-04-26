@@ -60,9 +60,12 @@ class _PromptCreatorState extends State<PromptCreator> {
               textInputAction: TextInputAction.next,
               keyboardType: TextInputType.text,
               maxLines: 1,
-              autovalidateMode: AutovalidateMode.disabled,
-              onChanged: (_) {
-                setState(() {});
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              validator: (text) {
+                if (text == null || text.isEmpty) {
+                  return 'Please enter a title';
+                }
+                return null;
               },
               style: context.textTheme.bodyMedium?.copyWith(
                 color: context.colorScheme.onPrimaryContainer,
@@ -109,9 +112,12 @@ class _PromptCreatorState extends State<PromptCreator> {
               textInputAction: TextInputAction.next,
               keyboardType: TextInputType.text,
               maxLines: 1,
-              autovalidateMode: AutovalidateMode.disabled,
-              onChanged: (_) {
-                setState(() {});
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              validator: (text) {
+                if (text == null || text.isEmpty) {
+                  return 'Please enter a description';
+                }
+                return null;
               },
               style: context.textTheme.bodyMedium?.copyWith(
                 color: context.colorScheme.onPrimaryContainer,
@@ -163,9 +169,12 @@ class _PromptCreatorState extends State<PromptCreator> {
                 expands: true,
                 textAlign: TextAlign.start,
                 textAlignVertical: TextAlignVertical.top,
-                autovalidateMode: AutovalidateMode.disabled,
-                onChanged: (_) {
-                  setState(() {});
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                validator: (text) {
+                  if (text == null || text.isEmpty) {
+                    return 'Please enter a prompt';
+                  }
+                  return null;
                 },
                 onFieldSubmitted: (String value) => triggerSend(value),
                 style: context.textTheme.bodyMedium?.copyWith(
@@ -202,8 +211,8 @@ class _PromptCreatorState extends State<PromptCreator> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: FilledButton.icon(
-              icon: Icon(Icons.preview),
-              label: Text('Test Prompt'),
+              icon: const Icon(Icons.preview),
+              label: const Text('Test Prompt'),
               onPressed: () {},
               // child: Text(
               //   'Preview',

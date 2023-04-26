@@ -35,7 +35,7 @@ class SystemManager with WindowListener {
     final bool alwaysOnTop = box.get(Constants.alwaysOnTop, defaultValue: true);
     final bool launchAtStartup =
         box.get(Constants.launchOnStartup, defaultValue: false);
-    final bool showInTaskbar =
+    final bool showInDock =
         box.get(Constants.moveToSystemDock, defaultValue: false);
     final bool showTitleBar = !Platform.isWindows;
 
@@ -54,7 +54,7 @@ class SystemManager with WindowListener {
     final windowOptions = WindowOptions(
       alwaysOnTop: alwaysOnTop,
       backgroundColor: Colors.transparent,
-      skipTaskbar: !showInTaskbar,
+      skipTaskbar: !showInDock,
       titleBarStyle: showTitleBar ? TitleBarStyle.normal : TitleBarStyle.hidden,
       title: '',
     );
@@ -130,7 +130,7 @@ class SystemManager with WindowListener {
         box.get(Constants.shouldPreserveWindowPosition, defaultValue: true);
     final bool isFirstTime = box.get(Constants.isFirstTime, defaultValue: true);
 
-    final bool isVisible = await windowManager.isVisible();
+    final bool isVisible = await windowManager.isVisible() && windowFocus.value;
 
     if (isVisible) {
       closeWindow();
@@ -426,7 +426,14 @@ class SystemManager with WindowListener {
       await Future.delayed(const Duration(milliseconds: 200));
     }
     if (Platform.isWindows && isInitializing) return;
-    await closeWindow();
+
+    final bool showInDock =
+        box.get(Constants.moveToSystemDock, defaultValue: false);
+
+    if (!showInDock) {
+      await closeWindow();
+    }
+
     windowFocus.value = false;
   }
 
