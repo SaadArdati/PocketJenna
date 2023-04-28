@@ -91,6 +91,9 @@ abstract class DataManager {
   }
 
   Future<void> registerUser() async {
+    assert(AuthManager.instance.currentAuth != null, 'No current user');
+
+    debugPrint('Registering user [${AuthManager.instance.currentAuth!.id}]...');
     final String? token = await AuthManager.instance.getAuthToken();
     if (token == null) {
       throw Exception('No token: Authentication token is missing');
@@ -103,8 +106,8 @@ abstract class DataManager {
       },
     );
     if (response.statusCode == 200) {
-      print('User registered');
-      print(response.body);
+      debugPrint('User registered');
+      debugPrint(response.body);
     } else {
       throw Exception(
           'Registration failed: ${response.statusCode} ${response.body} ${response.reasonPhrase}');
@@ -131,7 +134,7 @@ abstract class DataManager {
       },
     );
     if (response.statusCode == 200) {
-      print('OpenAI key fetched: ${response.body}');
+      debugPrint('OpenAI key fetched: ${response.body}');
       return response.body;
     } else {
       throw Exception(

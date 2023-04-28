@@ -420,7 +420,7 @@ class _HistoryTileState extends State<HistoryTile> {
       child: ListTile(
         horizontalTitleGap: 0,
         leading: AssetManager.getPromptIcon(
-          widget.chatSnippet.prompt,
+          widget.chatSnippet.promptIcon,
           size: 20,
           color: isActiveChat
               ? context.colorScheme.onPrimaryContainer

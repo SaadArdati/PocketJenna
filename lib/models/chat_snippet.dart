@@ -2,7 +2,6 @@ import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import 'model_utils.dart';
-import 'prompt.dart';
 
 part 'chat_snippet.g.dart';
 
@@ -10,7 +9,8 @@ part 'chat_snippet.g.dart';
 class ChatSnippet with EquatableMixin {
   final String id;
   final String snippet;
-  final Prompt prompt;
+  final String promptTitle;
+  final String promptIcon;
 
   @JsonKey(fromJson: jsonToDate, toJson: dateToJson)
   final DateTime updatedOn;
@@ -18,7 +18,8 @@ class ChatSnippet with EquatableMixin {
   ChatSnippet({
     required this.id,
     required this.snippet,
-    required this.prompt,
+    required this.promptTitle,
+    required this.promptIcon,
     required this.updatedOn,
   });
 
@@ -30,7 +31,8 @@ class ChatSnippet with EquatableMixin {
   List<Object?> get props => [
         snippet,
         id,
-        prompt,
+        promptTitle,
+        promptIcon,
         updatedOn,
       ];
 }

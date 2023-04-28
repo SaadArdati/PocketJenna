@@ -131,14 +131,15 @@ app.post("/updateChat", async (
     id: chat.id,
     snippet: chat.messages && chat.messages[0].text ||
       "No messages",
-    prompt: chat.prompt,
+    promptTitle: chat.prompt.title,
+    promptIcon: chat.prompt.icon,
     updatedOn: new Date().getMilliseconds(),
   };
   userModel.updatedOn = new Date().getMilliseconds();
 
   log("User model: " + JSON.stringify(userModel));
 
-  await usersRef.doc(userID).set(userModel);
+  await usersRef.doc(userID).set(userModel, {merge: true});
 
   res.status(200).send("OK");
   return;
@@ -218,7 +219,7 @@ app.post("/registerUser", async (
     updatedOn: Date.now(),
   };
 
-  await usersRef.doc(userID).set(userModel);
+  await usersRef.doc(userID).set(userModel, {merge: true});
 
   return res.status(200).send("OK");
 });

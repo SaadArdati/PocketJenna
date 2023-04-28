@@ -6,6 +6,7 @@ import 'package:hive/hive.dart';
 
 import '../constants.dart';
 import '../managers/auth/auth_manager.dart';
+import '../managers/data/data_manager.dart';
 import '../ui/custom_scaffold.dart';
 import '../ui/switchers.dart';
 import '../ui/theme_extensions.dart';
@@ -96,7 +97,15 @@ class _AuthScreenState extends State<AuthScreen> {
         await AuthManager.instance.signUp(
           emailController.text,
           passwordController.text,
+          onSignUp: () => DataManager.instance.registerUser(),
         );
+        await Future.delayed(const Duration(seconds: 1));
+        if (mounted) {
+          final box = Hive.box(Constants.settings);
+          final bool onboarding =
+              box.get(Constants.isFirstTime, defaultValue: true);
+          context.go(onboarding ? '/onboarding/two' : '/home');
+        }
       } catch (e) {
         error = e.toString();
       }
@@ -266,19 +275,24 @@ class _AuthScreenState extends State<AuthScreen> {
                             filled: true,
                             fillColor: context.colorScheme.primaryContainer,
                             hoverColor: Colors.transparent,
-                            suffixIcon: IconButton(
-                              tooltip: 'Show password',
-                              color: context.colorScheme.onPrimaryContainer,
-                              icon: Icon(
-                                showPassword
-                                    ? Icons.visibility
-                                    : Icons.visibility_off,
+                            suffixIcon: ExcludeFocusTraversal(
+                              child: Material(
+                                color: Colors.transparent,
+                                child: IconButton(
+                                  tooltip: 'Show password',
+                                  color: context.colorScheme.onPrimaryContainer,
+                                  icon: Icon(
+                                    showPassword
+                                        ? Icons.visibility
+                                        : Icons.visibility_off,
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      showPassword = !showPassword;
+                                    });
+                                  },
+                                ),
                               ),
-                              onPressed: () {
-                                setState(() {
-                                  showPassword = !showPassword;
-                                });
-                              },
                             ),
                             border: OutlineInputBorder(
                               borderRadius: borderRadius,
@@ -381,19 +395,25 @@ class _AuthScreenState extends State<AuthScreen> {
                             filled: true,
                             fillColor: context.colorScheme.primaryContainer,
                             hoverColor: Colors.transparent,
-                            suffixIcon: IconButton(
-                              tooltip: 'Show password',
-                              color: context.colorScheme.onPrimaryContainer,
-                              icon: Icon(
-                                showConfirmPassword
-                                    ? Icons.visibility
-                                    : Icons.visibility_off,
+                            suffixIcon: ExcludeFocusTraversal(
+                              child: Material(
+                                color: Colors.transparent,
+                                child: IconButton(
+                                  tooltip: 'Show password',
+                                  color: context.colorScheme.onPrimaryContainer,
+                                  icon: Icon(
+                                    showConfirmPassword
+                                        ? Icons.visibility
+                                        : Icons.visibility_off,
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      showConfirmPassword =
+                                          !showConfirmPassword;
+                                    });
+                                  },
+                                ),
                               ),
-                              onPressed: () {
-                                setState(() {
-                                  showConfirmPassword = !showConfirmPassword;
-                                });
-                              },
                             ),
                             border: OutlineInputBorder(
                               borderRadius: borderRadius,
@@ -452,49 +472,6 @@ class _AuthScreenState extends State<AuthScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            CollapsableSwitcher(
-                              open: mode.isForgotPassword,
-                              child: ElevatedButton(
-                                onPressed: isLoading
-                                    ? null
-                                    : () {
-                                        setState(() {
-                                          mode = AuthScreenMode.signIn;
-                                          passwordController.clear();
-                                          confirmPasswordController.clear();
-                                          error = null;
-                                        });
-                                      },
-                                child: Text(
-                                    '${AuthScreenMode.signIn.label} instead'),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            ElevatedButton(
-                              onPressed: isLoading
-                                  ? null
-                                  : () {
-                                      setState(() {
-                                        mode = mode.isSignUp
-                                            ? AuthScreenMode.signIn
-                                            : AuthScreenMode.signUp;
-                                        passwordController.clear();
-                                        confirmPasswordController.clear();
-                                        error = null;
-                                      });
-                                    },
-                              child: Text(
-                                mode.isSignUp
-                                    ? 'Log in instead'
-                                    : 'Sign up instead',
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
                         FilledButton.icon(
                           onPressed: isLoading
                               ? null
@@ -523,6 +500,49 @@ class _AuthScreenState extends State<AuthScreen> {
                                     ? 'Sign up'
                                     : 'Sign in',
                           ),
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            CollapsableSwitcher(
+                              open: mode.isForgotPassword,
+                              child: TextButton(
+                                onPressed: isLoading
+                                    ? null
+                                    : () {
+                                        setState(() {
+                                          mode = AuthScreenMode.signIn;
+                                          passwordController.clear();
+                                          confirmPasswordController.clear();
+                                          error = null;
+                                        });
+                                      },
+                                child: Text(
+                                    '${AuthScreenMode.signIn.label} instead'),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            TextButton(
+                              onPressed: isLoading
+                                  ? null
+                                  : () {
+                                      setState(() {
+                                        mode = mode.isSignUp
+                                            ? AuthScreenMode.signIn
+                                            : AuthScreenMode.signUp;
+                                        passwordController.clear();
+                                        confirmPasswordController.clear();
+                                        error = null;
+                                      });
+                                    },
+                              child: Text(
+                                mode.isSignUp
+                                    ? 'Log in instead'
+                                    : 'Sign up instead',
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),

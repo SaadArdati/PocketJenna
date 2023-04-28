@@ -135,8 +135,15 @@ class FireDartAuthManager extends AuthManager {
   }
 
   @override
-  Future<void> signUp(String email, String password) async {
+  Future<void> signUp(
+    String email,
+    String password, {
+    FutureCallback? onSignUp,
+  }) async {
     final User user = await FirebaseAuth.instance.signUp(email, password);
+
+    await onSignUp?.call();
+
     _fireDartUserToModel(user);
   }
 

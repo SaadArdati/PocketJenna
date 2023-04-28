@@ -8,7 +8,8 @@ export interface UserModel {
 export interface ChatSnippet {
   id: string;
   snippet: string;
-  prompt: Prompt;
+  promptTitle: string;
+  promptIcon: string;
   updatedOn: number;
 }
 

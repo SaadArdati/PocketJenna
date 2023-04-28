@@ -575,17 +575,21 @@ class _AppSettingsTileState extends State<AppSettingsTile> {
 }
 
 class JennaTile extends StatelessWidget {
-  final String title;
+  final String? title;
   final Widget? icon;
   final Widget child;
   final EdgeInsets padding;
+  final Color? surfaceColor;
+  final Color? borderColor;
 
   const JennaTile({
     super.key,
-    required this.title,
+    this.title,
     this.icon,
     required this.child,
     this.padding = EdgeInsets.zero,
+    this.surfaceColor,
+    this.borderColor,
   });
 
   @override
@@ -595,10 +599,10 @@ class JennaTile extends StatelessWidget {
         clipBehavior: Clip.antiAlias,
         constraints: const BoxConstraints(maxWidth: 600),
         decoration: BoxDecoration(
-          color: context.colorScheme.surface.withOpacity(0.9),
+          color: surfaceColor ?? context.colorScheme.surface.withOpacity(0.9),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: context.colorScheme.primary,
+            color: borderColor ?? context.colorScheme.primary,
             width: 2,
             strokeAlign: BorderSide.strokeAlignOutside,
           ),
@@ -606,40 +610,41 @@ class JennaTile extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(color: context.colorScheme.primary),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (icon != null) ...[
-                    Expanded(
-                      child: Align(
-                        alignment: Alignment.centerRight,
-                        child: IconTheme(
-                          data: Theme.of(context).iconTheme.copyWith(
-                                color: context.colorScheme.onPrimary,
-                                size: 24,
-                              ),
-                          child: icon!,
+            if (title != null || icon != null)
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(color: context.colorScheme.primary),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (icon != null)
+                      Expanded(
+                        child: Align(
+                          alignment: Alignment.centerRight,
+                          child: IconTheme(
+                            data: Theme.of(context).iconTheme.copyWith(
+                                  color: context.colorScheme.onPrimary,
+                                  size: 24,
+                                ),
+                            child: icon!,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Text(
-                      title,
-                      style: context.textTheme.titleSmall?.copyWith(
-                        color: context.colorScheme.onPrimary,
+                    if (title != null)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Text(
+                          title!,
+                          style: context.textTheme.titleSmall?.copyWith(
+                            color: context.colorScheme.onPrimary,
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                  if (icon != null) const Spacer(),
-                ],
+                    if (icon != null && title != null) const Spacer(),
+                  ],
+                ),
               ),
-            ),
             Padding(
               padding: padding,
               child: child,
@@ -841,7 +846,7 @@ class DeleteAccountDialog extends StatefulWidget {
 class DeleteAccountDialogState extends State<DeleteAccountDialog> {
   bool isLoading = false;
 
-  Future<void> signOut() async {
+  Future<void> deleteAccount() async {
     setState(() {
       isLoading = true;
     });
@@ -880,7 +885,7 @@ class DeleteAccountDialogState extends State<DeleteAccountDialog> {
           onPressed: isLoading
               ? null
               : () {
-                  signOut();
+                  deleteAccount();
                 },
           icon: isLoading
               ? CupertinoActivityIndicator(color: context.colorScheme.onError)

@@ -5,7 +5,9 @@ clean:
   - flutter clean && flutter pub get
   - dart scripts/pods_fix.dart
 svg: dart run vector_graphics_compiler --input-dir assets/prompts
-deploy: flutter build web --web-renderer canvaskit && firebase deploy --only hosting
+deploy:
+  hosting: flutter build web --web-renderer canvaskit && firebase deploy --only hosting
+  functions: firebase deploy --only functions
 build:
   web: flutter build web --web-renderer canvaskit
   apk: flutter build apk --release

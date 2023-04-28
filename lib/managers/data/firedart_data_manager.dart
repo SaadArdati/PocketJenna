@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:dart_openai/openai.dart';
 import 'package:firedart/firedart.dart';
+import 'package:flutter/widgets.dart';
 
 import '../../constants.dart';
 import '../../models/auth_model.dart';
@@ -42,18 +43,18 @@ class FireDartDataManager extends DataManager {
         _authModel = authModel;
         if (_authModel == null) return;
 
-        fetchOpenAIKey().then((value) {
-          OpenAI.apiKey = value;
-          GPTManager.fetchAndStoreModels();
-        });
-
         streamUser(authModel!, onEvent: (UserModel? user) {
-          print('auth changed, user stream event. ${user?.id}');
+          debugPrint('auth changed, user stream event. ${user?.id}');
           _currentUser = user;
           _userStreamController.add(user);
 
           if (user == null) {
-            registerUser();
+            // registerUser();
+          } else {
+            fetchOpenAIKey().then((value) {
+              OpenAI.apiKey = value;
+              GPTManager.fetchAndStoreModels();
+            });
           }
         });
       },
@@ -64,17 +65,18 @@ class FireDartDataManager extends DataManager {
     if (_authModel == null) {
       completer.complete();
     } else {
-      OpenAI.apiKey = await fetchOpenAIKey();
-      await GPTManager.fetchAndStoreModels();
       streamUser(
         _authModel!,
-        onEvent: (UserModel? user) {
-          print('initial load, user stream event. ${user?.id}');
+        onEvent: (UserModel? user) async {
+          debugPrint('initial load, user stream event. ${user?.id}');
           _currentUser = user;
           _userStreamController.add(user);
 
           if (user == null) {
-            registerUser();
+            // registerUser();
+          } else {
+            OpenAI.apiKey = await fetchOpenAIKey();
+            await GPTManager.fetchAndStoreModels();
           }
 
           if (!completer.isCompleted) {

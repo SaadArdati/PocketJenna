@@ -88,12 +88,17 @@ class FirebaseAuthManager extends AuthManager {
   }
 
   @override
-  Future<void> signUp(String email, String password) async {
+  Future<void> signUp(
+    String email,
+    String password, {
+    FutureCallback? onSignUp,
+  }) async {
     final UserCredential userCredentials =
         await FirebaseAuth.instance.createUserWithEmailAndPassword(
       email: email,
       password: password,
     );
+    await onSignUp?.call();
     _firebaseUserToModel(userCredentials.user);
   }
 

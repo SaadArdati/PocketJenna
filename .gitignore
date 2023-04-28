@@ -58,3 +58,5 @@ dist/
 
 fastlane/report.xml
 fastlane/.env.default
+
+.firebase/

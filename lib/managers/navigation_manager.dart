@@ -11,11 +11,14 @@ import '../screens/chat_screen.dart';
 import '../screens/home_screen.dart';
 import '../screens/onboarding/macos_onboarding_screen.dart';
 import '../screens/onboarding/onboarding_screen.dart';
-import '../screens/prompt_creator.dart';
+import '../screens/prompt_creator/prompt_creation_body.dart';
+import '../screens/prompt_creator/prompt_creation_meta.dart';
+import '../screens/prompt_creator/prompt_creation_tester.dart';
 import '../screens/prompt_market.dart';
 import '../screens/settings_screen.dart';
 import '../ui/window_drag_handle.dart';
 import 'auth/auth_manager.dart';
+import 'data/data_manager.dart';
 import 'prompt_manager.dart';
 
 class NavigationManager {
@@ -38,7 +41,8 @@ class NavigationManager {
   );
 
   FutureOr<String?> authGuard(BuildContext context, GoRouterState state) {
-    if (!AuthManager.instance.isAuthenticated) {
+    if (!AuthManager.instance.isAuthenticated ||
+        DataManager.instance.currentUser == null) {
       return '/auth';
     }
 
@@ -234,12 +238,11 @@ class NavigationManager {
         path: '/prompt-creator',
         redirect: authGuard,
         pageBuilder: (context, state) {
-          final extra = state.extra;
           AxisDirection comesFrom = AxisDirection.right;
 
           return CustomTransitionPage(
             key: state.pageKey,
-            child: const PromptCreator(),
+            child: const PromptCreationBody(),
             opaque: false,
             transitionDuration: const Duration(milliseconds: 600),
             reverseTransitionDuration: const Duration(milliseconds: 600),
@@ -256,6 +259,60 @@ class NavigationManager {
             },
           );
         },
+        routes: [
+          GoRoute(
+            path: 'tester',
+            redirect: authGuard,
+            pageBuilder: (context, state) {
+              AxisDirection comesFrom = AxisDirection.right;
+
+              return CustomTransitionPage(
+                key: state.pageKey,
+                child: const PromptCreationTester(),
+                opaque: false,
+                transitionDuration: const Duration(milliseconds: 600),
+                reverseTransitionDuration: const Duration(milliseconds: 600),
+                transitionsBuilder:
+                    (context, animation, secondaryAnimation, child) {
+                  return pocketJennaTransition(
+                    context,
+                    animation,
+                    secondaryAnimation,
+                    child,
+                    state: state,
+                    comesFrom: comesFrom,
+                  );
+                },
+              );
+            },
+          ),
+          GoRoute(
+            path: 'meta',
+            redirect: authGuard,
+            pageBuilder: (context, state) {
+              AxisDirection comesFrom = AxisDirection.right;
+
+              return CustomTransitionPage(
+                key: state.pageKey,
+                child: const PromptCreationMeta(),
+                opaque: false,
+                transitionDuration: const Duration(milliseconds: 600),
+                reverseTransitionDuration: const Duration(milliseconds: 600),
+                transitionsBuilder:
+                    (context, animation, secondaryAnimation, child) {
+                  return pocketJennaTransition(
+                    context,
+                    animation,
+                    secondaryAnimation,
+                    child,
+                    state: state,
+                    comesFrom: comesFrom,
+                  );
+                },
+              );
+            },
+          ),
+        ],
       ),
       GoRoute(
         path: '/chat',

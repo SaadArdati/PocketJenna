@@ -2,8 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:vector_graphics/vector_graphics.dart';
 
-import '../models/prompt.dart';
-
 class AssetManager {
   AssetManager._();
 
@@ -36,9 +34,9 @@ class AssetManager {
     logoFilledWhitePicInfo = await vg.loadPicture(logoFilledWhiteLoader, null);
   }
 
-  static Widget getPromptIcon(Prompt prompt, {Color? color, double? size}) {
-    final iconPath;
-    switch (prompt.icon) {
+  static Widget getPromptIcon(String icon, {Color? color, double? size}) {
+    final String iconPath;
+    switch (icon) {
       case 'analyze':
         iconPath = 'assets/prompts/analyze.svg.vec';
         break;
@@ -64,7 +62,7 @@ class AssetManager {
         iconPath = 'assets/prompts/reddit.svg.vec';
         break;
       default:
-        return ImageIcon(NetworkImage(prompt.icon), color: color);
+        return ImageIcon(NetworkImage(icon), color: color);
     }
 
     return SvgPicture(

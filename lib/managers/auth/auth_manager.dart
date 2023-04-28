@@ -6,6 +6,8 @@ import '../../models/auth_model.dart';
 import 'firebase_auth_manager.dart';
 import 'firedart_auth_manager.dart';
 
+typedef FutureCallback = Future<void> Function();
+
 /// The abstract class AuthManager defines the methods necessary to
 /// manage user authentication in the application.
 abstract class AuthManager {
@@ -46,7 +48,11 @@ abstract class AuthManager {
 
   /// Sign-up the user with the provided email and password.
   /// Throws an error if the operation fails.
-  Future<void> signUp(String email, String password);
+  Future<void> signUp(
+    String email,
+    String password, {
+    FutureCallback? onSignUp,
+  });
 
   /// Send a password reset email to the user based on the provided email.
   /// Throws an error if the operation fails.

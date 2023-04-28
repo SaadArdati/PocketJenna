@@ -130,9 +130,11 @@ class OnboardingDone extends StatelessWidget {
                 style: context.textTheme.headlineLarge,
               ),
               const SizedBox(height: 8),
-              if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows ||
-                  defaultTargetPlatform == TargetPlatform.macOS ||
-                  defaultTargetPlatform == TargetPlatform.linux) ...[
+              if (!kIsWeb &&
+                  (defaultTargetPlatform == TargetPlatform.windows ||
+                      defaultTargetPlatform == TargetPlatform.macOS ||
+                      defaultTargetPlatform == TargetPlatform.linux ||
+                      defaultTargetPlatform == TargetPlatform.fuchsia)) ...[
                 Text(
                   "The app will naturally live in your system's tray.",
                   textAlign: TextAlign.center,
