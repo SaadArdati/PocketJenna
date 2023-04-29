@@ -7,7 +7,7 @@ import 'package:hive/hive.dart';
 import '../constants.dart';
 import '../main.dart';
 import '../screens/auth_screen.dart';
-import '../screens/chat_screen.dart';
+import '../screens/chat/chat_screen.dart';
 import '../screens/home_screen.dart';
 import '../screens/onboarding/macos_onboarding_screen.dart';
 import '../screens/onboarding/onboarding_screen.dart';
@@ -265,10 +265,15 @@ class NavigationManager {
             redirect: authGuard,
             pageBuilder: (context, state) {
               AxisDirection comesFrom = AxisDirection.right;
+              final extra = state.extra;
+              String? prompt;
+              if (extra != null && extra is Map) {
+                prompt = extra['prompt'];
+              }
 
               return CustomTransitionPage(
                 key: state.pageKey,
-                child: const PromptCreationTester(),
+                child: PromptCreationTesterWrapper(prompt: prompt),
                 opaque: false,
                 transitionDuration: const Duration(milliseconds: 600),
                 reverseTransitionDuration: const Duration(milliseconds: 600),

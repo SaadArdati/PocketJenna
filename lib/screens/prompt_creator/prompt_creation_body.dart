@@ -154,7 +154,9 @@ class _PromptCreationBodyState extends State<PromptCreationBody> {
                     label: const Text('Next'),
                     onPressed: () {
                       if (Form.of(context).validate()) {
-                        context.go('/prompt-creator/tester');
+                        context.go('/prompt-creator/tester', extra: {
+                          'prompt': promptController.text,
+                        });
                       }
                     },
                   ),

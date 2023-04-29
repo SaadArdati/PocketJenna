@@ -594,63 +594,62 @@ class JennaTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Container(
-        clipBehavior: Clip.antiAlias,
-        constraints: const BoxConstraints(maxWidth: 600),
-        decoration: BoxDecoration(
-          color: surfaceColor ?? context.colorScheme.surface.withOpacity(0.9),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: borderColor ?? context.colorScheme.primary,
-            width: 2,
-            strokeAlign: BorderSide.strokeAlignOutside,
-          ),
+    return Container(
+      clipBehavior: Clip.antiAlias,
+      constraints: const BoxConstraints(maxWidth: 600),
+      decoration: BoxDecoration(
+        color: surfaceColor ?? context.colorScheme.surface.withOpacity(0.9),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: borderColor ?? context.colorScheme.primary,
+          width: 2,
+          strokeAlign: BorderSide.strokeAlignOutside,
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (title != null || icon != null)
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(color: context.colorScheme.primary),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    if (icon != null)
-                      Expanded(
-                        child: Align(
-                          alignment: Alignment.centerRight,
-                          child: IconTheme(
-                            data: Theme.of(context).iconTheme.copyWith(
-                                  color: context.colorScheme.onPrimary,
-                                  size: 24,
-                                ),
-                            child: icon!,
-                          ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (title != null || icon != null)
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(color: context.colorScheme.primary),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (icon != null)
+                    Expanded(
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: IconTheme(
+                          data: Theme.of(context).iconTheme.copyWith(
+                                color: context.colorScheme.onPrimary,
+                                size: 24,
+                              ),
+                          child: icon!,
                         ),
                       ),
-                    if (title != null)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Text(
-                          title!,
-                          style: context.textTheme.titleSmall?.copyWith(
-                            color: context.colorScheme.onPrimary,
-                          ),
+                    ),
+                  if (title != null)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        title!,
+                        style: context.textTheme.titleSmall?.copyWith(
+                          color: context.colorScheme.onPrimary,
                         ),
                       ),
-                    if (icon != null && title != null) const Spacer(),
-                  ],
-                ),
+                    ),
+                  if (icon != null && title != null) const Spacer(),
+                ],
               ),
-            Padding(
-              padding: padding,
-              child: child,
             ),
-          ],
-        ),
+          Padding(
+            padding: padding,
+            child: child,
+          ),
+        ],
       ),
     );
   }

@@ -68,7 +68,11 @@ class GPTManager extends ChangeNotifier {
     return null;
   }
 
-  void init() {
+  final bool isTestMode;
+
+  GPTManager({this.isTestMode = true});
+
+  void loadHistory() {
     historyBox.clear();
     final Map serializedHistory = {
       ...historyBox.get(Constants.history, defaultValue: {}),
@@ -121,21 +125,27 @@ class GPTManager extends ChangeNotifier {
   }
 
   void saveChat({bool upload = true}) {
+    if (isTestMode) return;
+
     historyBox.put(Constants.history, {
       for (final MapEntry<String, Chat> chat in history.entries)
         chat.key: chat.value.toJson(),
     });
 
     if (!upload) return;
-    print('Uploading chat ${chat!.id}...');
+    debugPrint('Uploading chat ${chat!.id}...');
     DataManager.instance.uploadChat(chat!);
   }
 
   void purgeEmptyChats() {
+    if (isTestMode) return;
+
     history.removeWhere((key, value) => value.messages.isEmpty);
   }
 
   void deleteChat(String id) {
+    if (isTestMode) return;
+
     history.remove(id);
     saveChat();
     notifyListeners();

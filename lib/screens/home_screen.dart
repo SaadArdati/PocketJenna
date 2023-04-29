@@ -17,7 +17,6 @@ import '../managers/prompt_manager.dart';
 import '../managers/version_manager.dart';
 import '../models/prompt.dart';
 import '../models/user_model.dart';
-import '../ui/coming_soon.dart';
 import '../ui/custom_scaffold.dart';
 import '../ui/theme_extensions.dart';
 
@@ -282,8 +281,8 @@ class ExploreTile extends StatelessWidget {
                   hoverColor: context.colorScheme.primary.withOpacity(0.1),
                   splashColor: context.colorScheme.primary.withOpacity(0.2),
                   onTap: () {
-                    showComingSoonDialog(context, 'Make a new prompt');
-                    // context.go('/prompt-creator');
+                    // showComingSoonDialog(context, 'Make a new prompt');
+                    context.go('/prompt-creator');
                   },
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -331,8 +330,8 @@ class ExploreTile extends StatelessWidget {
                   hoverColor: context.colorScheme.primary.withOpacity(0.1),
                   splashColor: context.colorScheme.primary.withOpacity(0.2),
                   onTap: () {
-                    showComingSoonDialog(context, 'Make a new prompt');
-                    // context.go('/prompt-market');
+                    // showComingSoonDialog(context, 'Make a new prompt');
+                    context.go('/prompt-market');
                   },
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),

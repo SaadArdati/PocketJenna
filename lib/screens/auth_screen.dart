@@ -70,6 +70,7 @@ class _AuthScreenState extends State<AuthScreen> {
           passwordController.text,
         );
 
+        await Future.delayed(const Duration(seconds: 1));
         if (mounted) {
           final box = Hive.box(Constants.settings);
           final bool onboarding =
