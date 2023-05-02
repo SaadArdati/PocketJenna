@@ -31,7 +31,10 @@ class ChatScreenWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<GPTManager>(
       create: (context) => GPTManager(),
-      child: ChatScreen(prompt: prompt),
+      child: ChatScreen(
+        prompt: prompt,
+        chatID: chatID,
+      ),
     );
   }
 }
@@ -46,7 +49,7 @@ class ChatScreen extends StatefulWidget {
     this.chatID,
   }) : assert(
           (chatID == null) != (prompt == null),
-          'Either chatID or prompt must be provided',
+          'Either chatID or prompt must be provided, but not both nor neither.\nChatID: $chatID\nPrompt: $prompt',
         );
 
   @override
@@ -73,6 +76,22 @@ class _ChatScreenState extends State<ChatScreen> {
       prompt: widget.prompt,
       chatID: widget.chatID,
     );
+  }
+
+  @override
+  void didUpdateWidget(covariant ChatScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.chatID != widget.chatID ||
+        oldWidget.prompt != widget.prompt) {
+      final GPTManager gpt = context.read<GPTManager>();
+      gpt.stopGenerating();
+      gpt.openChat(
+        notify: true,
+        prompt: widget.prompt,
+        chatID: widget.chatID,
+      );
+    }
   }
 
   @override
@@ -301,7 +320,12 @@ class _HistoryTileState extends State<HistoryTile> {
           ),
         ),
         onTap: () {
-          gpt.openChat(chatID: widget.chatSnippet.id, notify: true);
+          context.go(
+            '/chat?chatID=${widget.chatSnippet.id}',
+            extra: {
+              'from': '/chat?chatID=${gpt.chat?.id}',
+            },
+          );
           Scaffold.of(context).closeEndDrawer();
         },
         onLongPress: () {

@@ -7,14 +7,21 @@ import '../../models/message_status.dart';
 import '../../ui/coming_soon.dart';
 import '../../ui/theme_extensions.dart';
 
-class UserInteractionRegion extends StatefulWidget {
-  const UserInteractionRegion({super.key});
+class UserInteractionInput extends StatefulWidget {
+  final Color? primaryColor;
+  final Color? onPrimaryColor;
+
+  const UserInteractionInput({
+    super.key,
+    this.primaryColor,
+    this.onPrimaryColor,
+  });
 
   @override
-  State<UserInteractionRegion> createState() => _UserInteractionRegionState();
+  State<UserInteractionInput> createState() => _UserInteractionInputState();
 }
 
-class _UserInteractionRegionState extends State<UserInteractionRegion> {
+class _UserInteractionInputState extends State<UserInteractionInput> {
   late final focusNode = FocusNode(
     onKey: (FocusNode node, RawKeyEvent evt) {
       if (!evt.isShiftPressed && evt.logicalKey == LogicalKeyboardKey.enter) {
@@ -35,9 +42,7 @@ class _UserInteractionRegionState extends State<UserInteractionRegion> {
       showComingSoonDialog(context, 'Audio message');
     }
     // if (!Form.of(context).validate()) return;
-    if (textController.text
-        .trim()
-        .isEmpty) return;
+    if (textController.text.trim().isEmpty) return;
 
     final GPTManager gpt = context.read<GPTManager>();
     gpt.sendMessage(textController.text, generateResponse: generateResponse);
@@ -50,14 +55,15 @@ class _UserInteractionRegionState extends State<UserInteractionRegion> {
     final GPTManager gpt = context.watch<GPTManager>();
     final BorderRadius borderRadius = BorderRadius.circular(12);
 
-    final bool isGenerating = gpt.messages.isNotEmpty &&
+    final bool isGenerating = gpt.chat != null &&
+        gpt.messages.isNotEmpty &&
         gpt.messages.last.status == MessageStatus.streaming;
     return Form(
       child: Builder(builder: (context) {
         return Container(
           padding: const EdgeInsets.all(8.0),
           decoration: BoxDecoration(
-            color: context.colorScheme.primary,
+            color: widget.primaryColor ?? context.colorScheme.primary,
             borderRadius: const BorderRadius.vertical(
               top: Radius.circular(12),
             ),
@@ -84,10 +90,7 @@ class _UserInteractionRegionState extends State<UserInteractionRegion> {
                   Expanded(
                     child: ConstrainedBox(
                       constraints: BoxConstraints(
-                        maxHeight: MediaQuery
-                            .of(context)
-                            .size
-                            .height / 3,
+                        maxHeight: MediaQuery.of(context).size.height / 3,
                       ),
                       child: TextFormField(
                         controller: textController,
@@ -103,11 +106,10 @@ class _UserInteractionRegionState extends State<UserInteractionRegion> {
                         },
                         onFieldSubmitted: isGenerating
                             ? null
-                            : (_) =>
-                            triggerSend(
-                              context,
-                              generateResponse: true,
-                            ),
+                            : (_) => triggerSend(
+                                  context,
+                                  generateResponse: true,
+                                ),
                         style: context.textTheme.bodyMedium?.copyWith(
                           color: context.colorScheme.onPrimaryContainer,
                         ),
@@ -120,7 +122,8 @@ class _UserInteractionRegionState extends State<UserInteractionRegion> {
                           isDense: true,
                           floatingLabelBehavior: FloatingLabelBehavior.never,
                           filled: true,
-                          fillColor: context.colorScheme.primaryContainer,
+                          fillColor: widget.onPrimaryColor ??
+                              context.colorScheme.primaryContainer,
                           hoverColor: Colors.transparent,
                           border: OutlineInputBorder(
                             borderRadius: borderRadius,
@@ -162,19 +165,18 @@ class _UserInteractionRegionState extends State<UserInteractionRegion> {
                         child: InkWell(
                           onTap: isGenerating
                               ? null
-                              : () =>
-                              triggerSend(
-                                context,
-                                generateResponse: true,
-                              ),
+                              : () => triggerSend(
+                                    context,
+                                    generateResponse: true,
+                                  ),
                           onLongPress: isGenerating
                               ? null
                               : () {
-                            triggerSend(
-                              context,
-                              generateResponse: false,
-                            );
-                          },
+                                  triggerSend(
+                                    context,
+                                    generateResponse: false,
+                                  );
+                                },
                           child: Padding(
                             padding: const EdgeInsets.all(12),
                             child: Icon(

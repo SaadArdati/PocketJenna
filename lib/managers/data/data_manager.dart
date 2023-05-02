@@ -52,10 +52,7 @@ abstract class DataManager {
   Future<Chat?> fetchChat(String chatId);
 
   Future<void> uploadChat(Chat chat) async {
-    final String? token = await AuthManager.instance.getAuthToken();
-    if (token == null) {
-      throw Exception('No token');
-    }
+    final String token = await AuthManager.instance.getAuthToken();
     await post(
       Uri.https(Constants.firebaseFunctionsBaseURL, '/widgets/updateChat'),
       body: json.encode(chat.toJson()),
@@ -67,17 +64,19 @@ abstract class DataManager {
   }
 
   Future<void> uploadIfNecessary(Chat chat) async {
-    final String? token = await AuthManager.instance.getAuthToken();
-    if (token == null) {
-      throw Exception('No token');
-    }
+    debugPrint('Uploading chat because it is necessary');
+    final String token = await AuthManager.instance.getAuthToken();
 
     final Response response = await get(
       Uri.https(
         Constants.firebaseFunctionsBaseURL,
-        '/widgets/getChat',
-        {'chatId': chat.id},
+        '/widgets/updateChat',
+        {'chatID': chat.id},
       ),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
     );
 
     if (response.statusCode == 200) {
@@ -86,7 +85,11 @@ abstract class DataManager {
 
       if (serverChat.updatedOn.isBefore(chat.updatedOn)) {
         await uploadChat(chat);
+        debugPrint('Uploaded necessary chat ${chat.id}');
       }
+    } else {
+      debugPrint(
+          'Error updating chats when necessary: ${response.statusCode} ${response.body} ${response.reasonPhrase}');
     }
   }
 
@@ -94,10 +97,8 @@ abstract class DataManager {
     assert(AuthManager.instance.currentAuth != null, 'No current user');
 
     debugPrint('Registering user [${AuthManager.instance.currentAuth!.id}]...');
-    final String? token = await AuthManager.instance.getAuthToken();
-    if (token == null) {
-      throw Exception('No token: Authentication token is missing');
-    }
+    final String token = await AuthManager.instance.getAuthToken();
+
     final response = await post(
       Uri.https(Constants.firebaseFunctionsBaseURL, '/widgets/registerUser'),
       headers: {
@@ -116,15 +117,7 @@ abstract class DataManager {
 
   /// Get the openAI key from the server.
   Future<String> fetchOpenAIKey() async {
-    String? token;
-    try {
-      token = await AuthManager.instance.getAuthToken();
-      if (token == null) {
-        throw Exception('No token: Authentication token is missing');
-      }
-    } catch (e) {
-      throw Exception('No token: Authentication token is missing');
-    }
+    final String token = await AuthManager.instance.getAuthToken();
 
     final response = await get(
       Uri.https(Constants.firebaseFunctionsBaseURL, '/widgets/getOpenAIKey'),
@@ -147,4 +140,126 @@ abstract class DataManager {
   }
 
   Future<List<Prompt>> fetchMarket(int page, int pageSize);
+
+  Future<void> uploadPrompt(Prompt prompt, {bool public = false}) async {
+    debugPrint('Setting prompt [${AuthManager.instance.currentAuth!.id}]...');
+    final String token = await AuthManager.instance.getAuthToken();
+
+    final response = await post(
+      Uri.https(Constants.firebaseFunctionsBaseURL, '/widgets/setPrompt'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'prompts': prompt.prompts,
+        'promptTitle': prompt.title,
+        'promptIcon': prompt.icon,
+        'promptDescription': prompt.description,
+        'public': public,
+      }),
+    );
+    if (response.statusCode == 200) {
+      debugPrint('Prompt uploaded');
+      debugPrint(response.body);
+      final id = jsonDecode(response.body)['id'];
+      debugPrint('Prompt ID: $id');
+    } else {
+      throw Exception(
+          'Prompt upload failed: ${response.statusCode} ${response.body} ${response.reasonPhrase}');
+    }
+  }
+
+  Future<void> deletePrompt(Prompt prompt) async {
+    debugPrint('Deleting prompt [${AuthManager.instance.currentAuth!.id}]...');
+    final String token = await AuthManager.instance.getAuthToken();
+
+    final response = await post(
+      Uri.https(Constants.firebaseFunctionsBaseURL, '/widgets/deletePrompt'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({'promptID': prompt.id}),
+    );
+    if (response.statusCode == 200) {
+      debugPrint('Prompt deleted');
+      debugPrint(response.body);
+    } else {
+      throw Exception(
+          'Prompt deletion failed: ${response.statusCode} ${response.body} ${response.reasonPhrase}');
+    }
+  }
+
+  Future<void> updatePinnedPrompts() async {
+    debugPrint('Pinning prompt [${AuthManager.instance.currentAuth!.id}]...');
+    assert(currentUser != null, 'No current user');
+
+    final String token = await AuthManager.instance.getAuthToken();
+
+    final response = await post(
+      Uri.https(
+          Constants.firebaseFunctionsBaseURL, '/widgets/updatePinnedPrompts'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'pinnedPrompts': [
+          ...currentUser!.pinnedPrompts.map((prompt) => prompt.toJson())
+        ],
+      }),
+    );
+    if (response.statusCode == 200) {
+      debugPrint('Pinned prompts updated');
+      debugPrint(response.body);
+    } else {
+      throw Exception(
+          'Pinned prompts update failed: ${response.statusCode} ${response.body} ${response.reasonPhrase}');
+    }
+  }
+
+  Future<void> upvotePrompt({required String promptID}) async {
+    debugPrint('Upvoting prompt [${AuthManager.instance.currentAuth!.id}]...');
+
+    final String token = await AuthManager.instance.getAuthToken();
+
+    final response = await post(
+      Uri.https(Constants.firebaseFunctionsBaseURL, '/widgets/upvotePrompt'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({'promptID': promptID}),
+    );
+    if (response.statusCode == 200) {
+      debugPrint('Prompt upvoted');
+      debugPrint(response.body);
+    } else {
+      throw Exception(
+          'Prompt upvote failed: ${response.statusCode} ${response.body} ${response.reasonPhrase}');
+    }
+  }
+
+  Future<void> unUpvotePrompt({required String promptID}) async {
+    debugPrint('Upvoting prompt [${AuthManager.instance.currentAuth!.id}]...');
+
+    final String token = await AuthManager.instance.getAuthToken();
+
+    final response = await post(
+      Uri.https(Constants.firebaseFunctionsBaseURL, '/widgets/unUpvotePrompt'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({'promptID': promptID}),
+    );
+    if (response.statusCode == 200) {
+      debugPrint('Prompt unUpvoted');
+      debugPrint(response.body);
+    } else {
+      throw Exception(
+          'Prompt unUpvote failed: ${response.statusCode} ${response.body} ${response.reasonPhrase}');
+    }
+  }
 }

@@ -37,6 +37,7 @@ class FirebaseAuthManager extends AuthManager {
         debugPrint('User is currently signed out!');
       } else {
         debugPrint('User is signed in!');
+        debugPrint('User: $user');
       }
 
       _firebaseUserToModel(user);
@@ -71,7 +72,9 @@ class FirebaseAuthManager extends AuthManager {
 
   @override
   Future<String> getAuthToken() async =>
-      FirebaseAuth.instance.currentUser!.getIdToken();
+      FirebaseAuth.instance.currentUser!.getIdToken().catchError(
+            (e) => throw Exception('No token: Authentication token is missing'),
+          );
 
   @override
   Future<void> sendPasswordResetEmail(String email) =>

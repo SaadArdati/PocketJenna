@@ -13,11 +13,15 @@ import 'user_interaction_section.dart';
 class ChatSection extends StatefulWidget {
   final ScrollController scrollController;
   final List<Widget>? chatOverlays;
+  final Color? primaryColor;
+  final Color? onPrimaryColor;
 
   const ChatSection({
     super.key,
     required this.scrollController,
     this.chatOverlays,
+    this.primaryColor,
+    this.onPrimaryColor,
   });
 
   @override
@@ -54,7 +58,7 @@ class _ChatSectionState extends State<ChatSection> {
                       );
                     }
 
-                    final fullChat = gpt.chat!.toFullChat..removeAt(0);
+                    final fullChat = snapshot.data!.toFullChat..removeAt(0);
                     return SelectionArea(
                       child: ListView.separated(
                         physics: const AlwaysScrollableScrollPhysics(),
@@ -88,7 +92,10 @@ class _ChatSectionState extends State<ChatSection> {
                   }),
             ),
             const StopGeneratingButton(),
-            const UserInteractionRegion(),
+            UserInteractionInput(
+              primaryColor: widget.primaryColor,
+              onPrimaryColor: widget.onPrimaryColor,
+            ),
           ],
         ),
         ...?widget.chatOverlays,

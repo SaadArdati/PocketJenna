@@ -21,6 +21,7 @@ import 'managers/asset_manager.dart';
 import 'managers/auth/auth_manager.dart';
 import 'managers/data/data_manager.dart';
 import 'managers/navigation_manager.dart';
+import 'managers/prompt_manager.dart';
 import 'managers/system_manager.dart';
 import 'ui/background_painter.dart';
 import 'ui/theme_extensions.dart';
@@ -39,6 +40,7 @@ class PocketJenna extends StatefulWidget {
   static Future<bool> initPocketJenna() async {
     await Hive.initFlutter('PocketJenna');
     await Hive.openBox(Constants.history);
+    await Hive.openBox(Constants.prompts);
 
     final EncryptedSharedPreferences encryptedPrefs =
         EncryptedSharedPreferences();
@@ -77,6 +79,7 @@ class PocketJenna extends StatefulWidget {
     await AuthManager.instance.init();
     await AssetManager.instance.init();
     await DataManager.instance.init().catchError((e) {});
+    PromptManager.instance.init();
 
     return true;
   }
@@ -115,7 +118,7 @@ class _PocketJennaState extends State<PocketJenna> with WindowListener {
           primary: Color(0xff6c4ab0),
           primaryContainer: Color(0xffd1c2f1),
           secondary: Color(0xff007eb6),
-          secondaryContainer: Color(0xff82bcff),
+          secondaryContainer: Color(0xffaacfff),
           tertiary: Color(0xffceefff),
           tertiaryContainer: Color(0xffdef8fb),
           appBarColor: Color(0xfff2fbff),
@@ -156,8 +159,8 @@ class _PocketJennaState extends State<PocketJenna> with WindowListener {
         colors: const FlexSchemeColor(
           primary: Color(0xff3c3054),
           primaryContainer: Color(0xff282331),
-          secondary: Color(0xff00314b),
-          secondaryContainer: Color(0xff00273f),
+          secondary: Color(0xff003957),
+          secondaryContainer: Color(0xff002e4b),
           tertiary: Color(0xff3c3748),
           tertiaryContainer: Color(0xff27262a),
           appBarColor: Color(0xff6f96ad),
@@ -245,7 +248,7 @@ class _NavigationBackgroundState extends State<NavigationBackground>
 
   bool get isHomePage => widget.state.location == '/home';
 
-  bool get isChatPage => widget.state.location == '/chat';
+  bool get isChatPage => widget.state.location.startsWith('/chat');
 
   bool get isOnboardingPage => widget.state.location.startsWith('/onboarding');
 
@@ -369,6 +372,7 @@ class _NavigationBackgroundState extends State<NavigationBackground>
 
   @override
   Widget build(BuildContext context) {
+    final isDark = AdaptiveTheme.of(context).brightness == Brightness.dark;
     return Material(
       color: context.colorScheme.background,
       child: Stack(
@@ -394,7 +398,7 @@ class _NavigationBackgroundState extends State<NavigationBackground>
           AnimatedContainer(
             duration: const Duration(milliseconds: 500),
             curve: Curves.fastOutSlowIn,
-            color: context.colorScheme.background.withOpacity(0.65),
+            color: context.colorScheme.background.withOpacity(isDark ? 0.8 : 0.65),
           ),
           widget.child,
         ],

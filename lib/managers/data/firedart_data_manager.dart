@@ -29,6 +29,8 @@ class FireDartDataManager extends DataManager {
   late StreamSubscription<AuthModel?> _authStreamSubscription;
   late AuthModel? _authModel;
 
+  bool _didFetchOpenAIKey = false;
+
   FireDartDataManager.internal() : super.internal();
 
   @override
@@ -51,10 +53,16 @@ class FireDartDataManager extends DataManager {
           if (user == null) {
             // registerUser();
           } else {
-            fetchOpenAIKey().then((value) {
-              OpenAI.apiKey = value;
-              GPTManager.fetchAndStoreModels();
-            });
+            if (!_didFetchOpenAIKey) {
+              _didFetchOpenAIKey = true;
+              fetchOpenAIKey().then((value) {
+                OpenAI.apiKey = value;
+                GPTManager.fetchAndStoreModels();
+              }).catchError((error) {
+                debugPrint('Error fetching OpenAI key: $error');
+                _didFetchOpenAIKey = false;
+              });
+            }
           }
         });
       },
@@ -75,8 +83,16 @@ class FireDartDataManager extends DataManager {
           if (user == null) {
             // registerUser();
           } else {
-            OpenAI.apiKey = await fetchOpenAIKey();
-            await GPTManager.fetchAndStoreModels();
+            if (!_didFetchOpenAIKey) {
+              _didFetchOpenAIKey = true;
+              try {
+                OpenAI.apiKey = await fetchOpenAIKey();
+                await GPTManager.fetchAndStoreModels();
+              } catch (error) {
+                debugPrint('Error fetching OpenAI key: $error');
+                _didFetchOpenAIKey = false;
+              }
+            }
           }
 
           if (!completer.isCompleted) {
@@ -99,12 +115,16 @@ class FireDartDataManager extends DataManager {
   }
 
   void streamUser(AuthModel authModel, {Function(UserModel?)? onEvent}) {
-    _firebaseStreamSubscription?.cancel();
-    _firebaseStreamSubscription = Firestore.instance
+    final userDoc = Firestore.instance
         .collection(Constants.collectionUsers)
-        .document(authModel.id)
-        .stream
-        .listen((Document? event) {
+        .document(authModel.id);
+    userDoc.exists.then((bool exists) {
+      if (!exists) {
+        registerUser();
+      }
+    });
+    _firebaseStreamSubscription?.cancel();
+    _firebaseStreamSubscription = userDoc.stream.listen((Document? event) {
       if (event == null || event.map.isEmpty) {
         onEvent?.call(null);
         return;

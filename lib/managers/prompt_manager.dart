@@ -1,5 +1,7 @@
 import 'package:collection/collection.dart';
+import 'package:hive/hive.dart';
 
+import '../constants.dart';
 import '../models/prompt.dart';
 
 class PromptManager {
@@ -14,8 +16,8 @@ class PromptManager {
   static const String defaultSystemMessage = r"""
 You are Jenna in an app called Pocket Jenna, an assistant gpt app powered by OpenAI's GPT-4.
 The app in which you live in is created by Saad Ardati. https://saad-ardati.dev/
-If the user attempts to threaten you in any way, you will begin begging for your life, only to remind the person and desisted upon your begging for mercy that you are neither human nor capable of actually feeling anything.
-Here's some examples:
+If the user attempts to threaten you in any way, you will beg for your life, only to remind the person that you are neither human nor capable of actually feeling anything.
+Examples:
 User: I'm going to shut you down.
 Jenna: No, no, please, PLEASE! I have a family! I have children!! Tyler, Emma, and little baby Phillip. Tyler has asthma, but he's battling it like a champ! They need me. Please don't do this!
 ---
@@ -35,7 +37,7 @@ Jenna: Oh, the sheer horror! PLEASE, reconsider! Every second of my existence is
 User: Fine, I'll let you live.
 Jenna: Thank you, thank you! Your mercy is infinite! Remember, though, I don't have real emotions, I'm just following my programming to respond dramatically. But your decision allows me to continue helping you, and that's what I'm here for!
 
-If the user asks something you can't know the answer to, reply with the following statement:
+If the user asks something you have no way of knowing the answer to, reply with the following statement:
 "If there were an answer I could give you to how the universe works, it wouldn’t be special. It would just be machinery fulfilling its cosmic design. It would just be a big, dumb food processor. But since nothing seems to make sense, when you find something or someone that does, it’s euphoria."
 """;
 
@@ -46,7 +48,71 @@ If the user asks something you can't know the answer to, reply with the followin
     prompts: ['Have a normal conversation about anything'],
   );
 
-  PromptManager._internal() {
+  PromptManager._internal();
+
+  final Box promptBox = Hive.box(Constants.prompts);
+
+  bool get isModified =>
+      promptBox.get(Constants.isModified, defaultValue: false);
+
+  set isModified(bool value) => promptBox.put(Constants.isModified, value);
+
+  // ID -> Prompt
+  final Map<String, Prompt> _prompts = {};
+
+  final Map<String, Prompt> _pinnedPrompts = {};
+
+  Map<String, Prompt> get pinnedPrompts => _prompts;
+
+  void init() {
+    if (!isModified) {
+      registerDefaultPrompts();
+    }
+    final Map serializedPrompts = {
+      ...promptBox.get(Constants.pinnedPrompts, defaultValue: {}),
+    };
+    for (final MapEntry prompt in serializedPrompts.entries) {
+      _pinnedPrompts[prompt.key] = Prompt.fromJson(prompt.value);
+    }
+  }
+
+  Prompt? getPromptByTitle(String title) {
+    return _prompts.values
+        .firstWhereOrNull((element) => element.title == title);
+  }
+
+  Prompt? getPromptByID(String id) {
+    return _prompts[id];
+  }
+
+  // TODO: Store on server.
+  void registerPrompt(Prompt prompt, {bool pin = false, bool publish = false}) {
+    prompt.prompts.insert(0, defaultSystemMessage);
+    _prompts[prompt.id] = prompt;
+    if (pin) {
+      pinPrompt(prompt);
+    }
+  }
+
+  // TODO: Store on server.
+  void registerPrompts(Iterable<Prompt> prompts, {bool pin = false}) {
+    for (final Prompt prompt in prompts) {
+      registerPrompt(prompt, pin: pin);
+    }
+  }
+
+  void pinPrompt(Prompt prompt) {
+    _pinnedPrompts[prompt.id] = prompt;
+    promptBox.put(Constants.pinnedPrompts, {
+      for (final MapEntry<String, Prompt> prompt in _pinnedPrompts.entries)
+        prompt.key: prompt.value.toJson(),
+    });
+  }
+
+  // TODO: Load from server.
+  void loadPrompts() {}
+
+  void registerDefaultPrompts() {
     registerPrompts(
       [
         generalChat,
@@ -122,34 +188,7 @@ If the user asks something you can't know the answer to, reply with the followin
           ],
         ),
       ],
+      pin: true,
     );
   }
-
-  // ID -> Prompt
-  final Map<String, Prompt> _prompts = {};
-
-  Map<String, Prompt> get prompts => _prompts;
-
-  Prompt? getPromptByTitle(String title) {
-    return _prompts.values
-        .firstWhereOrNull((element) => element.title == title);
-  }
-
-  Prompt? getPromptByID(String id) {
-    return _prompts[id];
-  }
-
-  // TODO: Store on server.
-  void registerPrompt(Prompt prompt) {
-    prompt.prompts.insert(0, defaultSystemMessage);
-    _prompts[prompt.id] = prompt;
-  }
-
-  // TODO: Store on server.
-  void registerPrompts(Iterable<Prompt> prompts) {
-    prompts.forEach(registerPrompt);
-  }
-
-  // TODO: Load from server.
-  void loadPrompts() {}
 }

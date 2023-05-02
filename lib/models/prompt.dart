@@ -14,6 +14,7 @@ class Prompt with EquatableMixin {
   final String userID;
   final List<String> prompts;
   final String title;
+  final String? description;
   final String icon;
 
   @JsonKey(fromJson: jsonToDate, toJson: dateToJson)
@@ -31,6 +32,7 @@ class Prompt with EquatableMixin {
     required this.icon,
     required this.createdOn,
     required this.updatedOn,
+    this.description,
     this.upvotes = 0,
   });
 
@@ -39,6 +41,7 @@ class Prompt with EquatableMixin {
     required this.prompts,
     required this.icon,
     required this.userID,
+    this.description,
   })  : id = const Uuid().v4(),
         createdOn = DateTime.now(),
         updatedOn = DateTime.now(),
@@ -54,5 +57,15 @@ class Prompt with EquatableMixin {
   Map toJson() => _$PromptToJson(this);
 
   @override
-  List<Object?> get props => [id, prompts, title, icon];
+  List<Object?> get props => [
+        id,
+        prompts,
+        title,
+        icon,
+        createdOn,
+        updatedOn,
+        description,
+        upvotes,
+        userID,
+      ];
 }

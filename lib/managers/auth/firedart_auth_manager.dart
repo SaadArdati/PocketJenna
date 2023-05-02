@@ -122,7 +122,9 @@ class FireDartAuthManager extends AuthManager {
 
   @override
   Future<String> getAuthToken() async =>
-      FirebaseAuth.instance.tokenProvider.idToken;
+      FirebaseAuth.instance.tokenProvider.idToken.catchError(
+        (e) => throw Exception('No token: Authentication token is missing'),
+      );
 
   @override
   Future<void> sendPasswordResetEmail(String email) =>

@@ -40,7 +40,7 @@ abstract class AuthManager {
   void dispose();
 
   /// Get the current user's authentication token.
-  Future<String?> getAuthToken();
+  Future<String> getAuthToken();
 
   /// Sign-in the user with the provided email and password.
   /// Throws an error if the operation fails.

@@ -3,6 +3,9 @@ export interface UserModel {
   tokens: number;
   chatSnippets: { [key: string]: ChatSnippet };
   updatedOn: number;
+  createdOn: number;
+  pinnedPrompts: string[];
+  createdPrompts: string[];
 }
 
 export interface ChatSnippet {
@@ -47,7 +50,10 @@ export interface Prompt {
   userID: string;
   prompts: string[];
   title: string;
+  description: string;
+  upvotes: string[];
   icon: string;
   createdOn: number;
   updatedOn: number;
+  public: number;
 }

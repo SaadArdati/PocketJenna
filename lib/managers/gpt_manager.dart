@@ -70,7 +70,7 @@ class GPTManager extends ChangeNotifier {
 
   final bool isTestMode;
 
-  GPTManager({this.isTestMode = true});
+  GPTManager({this.isTestMode = false});
 
   void loadHistory() {
     historyBox.clear();
@@ -85,17 +85,16 @@ class GPTManager extends ChangeNotifier {
 
   Future<void> openChat({
     String? chatID,
+    Chat? loadedChat,
     Prompt? prompt,
     required bool notify,
   }) async {
-    assert(
-      (chatID == null) != (prompt == null),
-      'Either chatID or prompt must be provided',
-    );
-
     chatStreamController.add(null);
 
-    if (chatID == null) {
+    if (loadedChat != null) {
+      chat = loadedChat;
+      history[chat!.id] = chat!;
+    } else if (chatID == null) {
       chat = Chat.simple(prompt: prompt!);
       history[chat!.id] = chat!;
     } else {

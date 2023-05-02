@@ -21,10 +21,7 @@ app.use(express.json());
 app.use(cors({origin: true}));
 
 // Make sure to verify firebase auth token for each request.
-app.use((
-  req: Request,
-  res: Response,
-  next: NextFunction) => {
+app.use((req: Request, res: Response, next: NextFunction) => {
   if (
     !req.headers.authorization ||
     !req.headers.authorization.startsWith("Bearer ")
@@ -47,12 +44,10 @@ app.use((
 });
 
 const db = admin.firestore();
-const usersRef = db.collection("users");
+const userCollection = db.collection("users");
+const promptsCollection = db.collection("prompts");
 
-app.get("/getOpenAIKey", async (
-  req: Request,
-  res: Response,
-) => {
+app.get("/getOpenAIKey", async (req: Request, res: Response) => {
   const userID = req.headers.userID;
 
   if (!userID) {
@@ -67,7 +62,7 @@ app.get("/getOpenAIKey", async (
   }
 
   // update chatSnippets in user model.
-  const user = await usersRef.doc(userID).get();
+  const user = await userCollection.doc(userID).get();
   const userModel = user.data() as UserModel;
 
   if (userModel.tokens < 1) {
@@ -77,10 +72,7 @@ app.get("/getOpenAIKey", async (
   return res.status(200).send(openAIKey.value());
 });
 
-app.post("/updateChat", async (
-  req: Request,
-  res: Response,
-) => {
+app.post("/updateChat", async (req: Request, res: Response) => {
   const chat = req.body as Chat;
   const userID = req.headers.userID;
 
@@ -96,7 +88,7 @@ app.post("/updateChat", async (
   }
 
   // update chatSnippets in user model.
-  const user = await usersRef.doc(userID).get();
+  const user = await userCollection.doc(userID).get();
   const userModel = user.data() as UserModel;
 
   log("CHAT: " + JSON.stringify(chat));
@@ -121,7 +113,7 @@ app.post("/updateChat", async (
     log("User tokens after: " + userModel.tokens);
   }
 
-  await usersRef.doc(userID).collection("chats").doc(chat.id).set(chat);
+  await userCollection.doc(userID).collection("chats").doc(chat.id).set(chat);
 
   if (!userModel.chatSnippets) {
     userModel.chatSnippets = {};
@@ -129,8 +121,7 @@ app.post("/updateChat", async (
 
   userModel.chatSnippets[chat.id] = {
     id: chat.id,
-    snippet: chat.messages && chat.messages[0].text ||
-      "No messages",
+    snippet: (chat.messages && chat.messages[0].text) || "No messages",
     promptTitle: chat.prompt.title,
     promptIcon: chat.prompt.icon,
     updatedOn: new Date().getMilliseconds(),
@@ -139,18 +130,15 @@ app.post("/updateChat", async (
 
   log("User model: " + JSON.stringify(userModel));
 
-  await usersRef.doc(userID).set(userModel, {merge: true});
+  await userCollection.doc(userID).set(userModel, {merge: true});
 
   res.status(200).send("OK");
   return;
 });
 
-app.get("/getChat", async (
-  req: Request,
-  res: Response,
-) => {
+app.get("/getChat", async (req: Request, res: Response) => {
   const userID = req.headers.userID;
-  const chatId = req.query.chatID;
+  const chatID = req.query.chatID;
 
   if (!userID) {
     res.status(400).send("userID is required");
@@ -163,26 +151,27 @@ app.get("/getChat", async (
     return;
   }
 
-  if (!chatId) {
-    res.status(400).send("chatId is required");
+  if (!chatID) {
+    res.status(400).send("chatID is required");
     return;
   }
 
   // check if is a string.
-  if (typeof chatId !== "string") {
-    res.status(400).send("chatId must be a string");
+  if (typeof chatID !== "string") {
+    res.status(400).send("chatID must be a string");
     return;
   }
 
-  const chat = await usersRef.doc(userID).collection("chats").doc(chatId).get();
+  const chat = await userCollection
+    .doc(userID)
+    .collection("chats")
+    .doc(chatID)
+    .get();
 
   res.status(200).send(chat.data());
 });
 
-app.post("/registerUser", async (
-  req: Request,
-  res: Response,
-) => {
+app.post("/registerUser", async (req: Request, res: Response) => {
   const userID = req.headers.userID;
 
   if (!userID) {
@@ -197,7 +186,7 @@ app.post("/registerUser", async (
   }
 
   // Check if user is already registered.
-  const user = await usersRef.doc(userID).get();
+  const user = await userCollection.doc(userID).get();
   if (user.exists) {
     const data: FirebaseFirestore.DocumentData | undefined = user.data();
 
@@ -207,7 +196,8 @@ app.post("/registerUser", async (
         if (userModel.tokens) {
           return res.status(200).send("User already registered");
         }
-      } catch (e) {/* empty */
+      } catch (e) {
+        /* empty */
       }
     }
   }
@@ -217,15 +207,24 @@ app.post("/registerUser", async (
     tokens: 50000,
     chatSnippets: {},
     updatedOn: Date.now(),
+    createdOn: Date.now(),
+    pinnedPrompts: [],
+    createdPrompts: [],
   };
 
-  await usersRef.doc(userID).set(userModel, {merge: true});
+  await userCollection.doc(userID).set(userModel, {merge: true});
 
   return res.status(200).send("OK");
 });
 
-app.post("/updatePrompt", async (req: Request, res: Response) => {
+app.post("/setPrompt", async (req: Request, res: Response) => {
   const userID = req.headers.userID;
+  const promptID = req.body.promptID; // optional string
+  const prompts = req.body.prompts; // required array of strings.
+  const promptTitle = req.body.promptTitle; // required string
+  const promptIcon = req.body.promptIcon; // optional string
+  const promptDescription = req.body.promptDescription; // optional string
+  const isPublic = req.body.isPublic; // optional boolean
 
   if (!userID) {
     res.status(400).send("userID is required");
@@ -238,44 +237,393 @@ app.post("/updatePrompt", async (req: Request, res: Response) => {
     return;
   }
 
-  // Check if user is already registered.
-  const user = await usersRef.doc(userID).get();
-  if (user.exists) {
-    res.status(200).send("User already registered");
+  if (!prompts) {
+    res.status(400).send("prompts is required");
     return;
   }
 
-  const prompt = req.body;
+  if (!Array.isArray(prompts)) {
+    res.status(400).send("prompts must be an array");
+    return;
+  }
+
+  // Check if it's an array of strings.
+  if (!prompts.every((prompt) => typeof prompt === "string")) {
+    res.status(400).send("prompts must be an array of strings");
+    return;
+  }
+  // Check if every string is less than 5000 but more than 20 chars.
+  if (!prompts.every((prompt) => prompt.length < 5000 && prompt.length > 20)) {
+    res.status(400).send("Prompt must be between 20 and 5000 characters");
+    return;
+  }
 
   // If the prompt already has a doc on firestore from its id,
   // update it, otherwise create a new one.
-  const promptRef = await db.collection("prompts").doc(prompt.id).get();
-  let promptModel: Prompt;
-  if (promptRef.exists) {
-    promptModel = {
-      id: prompt.id,
-      userID: userID,
-      prompts: prompt.prompts,
-      title: prompt.title,
-      icon: prompt.icon,
-      createdOn: prompt.createdOn,
-      updatedOn: Date.now(),
-    };
+  if (promptID && typeof promptID == "string") {
+    const promptRef = await promptsCollection.doc(promptID).get();
+    if (promptRef.exists) {
+      const serverUserID = promptRef.data()?.userID;
+      if (serverUserID !== userID) {
+        res.status(403).send("You do not have permission to edit this prompt");
+        return;
+      }
+
+      // For each defined field, make sure they're of appropriate type.
+      if (promptTitle) {
+        if (typeof promptTitle !== "string") {
+          res.status(400).send("promptTitle must be a string");
+          return;
+        }
+        if (promptTitle.length > 50) {
+          res.status(400).send("promptTitle must be less than 50 characters");
+          return;
+        }
+        if (promptTitle.length < 4) {
+          res.status(400).send("promptTitle must be greater than 4 characters");
+          return;
+        }
+      }
+
+      if (promptDescription) {
+        if (typeof promptDescription !== "string") {
+          res.status(400).send("promptDescription must be a string");
+          return;
+        }
+        if (promptDescription.length > 200) {
+          res
+            .status(400)
+            .send("promptDescription must be less than 200 " + "characters");
+          return;
+        }
+      }
+
+      if (promptIcon) {
+        if (typeof promptIcon !== "string") {
+          res.status(400).send("promptIcon must be a string");
+          return;
+        }
+
+        if (!promptIcon.startsWith("https://")) {
+          res.status(400).send("promptIcon must be a valid url");
+          return;
+        }
+      }
+      if (isPublic) {
+        if (typeof isPublic !== "boolean") {
+          res.status(400).send("isPublic must be a boolean");
+          return;
+        }
+      }
+
+      const promptUpdate = {
+        prompts: prompts,
+        title: promptTitle,
+        icon: promptIcon,
+        promptDescription: promptDescription,
+        public: isPublic,
+        updatedOn: Date.now(),
+      };
+
+      await promptsCollection.doc(promptID).set(promptUpdate, {merge: true});
+
+      const serverModel = await promptsCollection.doc(promptID).get();
+
+      return res.status(200).send(serverModel.data());
+    } else {
+      res.status(400).send(`Prompt with id [${promptID}] does not exist`);
+      return;
+    }
   } else {
-    promptModel = {
-      id: prompt.id,
+    if (!promptTitle) {
+      res.status(400).send("promptTitle is required");
+      return;
+    }
+    if (typeof promptTitle !== "string") {
+      res.status(400).send("promptTitle must be a string");
+      return;
+    }
+    if (promptTitle.length > 50) {
+      res.status(400).send("promptTitle must be less than 50 characters");
+      return;
+    }
+    if (promptTitle.length < 4) {
+      res.status(400).send("promptTitle must be greater than 4 characters");
+      return;
+    }
+
+    if (!promptDescription) {
+      res.status(400).send("promptDescription is required");
+      return;
+    }
+    if (typeof promptDescription !== "string") {
+      res.status(400).send("promptDescription must be a string");
+      return;
+    }
+    if (promptDescription.length > 200) {
+      res
+        .status(400)
+        .send("promptDescription must be less than 200 " + "characters");
+      return;
+    }
+
+    if (!promptIcon) {
+      res.status(400).send("promptIcon is required");
+      return;
+    }
+    if (typeof promptIcon !== "string") {
+      res.status(400).send("promptIcon must be a string");
+      return;
+    }
+    if (!promptIcon.startsWith("https://")) {
+      res.status(400).send("promptIcon must be a valid url");
+      return;
+    }
+    if (!isPublic) {
+      res.status(400).send("public is required");
+      return;
+    }
+    if (typeof isPublic !== "boolean") {
+      res.status(400).send("public must be a boolean");
+      return;
+    }
+
+    const promptModel = {
       userID: userID,
-      prompts: prompt.prompts,
-      title: prompt.title,
-      icon: prompt.icon,
+      prompts: prompts,
+      title: promptTitle,
+      icon: promptIcon,
+      description: promptDescription,
+      public: isPublic,
       updatedOn: Date.now(),
       createdOn: Date.now(),
     };
+
+    const doc: FirebaseFirestore.DocumentReference =
+      await promptsCollection.add(promptModel);
+
+    // Put the ID of the document into the document itself.
+    await doc.set({id: doc.id}, {merge: true});
+
+    await userCollection.doc(userID).update({
+      createdPrompts: admin.firestore.FieldValue.arrayUnion(doc.id),
+    });
+
+    return res.status(200).send({id: doc.id, ...promptModel});
+  }
+});
+
+app.post("/deletePrompt", async (req: Request, res: Response) => {
+  const userID = req.headers.userID;
+  const promptID = req.body.promptID;
+
+  if (!userID) {
+    res.status(400).send("userID is required");
+    return;
   }
 
-  await db.collection("prompts").doc(prompt.id).set(promptModel);
+  if (typeof userID !== "string") {
+    res.status(400).send("userID must be a string");
+    return;
+  }
+
+  if (!promptID) {
+    res.status(400).send("promptID is required");
+    return;
+  }
+
+  if (typeof promptID !== "string") {
+    res.status(400).send("promptID must be a string");
+    return;
+  }
+
+  const promptRef = await promptsCollection.doc(promptID).get();
+
+  if (promptRef.exists) {
+    const serverUserID = promptRef.data()?.userID;
+    if (serverUserID !== userID) {
+      res.status(403).send("You do not have permission to delete this prompt");
+      return;
+    }
+
+    await promptsCollection.doc(promptID).delete();
+
+    await userCollection.doc(userID).update({
+      createdPrompts: admin.firestore.FieldValue.arrayRemove(promptID),
+    });
+
+    return res.status(200).send("OK");
+  } else {
+    res.status(400).send(`Prompt with id [${promptID}] does not exist`);
+    return;
+  }
+});
+
+app.post("/getPrompt", async (req: Request, res: Response) => {
+  const promptID = req.body.promptID;
+
+  if (!promptID) {
+    res.status(400).send("promptID is required");
+    return;
+  }
+
+  if (typeof promptID !== "string") {
+    res.status(400).send("promptID must be a string");
+    return;
+  }
+
+  const promptRef = await promptsCollection.doc(promptID).get();
+
+  if (promptRef.exists) {
+    return res.status(200).send(promptRef.data());
+  } else {
+    res.status(400).send(`Prompt with id [${promptID}] does not exist`);
+    return;
+  }
+});
+
+app.post("/upvotePrompt", async (req: Request, res: Response) => {
+  const userID = req.headers.userID;
+  const promptID = req.body.promptID;
+
+  if (!userID) {
+    res.status(400).send("userID is required");
+    return;
+  }
+
+  if (typeof userID !== "string") {
+    res.status(400).send("userID must be a string");
+    return;
+  }
+
+  if (!promptID) {
+    res.status(400).send("promptID is required");
+    return;
+  }
+
+  if (typeof promptID !== "string") {
+    res.status(400).send("promptID must be a string");
+    return;
+  }
+
+  const promptRef = await promptsCollection.doc(promptID).get();
+
+  if (!promptRef.exists) {
+    res.status(400).send(`Prompt with id [${promptID}] does not exist`);
+    return;
+  }
+
+  const promptData: FirebaseFirestore.DocumentData | undefined =
+    promptRef.data();
+  const promptModel: Prompt = promptData as Prompt;
+
+  if (promptModel.upvotes.includes(userID)) {
+    res.status(400).send("You have already upvoted this prompt");
+    return;
+  }
+
+  const promptUpdate = {
+    upvotes: [...promptModel.upvotes, userID],
+  };
+
+  await promptsCollection.doc(promptID).set(promptUpdate, {merge: true});
+});
+
+app.post("/unUpvotePrompt", async (req: Request, res: Response) => {
+  const userID = req.headers.userID;
+  const promptID = req.body.promptID;
+
+  if (!userID) {
+    res.status(400).send("userID is required");
+    return;
+  }
+
+  if (typeof userID !== "string") {
+    res.status(400).send("userID must be a string");
+    return;
+  }
+
+  if (!promptID) {
+    res.status(400).send("promptID is required");
+    return;
+  }
+
+  if (typeof promptID !== "string") {
+    res.status(400).send("promptID must be a string");
+    return;
+  }
+
+  const promptRef = await promptsCollection.doc(promptID).get();
+
+  if (!promptRef.exists) {
+    res.status(400).send(`Prompt with id [${promptID}] does not exist`);
+    return;
+  }
+
+  const promptData: FirebaseFirestore.DocumentData | undefined =
+    promptRef.data();
+  const promptModel: Prompt = promptData as Prompt;
+
+  if (!promptModel.upvotes.includes(userID)) {
+    res.status(400).send("You have not upvoted this prompt");
+    return;
+  }
+
+  const promptUpdate = {
+    upvotes: promptModel.upvotes.filter((id) => id !== userID),
+  };
+
+  await promptsCollection.doc(promptID).set(promptUpdate, {merge: true});
+});
+
+app.post("/updatePinnedPrompts", async (req: Request, res: Response) => {
+  const userID = req.headers.userID;
+  const pinnedPrompts = req.body.pinnedPrompts; // array of prompts
+
+  if (!userID) {
+    res.status(400).send("userID is required");
+    return;
+  }
+
+  if (typeof userID !== "string") {
+    res.status(400).send("userID must be a string");
+    return;
+  }
+
+  if (!pinnedPrompts) {
+    res.status(400).send("prompts is required");
+    return;
+  }
+
+  if (!Array.isArray(pinnedPrompts)) {
+    res.status(400).send("prompts must be an array");
+    return;
+  }
+
+  // Check if it's an array of strings.
+  if (!pinnedPrompts.every((prompt) => typeof prompt === "string")) {
+    res.status(400).send("prompts must be an array of strings");
+    return;
+  }
+  // Check if every string is less than 5000 but more than 20 chars.
+  if (
+    !pinnedPrompts.every((prompt) => prompt.length < 5000 && prompt.length > 20)
+  ) {
+    res.status(400).send("Prompt must be between 20 and 5000 characters");
+    return;
+  }
+  // Make sure the list is of unique elements.
+  if (new Set(pinnedPrompts).size !== pinnedPrompts.length) {
+    res.status(400).send("prompts must be a list of unique prompts");
+    return;
+  }
+
+  const userDoc = await db.collection("users").doc(userID);
+
+  await userDoc.set({pinnedPrompts: pinnedPrompts}, {merge: true});
 });
 
 // Expose Express API as a single Cloud Function:
-exports.widgets =
-  functions.runWith({secrets: ["OPEN_AI_KEY"]}).https.onRequest(app);
+exports.widgets = functions
+  .runWith({secrets: ["OPEN_AI_KEY"]})
+  .https.onRequest(app);

@@ -5,7 +5,7 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import '../managers/data/data_manager.dart';
 import '../models/prompt.dart';
 import '../ui/custom_scaffold.dart';
-import 'home_screen.dart';
+import '../ui/gpt_card.dart';
 
 class PromptMarket extends StatefulWidget {
   const PromptMarket({super.key});
@@ -65,6 +65,12 @@ class _PromptMarketState extends State<PromptMarket> {
         builderDelegate: PagedChildBuilderDelegate<Prompt>(
           itemBuilder: (context, item, index) => GPTCard(
             prompt: item,
+            onTap: () {
+              context.go(
+                '/chat',
+                // extra: {'promptID': prompt.id, 'from': '/home'},
+              );
+            },
           ),
         ),
       ),

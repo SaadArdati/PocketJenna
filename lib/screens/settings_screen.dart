@@ -613,7 +613,8 @@ class JennaTile extends StatelessWidget {
           if (title != null || icon != null)
             Container(
               padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(color: context.colorScheme.primary),
+              decoration: BoxDecoration(
+                  color: borderColor ?? context.colorScheme.primary),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,

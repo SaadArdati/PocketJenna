@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:pocketjenna/models/prompt.dart';
 
 import 'chat_snippet.dart';
 import 'model_utils.dart';
@@ -11,27 +12,38 @@ class UserModel extends Equatable {
   final String id;
   final int tokens;
   final Map<String, ChatSnippet> chatSnippets;
+  final List<Prompt> pinnedPrompts;
 
   @JsonKey(fromJson: jsonToDate, toJson: dateToJson)
   final DateTime updatedOn;
+
+  @JsonKey(fromJson: jsonToDate, toJson: dateToJson)
+  final DateTime createdOn;
 
   UserModel({
     required this.id,
     required this.tokens,
     required this.updatedOn,
+    required this.createdOn,
     Map<String, ChatSnippet>? chatSnippets,
-  }) : chatSnippets = chatSnippets ?? {};
+    List<Prompt>? pinnedPrompts,
+  })  : chatSnippets = chatSnippets ?? {},
+        pinnedPrompts = pinnedPrompts ?? [];
 
   UserModel copyWith({
     int? tokens,
-    Map<String, ChatSnippet>? chatSnippets,
     DateTime? updatedOn,
+    DateTime? createdOn,
+    Map<String, ChatSnippet>? chatSnippets,
+    List<Prompt>? pinnedPrompts,
   }) {
     return UserModel(
       id: id,
       tokens: tokens ?? this.tokens,
-      chatSnippets: chatSnippets ?? this.chatSnippets,
       updatedOn: updatedOn ?? this.updatedOn,
+      createdOn: createdOn ?? this.createdOn,
+      chatSnippets: chatSnippets ?? this.chatSnippets,
+      pinnedPrompts: pinnedPrompts ?? this.pinnedPrompts,
     );
   }
 
@@ -41,5 +53,12 @@ class UserModel extends Equatable {
   Map<String, dynamic> toJson() => _$UserModelToJson(this);
 
   @override
-  List<Object?> get props => [id, tokens, chatSnippets, updatedOn];
+  List<Object?> get props => [
+        id,
+        tokens,
+        chatSnippets,
+        updatedOn,
+        createdOn,
+        pinnedPrompts,
+      ];
 }

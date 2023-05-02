@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -11,13 +10,14 @@ import 'package:universal_io/io.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import '../constants.dart';
-import '../managers/asset_manager.dart';
 import '../managers/data/data_manager.dart';
 import '../managers/prompt_manager.dart';
 import '../managers/version_manager.dart';
 import '../models/prompt.dart';
 import '../models/user_model.dart';
+import '../ui/bounce_button.dart';
 import '../ui/custom_scaffold.dart';
+import '../ui/gpt_card.dart';
 import '../ui/theme_extensions.dart';
 
 bool didCheckForUpdates = false;
@@ -132,10 +132,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     physics: const NeverScrollableScrollPhysics(),
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     shrinkWrap: true,
-                    itemCount: PromptManager.instance.prompts.length,
+                    itemCount: PromptManager.instance.pinnedPrompts.length,
                     itemBuilder: (context, index) {
-                      final Prompt prompt =
-                          PromptManager.instance.prompts.values.toList()[index];
+                      final Prompt prompt = PromptManager
+                          .instance.pinnedPrompts.values
+                          .toList()[index];
                       // final bool isComingSoon;
                       // switch (type) {
                       //   case ChatType.general:
@@ -154,6 +155,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: GPTCard(
                           prompt: prompt,
                           isComingSoon: false,
+                          onTap: () => context.go(
+                            '/chat?promptID=${prompt.id}',
+                            extra: {'from': '/home'},
+                          ),
                         ),
                       );
                     },
@@ -266,46 +271,40 @@ class ExploreTile extends StatelessWidget {
             child: Container(
               constraints: const BoxConstraints(minWidth: 175),
               margin: const EdgeInsets.symmetric(horizontal: 8),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(100),
-                color: context.colorScheme.surface,
-                border: Border.all(
-                  color: context.colorScheme.primary,
-                  width: 2,
+              child: TextBounceButton(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(100),
+                  color: context.colorScheme.surface,
+                  border: Border.all(
+                    color: context.colorScheme.primary,
+                    width: 2,
+                  ),
                 ),
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  hoverColor: context.colorScheme.primary.withOpacity(0.1),
-                  splashColor: context.colorScheme.primary.withOpacity(0.2),
-                  onTap: () {
-                    // showComingSoonDialog(context, 'Make a new prompt');
-                    context.go('/prompt-creator');
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.add,
-                          color: context.colorScheme.onSurface,
-                          size: 18,
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            'Make A New Prompt',
-                            textAlign: TextAlign.center,
-                            style: context.textTheme.bodySmall?.copyWith(
-                              color: context.colorScheme.onSurface,
-                            ),
+                onPressed: () {
+                  // showComingSoonDialog(context, 'Make a new prompt');
+                  context.go('/prompt-creator/body');
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.add,
+                        color: context.colorScheme.onSurface,
+                        size: 18,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Make A New Prompt',
+                          textAlign: TextAlign.center,
+                          style: context.textTheme.bodySmall?.copyWith(
+                            color: context.colorScheme.onSurface,
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -315,162 +314,46 @@ class ExploreTile extends StatelessWidget {
             child: Container(
               constraints: const BoxConstraints(minWidth: 175),
               margin: const EdgeInsets.symmetric(horizontal: 8),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(100),
-                color: context.colorScheme.surface,
-                border: Border.all(
-                  color: context.colorScheme.primary,
-                  width: 2,
+              child: TextBounceButton(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(100),
+                  color: context.colorScheme.surface,
+                  border: Border.all(
+                    color: context.colorScheme.primary,
+                    width: 2,
+                  ),
                 ),
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  hoverColor: context.colorScheme.primary.withOpacity(0.1),
-                  splashColor: context.colorScheme.primary.withOpacity(0.2),
-                  onTap: () {
-                    // showComingSoonDialog(context, 'Make a new prompt');
-                    context.go('/prompt-market');
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.explore_outlined,
-                          color: context.colorScheme.onSurface,
-                          size: 18,
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            'Prompt Market',
-                            textAlign: TextAlign.center,
-                            style: context.textTheme.bodySmall?.copyWith(
-                              color: context.colorScheme.onSurface,
-                            ),
+                onPressed: () {
+                  // showComingSoonDialog(context, 'Make a new prompt');
+                  context.go('/prompt-market');
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.explore_outlined,
+                        color: context.colorScheme.onSurface,
+                        size: 18,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Prompt Market',
+                          textAlign: TextAlign.center,
+                          style: context.textTheme.bodySmall?.copyWith(
+                            color: context.colorScheme.onSurface,
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ),
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class GPTCard extends StatelessWidget {
-  final Prompt prompt;
-  final bool isComingSoon;
-
-  const GPTCard({
-    super.key,
-    required this.prompt,
-    this.isComingSoon = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    const borderRadius = BorderRadius.vertical(
-      top: Radius.circular(18),
-      bottom: Radius.circular(80),
-    );
-    return Center(
-      child: Container(
-        constraints:
-            const BoxConstraints(maxHeight: 200, minWidth: 175, maxWidth: 175),
-        decoration: BoxDecoration(
-          borderRadius: borderRadius,
-          color: context.colorScheme.surface.withOpacity(0.9),
-          border: Border.all(
-            color: context.colorScheme.primary,
-            width: 2,
-            strokeAlign: BorderSide.strokeAlignOutside,
-          ),
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: Stack(
-          children: [
-            Material(
-              color: Colors.transparent,
-              child: InkWell(
-                // splashColor: context.colorScheme.secondary,
-                // highlightColor: context.colorScheme.secondaryContainer,
-                onTap: isComingSoon
-                    ? null
-                    : () => context.go('/chat',
-                        extra: {'promptID': prompt.id, 'from': '/home'}),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(8),
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: context.colorScheme.primary,
-                      ),
-                      child: Text(
-                        prompt.title,
-                        maxLines: 2,
-                        style: context.textTheme.bodyMedium!.copyWith(
-                          color: context.colorScheme.onPrimary,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8),
-                        child: Text(
-                          prompt.prompts[1],
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 4,
-                          style: context.textTheme.bodySmall!.copyWith(
-                              color: context.colorScheme.onSurface,
-                              fontSize: 10),
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: AssetManager.getPromptIcon(
-                        prompt.icon,
-                        color: context.colorScheme.onSurface,
-                        size: 24,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            if (isComingSoon)
-              Center(
-                child: Transform.rotate(
-                  angle: -35 * pi / 180,
-                  child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        color: context.colorScheme.inverseSurface,
-                      ),
-                      padding: const EdgeInsets.all(8),
-                      child: Text(
-                        'Coming Soon',
-                        style: context.textTheme.bodyMedium!.copyWith(
-                          color: context.colorScheme.onInverseSurface,
-                        ),
-                      )),
-                ),
-              )
-          ],
-        ),
       ),
     );
   }

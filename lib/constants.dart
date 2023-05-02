@@ -25,6 +25,9 @@ class Constants {
   static const String gptModels = 'gpt_models';
   static const String isFirstTime = 'is_first_time';
   static const String history = 'history';
+  static const String prompts = 'prompts';
+  static const String pinnedPrompts = 'pinned_prompts';
+  static const String isModified = 'is_modified';
 
   /// ------- Settings
   static const String settings = 'settings';

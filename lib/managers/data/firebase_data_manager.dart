@@ -29,6 +29,8 @@ class FirebaseDataManager extends DataManager {
   late StreamSubscription<AuthModel?> _authStreamSubscription;
   late AuthModel? _authModel;
 
+  bool _didFetchOpenAIKey = false;
+
   FirebaseDataManager.internal() : super.internal();
 
   @override
@@ -49,10 +51,16 @@ class FirebaseDataManager extends DataManager {
           if (user == null) {
             // registerUser();
           } else {
-            fetchOpenAIKey().then((value) {
-              OpenAI.apiKey = value;
-              GPTManager.fetchAndStoreModels();
-            });
+            if (!_didFetchOpenAIKey) {
+              _didFetchOpenAIKey = true;
+              fetchOpenAIKey().then((value) {
+                OpenAI.apiKey = value;
+                GPTManager.fetchAndStoreModels();
+              }).catchError((error) {
+                debugPrint('error fetching openai key: $error');
+                _didFetchOpenAIKey = false;
+              });
+            }
           }
         });
       },
@@ -73,8 +81,17 @@ class FirebaseDataManager extends DataManager {
           if (user == null) {
             // registerUser();
           } else {
-            OpenAI.apiKey = await fetchOpenAIKey();
-            await GPTManager.fetchAndStoreModels();
+            if (!_didFetchOpenAIKey) {
+              _didFetchOpenAIKey = true;
+              try {
+                OpenAI.apiKey = await fetchOpenAIKey();
+                await GPTManager.fetchAndStoreModels();
+                _didFetchOpenAIKey = true;
+              } catch (error) {
+                debugPrint('error fetching openai key: $error');
+                _didFetchOpenAIKey = false;
+              }
+            }
           }
 
           if (!completer.isCompleted) {
@@ -96,18 +113,26 @@ class FirebaseDataManager extends DataManager {
   }
 
   void streamUser(AuthModel authModel, {Function(UserModel?)? onEvent}) {
-    _firebaseStreamSubscription?.cancel();
-    _firebaseStreamSubscription = FirebaseFirestore.instance
+    final userDoc = FirebaseFirestore.instance
         .collection(Constants.collectionUsers)
-        .doc(authModel.id)
+        .doc(authModel.id);
+    userDoc.get().then((userSnapshot) {
+      if (!userSnapshot.exists) {
+        registerUser();
+      }
+    });
+    _firebaseStreamSubscription?.cancel();
+    _firebaseStreamSubscription = userDoc
         .snapshots()
         .listen((DocumentSnapshot<Map<String, dynamic>> event) {
       final Map<String, dynamic>? data = event.data();
       if (!event.exists || data == null || data.isEmpty) {
+        debugPrint('User model is null or data is empty.');
         onEvent?.call(null);
         return;
       }
       try {
+        debugPrint('User model event received');
         final user = UserModel.fromJson(data);
         onEvent?.call(user);
       } catch (e, str) {

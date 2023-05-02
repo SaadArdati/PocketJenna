@@ -136,7 +136,8 @@ class AssistantMessageBubble extends StatelessWidget {
       child = buildConversationBubble(context, message);
     }
 
-    final bool showRegenButton = gpt.messages.last.id == message.id &&
+    final bool showRegenButton = gpt.chat != null &&
+        gpt.messages.last.id == message.id &&
         message.status != MessageStatus.streaming;
     return Container(
       alignment: Alignment.centerLeft,

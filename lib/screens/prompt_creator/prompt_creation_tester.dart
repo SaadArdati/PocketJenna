@@ -1,35 +1,34 @@
+import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../managers/auth/auth_manager.dart';
 import '../../managers/gpt_manager.dart';
+import '../../managers/prompt_manager.dart';
+import '../../managers/prompt_testing_manager.dart';
 import '../../models/chat.dart';
 import '../../models/prompt.dart';
+import '../../ui/bounce_button.dart';
 import '../../ui/custom_scaffold.dart';
-import '../../ui/jenna_button.dart';
 import '../../ui/theme_extensions.dart';
 import '../chat/chat_section.dart';
 import '../settings_screen.dart';
 
 class PromptCreationTesterWrapper extends StatelessWidget {
-  final String? prompt;
-
-  const PromptCreationTesterWrapper({super.key, required this.prompt});
+  const PromptCreationTesterWrapper({super.key});
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<GPTManager>(
-      create: (context) => GPTManager(isTestMode: false),
-      child: PromptCreationTester(prompt: prompt),
+      create: (context) => GPTManager(isTestMode: true),
+      child: const PromptCreationTester(),
     );
   }
 }
 
 class PromptCreationTester extends StatefulWidget {
-  final String? prompt;
-
-  const PromptCreationTester({super.key, required this.prompt});
+  const PromptCreationTester({super.key});
 
   @override
   State<PromptCreationTester> createState() => _PromptCreationTesterState();
@@ -44,7 +43,8 @@ class _PromptCreationTesterState extends State<PromptCreationTester> {
   void initState() {
     super.initState();
 
-    if (widget.prompt == null) return;
+    final PromptTestingManager promptTestingManager =
+        context.read<PromptTestingManager>();
 
     final GPTManager gpt = context.read<GPTManager>();
     gpt.loadHistory();
@@ -53,14 +53,28 @@ class _PromptCreationTesterState extends State<PromptCreationTester> {
 
     gpt.openChat(
       notify: false,
-      chatID: null,
-      prompt: Prompt.simple(
-        title: 'Prompt Creator',
-        prompts: [widget.prompt!],
-        icon: '${Icons.construction.codePoint}',
-        userID: AuthManager.instance.currentAuth!.id,
-      ),
+      loadedChat: promptTestingManager.testChat,
+      prompt: promptTestingManager.testChat != null
+          ? null
+          : (Prompt.simple(
+              title: 'Prompt Creator',
+              prompts: [promptTestingManager.prompt!],
+              icon: '${Icons.construction.codePoint}',
+              userID: AuthManager.instance.currentAuth!.id,
+            )..prompts.insert(0, PromptManager.defaultSystemMessage)),
     );
+
+    gpt.addListener(gptListener);
+  }
+
+  void gptListener() {
+    final PromptTestingManager promptTestingManager =
+        context.read<PromptTestingManager>();
+    final GPTManager gpt = context.read<GPTManager>();
+    final Chat? chat = gpt.chat;
+    if (chat != null) {
+      promptTestingManager.testChat = chat;
+    }
   }
 
   @override
@@ -72,17 +86,26 @@ class _PromptCreationTesterState extends State<PromptCreationTester> {
 
   @override
   Widget build(BuildContext context) {
-    final BorderRadius borderRadius = BorderRadius.circular(12);
     return CustomScaffold(
+      containerColor: context.colorScheme.secondary,
       automaticallyImplyLeading: false,
       leading: ScaffoldAction(
         tooltip: MaterialLocalizations.of(context).backButtonTooltip,
         icon: Icons.arrow_back,
         onTap: () {
-          context
-              .go('/prompt-creator', extra: {'from': '/prompt-creator/tester'});
+          context.go('/prompt-creator/body',
+              extra: {'from': '/prompt-creator/tester'});
         },
       ),
+      actions: [
+        ScaffoldAction(
+          onTap: () {
+            AdaptiveTheme.of(context).toggleThemeMode();
+          },
+          icon: Icons.dark_mode,
+          tooltip: 'Toggle theme',
+        )
+      ],
       title: Text(
         'Prompt Creator',
         textAlign: TextAlign.center,
@@ -92,27 +115,20 @@ class _PromptCreationTesterState extends State<PromptCreationTester> {
           letterSpacing: 1.5,
         ),
       ),
-      body: widget.prompt == null
-          ? Center(
-              child: Text(
-                'No prompt provided',
-                style: context.textTheme.bodyMedium?.copyWith(
-                  color: context.colorScheme.onPrimary,
-                ),
-              ),
-            )
-          : Column(
-              children: [
-                Expanded(
-                  child: ChatSection(
-                    scrollController: scrollController,
-                    chatOverlays: [
-                      buildActionContainer(context),
-                    ],
-                  ),
-                ),
+      body: Column(
+        children: [
+          Expanded(
+            child: ChatSection(
+              primaryColor: context.colorScheme.secondary,
+              onPrimaryColor: context.colorScheme.secondaryContainer,
+              scrollController: scrollController,
+              chatOverlays: [
+                buildActionContainer(context),
               ],
             ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -123,8 +139,8 @@ class _PromptCreationTesterState extends State<PromptCreationTester> {
         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
         child: JennaTile(
           padding: const EdgeInsets.all(8),
-          surfaceColor: context.colorScheme.primaryContainer,
-          borderColor: context.colorScheme.primary,
+          surfaceColor: context.colorScheme.secondaryContainer,
+          borderColor: context.colorScheme.secondary,
           title: 'PROMPT TESTER',
           icon: const Icon(Icons.construction),
           child: Column(
@@ -135,18 +151,22 @@ class _PromptCreationTesterState extends State<PromptCreationTester> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  TextButton.icon(
+                  TextBounceButton(
                     icon: const Icon(Icons.arrow_back),
                     label: const Text('Back'),
+                    primaryColor: context.colorScheme.onSecondaryContainer,
+                    onPrimaryColor: context.colorScheme.onSecondaryContainer,
                     onPressed: () {
-                      context.go('/prompt-creator');
+                      context.go('/prompt-creator/body');
                     },
                   ),
                   Directionality(
                     textDirection: TextDirection.rtl,
-                    child: TextButton.icon(
+                    child: TextBounceButton(
                       icon: const Icon(Icons.arrow_back),
                       label: const Text('Continue'),
+                      primaryColor: context.colorScheme.onSecondaryContainer,
+                      onPrimaryColor: context.colorScheme.onSecondaryContainer,
                       onPressed: () {
                         context.go('/prompt-creator/meta');
                       },
@@ -177,17 +197,18 @@ class _InformationTextState extends State<InformationText> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        JennaButton(
-          onTap: () {
+        TextBounceButton(
+          onPressed: () {
             setState(() {
               expanded = !expanded;
             });
           },
-          child: Icon(
+          icon: Icon(
             expanded ? Icons.expand_less : Icons.expand_more,
             size: 20,
-            color: context.colorScheme.primary,
+            color: context.colorScheme.onSecondaryContainer,
           ),
+          // scaleStrength: 0.25,
         ),
         const SizedBox(width: 8),
         Expanded(

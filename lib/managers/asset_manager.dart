@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:vector_graphics/vector_graphics.dart';
 
@@ -62,7 +63,11 @@ class AssetManager {
         iconPath = 'assets/prompts/reddit.svg.vec';
         break;
       default:
-        return ImageIcon(NetworkImage(icon), color: color);
+        if (icon.startsWith('https://')) {
+          return ImageIcon(NetworkImage(icon), color: color);
+        }
+
+        return const Icon(Icons.question_mark);
     }
 
     return SvgPicture(

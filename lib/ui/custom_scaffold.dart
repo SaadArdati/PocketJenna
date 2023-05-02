@@ -350,8 +350,11 @@ class CustomScaffold extends StatelessWidget {
   ///    Flutter.
   final String? restorationId;
 
+  final Color? containerColor;
+
   const CustomScaffold({
     super.key,
+    this.containerColor,
     this.leading,
     this.automaticallyImplyLeading = true,
     this.title,
@@ -391,11 +394,12 @@ class CustomScaffold extends StatelessWidget {
         ),
         child: Container(
           decoration: BoxDecoration(
-            color: context.colorScheme.primary,
+            color: containerColor ?? context.colorScheme.primary,
           ),
           child: SafeArea(
             bottom: false,
             child: CustomAppBar(
+              containerColor: containerColor,
               automaticallyImplyLeading: automaticallyImplyLeading,
               centerTitle: centerTitle,
               leading: leading,
@@ -435,6 +439,7 @@ class CustomScaffold extends StatelessWidget {
 class CustomAppBar extends StatelessWidget {
   const CustomAppBar({
     super.key,
+    this.containerColor,
     required this.automaticallyImplyLeading,
     required this.centerTitle,
     required this.leading,
@@ -442,6 +447,7 @@ class CustomAppBar extends StatelessWidget {
     required this.actions,
   });
 
+  final Color? containerColor;
   final bool centerTitle;
   final bool automaticallyImplyLeading;
   final Widget? leading;
@@ -572,7 +578,7 @@ class CustomAppBar extends StatelessWidget {
                 //       context.colorScheme.primaryContainer.withOpacity(0.25),
                 // ),
                 Material(
-                  color: context.colorScheme.primary,
+                  color: containerColor ?? context.colorScheme.primary,
                   child: Row(
                     mainAxisSize: MainAxisSize.max,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,

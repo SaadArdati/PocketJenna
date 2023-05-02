@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive/hive.dart';
+import 'package:provider/provider.dart';
 
 import '../constants.dart';
 import '../main.dart';
@@ -20,6 +21,7 @@ import '../ui/window_drag_handle.dart';
 import 'auth/auth_manager.dart';
 import 'data/data_manager.dart';
 import 'prompt_manager.dart';
+import 'prompt_testing_manager.dart';
 
 class NavigationManager {
   NavigationManager._();
@@ -48,6 +50,8 @@ class NavigationManager {
 
     return null;
   }
+
+  final _promptCreationNavigatorKey = GlobalKey<NavigatorState>();
 
   late final baseRoute = ShellRoute(
     builder: (context, GoRouterState state, child) {
@@ -234,46 +238,27 @@ class NavigationManager {
           );
         },
       ),
-      GoRoute(
-        path: '/prompt-creator',
-        redirect: authGuard,
-        pageBuilder: (context, state) {
-          AxisDirection comesFrom = AxisDirection.right;
-
-          return CustomTransitionPage(
-            key: state.pageKey,
-            child: const PromptCreationBody(),
-            opaque: false,
-            transitionDuration: const Duration(milliseconds: 600),
-            reverseTransitionDuration: const Duration(milliseconds: 600),
-            transitionsBuilder:
-                (context, animation, secondaryAnimation, child) {
-              return pocketJennaTransition(
-                context,
-                animation,
-                secondaryAnimation,
-                child,
-                state: state,
-                comesFrom: comesFrom,
-              );
-            },
+      ShellRoute(
+        navigatorKey: _promptCreationNavigatorKey,
+        builder: (context, state, child) {
+          return Provider(
+            create: (BuildContext context) => PromptTestingManager(),
+            child: Builder(builder: (context) {
+              return child;
+            }),
           );
         },
         routes: [
           GoRoute(
-            path: 'tester',
+            path: '/prompt-creator/body',
             redirect: authGuard,
+            parentNavigatorKey: _promptCreationNavigatorKey,
             pageBuilder: (context, state) {
               AxisDirection comesFrom = AxisDirection.right;
-              final extra = state.extra;
-              String? prompt;
-              if (extra != null && extra is Map) {
-                prompt = extra['prompt'];
-              }
 
               return CustomTransitionPage(
                 key: state.pageKey,
-                child: PromptCreationTesterWrapper(prompt: prompt),
+                child: const PromptCreationBody(),
                 opaque: false,
                 transitionDuration: const Duration(milliseconds: 600),
                 reverseTransitionDuration: const Duration(milliseconds: 600),
@@ -292,8 +277,61 @@ class NavigationManager {
             },
           ),
           GoRoute(
-            path: 'meta',
-            redirect: authGuard,
+            path: '/prompt-creator/test',
+            parentNavigatorKey: _promptCreationNavigatorKey,
+            redirect: (context, state) async {
+              // final PromptTestingManager promptTestingManager =
+              //     context.read<PromptTestingManager>();
+              // if (promptTestingManager.prompt == null) {
+              //   return '/prompt-creator/body';
+              // }
+
+              final String? authDirect = await authGuard(context, state);
+              if (authDirect != null) {
+                return authDirect;
+              }
+
+              return null;
+            },
+            pageBuilder: (context, state) {
+              AxisDirection comesFrom = AxisDirection.right;
+              return CustomTransitionPage(
+                key: state.pageKey,
+                child: const PromptCreationTesterWrapper(),
+                opaque: false,
+                transitionDuration: const Duration(milliseconds: 600),
+                reverseTransitionDuration: const Duration(milliseconds: 600),
+                transitionsBuilder:
+                    (context, animation, secondaryAnimation, child) {
+                  return pocketJennaTransition(
+                    context,
+                    animation,
+                    secondaryAnimation,
+                    child,
+                    state: state,
+                    comesFrom: comesFrom,
+                  );
+                },
+              );
+            },
+          ),
+          GoRoute(
+            path: '/prompt-creator/meta',
+            parentNavigatorKey: _promptCreationNavigatorKey,
+            redirect: (context, state) async {
+              // final PromptTestingManager promptTestingManager =
+              //     context.read<PromptTestingManager>();
+              // if (promptTestingManager.prompt == null) {
+              //   return '/prompt-creator/body';
+              // }
+
+              final String? authDirect = await authGuard(context, state);
+              if (authDirect != null) {
+                return authDirect;
+              }
+
+              return null;
+            },
             pageBuilder: (context, state) {
               AxisDirection comesFrom = AxisDirection.right;
 
@@ -322,20 +360,21 @@ class NavigationManager {
       GoRoute(
         path: '/chat',
         redirect: authGuard,
-        pageBuilder: (context, state) {
+        pageBuilder: (context, GoRouterState state) {
+          final String? promptID = state.queryParams['promptID'];
+          final String? chatID = state.queryParams['chatID'];
+
           final Widget child;
-          final extra = state.extra;
-          if (extra == null || extra is! Map) {
+          if (chatID == null && promptID == null) {
             child = ChatScreenWrapper(prompt: PromptManager.generalChat);
           } else {
-            final String? promptID = extra['promptID'];
-            final String? chatID = extra['chatID'];
-
             child = ChatScreenWrapper(
               chatID: chatID,
-              prompt: promptID == null
-                  ? (chatID == null ? PromptManager.generalChat : null)
-                  : PromptManager.instance.getPromptByID(promptID),
+              prompt: chatID != null
+                  ? null
+                  : promptID == null
+                      ? PromptManager.generalChat
+                      : PromptManager.instance.getPromptByID(promptID),
             );
           }
 

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -7,6 +9,7 @@ import 'package:hive/hive.dart';
 import '../constants.dart';
 import '../managers/auth/auth_manager.dart';
 import '../managers/data/data_manager.dart';
+import '../models/user_model.dart';
 import '../ui/custom_scaffold.dart';
 import '../ui/switchers.dart';
 import '../ui/theme_extensions.dart';
@@ -40,6 +43,7 @@ class _AuthScreenState extends State<AuthScreen> {
   final TextEditingController confirmPasswordController =
       TextEditingController();
 
+  StreamSubscription<UserModel?>? listener;
   AuthScreenMode mode = AuthScreenMode.signIn;
 
   bool showPassword = false;
@@ -51,7 +55,19 @@ class _AuthScreenState extends State<AuthScreen> {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   @override
+  void initState() {
+    super.initState();
+
+    listener = DataManager.instance.userStream.listen((UserModel? user) {
+      if (user != null) {
+        context.go('/home');
+      }
+    });
+  }
+
+  @override
   void dispose() {
+    listener?.cancel();
     emailController.dispose();
     passwordController.dispose();
     confirmPasswordController.dispose();
@@ -520,7 +536,12 @@ class _AuthScreenState extends State<AuthScreen> {
                                         });
                                       },
                                 child: Text(
-                                    '${AuthScreenMode.signIn.label} instead'),
+                                  '${AuthScreenMode.signIn.label} instead',
+                                  style:
+                                      context.textTheme.labelMedium?.copyWith(
+                                    color: context.colorScheme.onSurface,
+                                  ),
+                                ),
                               ),
                             ),
                             const SizedBox(width: 8),
@@ -541,6 +562,9 @@ class _AuthScreenState extends State<AuthScreen> {
                                 mode.isSignUp
                                     ? 'Log in instead'
                                     : 'Sign up instead',
+                                style: context.textTheme.labelMedium?.copyWith(
+                                  color: context.colorScheme.onSurface,
+                                ),
                               ),
                             ),
                           ],
