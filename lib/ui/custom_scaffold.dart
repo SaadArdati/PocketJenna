@@ -621,7 +621,7 @@ class ScaffoldAction extends StatelessWidget {
     this.hoverColor,
   });
 
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
   final IconData icon;
   final String tooltip;
   final Color? color;

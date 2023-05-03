@@ -1,4 +1,5 @@
 import 'package:adaptive_theme/adaptive_theme.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -21,6 +22,19 @@ class _PromptCreationMetaState extends State<PromptCreationMeta> {
   final TextEditingController titleController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
 
+  bool isUploading = false;
+  String? error;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final PromptTestingManager promptTestingManager =
+        context.read<PromptTestingManager>();
+    titleController.text = promptTestingManager.title ?? '';
+    descriptionController.text = promptTestingManager.description ?? '';
+  }
+
   @override
   void dispose() {
     titleController.dispose();
@@ -28,7 +42,32 @@ class _PromptCreationMetaState extends State<PromptCreationMeta> {
     super.dispose();
   }
 
-  void uploadPrompt(String text) {}
+  Future<void> upload() async {
+    setState(() {
+      isUploading = true;
+      error = null;
+    });
+
+    final PromptTestingManager promptTestingManager =
+        context.read<PromptTestingManager>();
+
+    try {
+      await promptTestingManager.upload();
+
+      if (mounted) {
+        context.go('/prompt-creator/complete');
+      }
+    } catch (e, str) {
+      error = e.toString();
+      debugPrintStack(stackTrace: str, label: '$e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          isUploading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,12 +80,14 @@ class _PromptCreationMetaState extends State<PromptCreationMeta> {
       leading: ScaffoldAction(
         tooltip: MaterialLocalizations.of(context).backButtonTooltip,
         icon: Icons.arrow_back,
-        onTap: () {
-          context.go(
-            '/prompt-creator/test',
-            extra: {'from': '/prompt-creator/meta'},
-          );
-        },
+        onTap: isUploading
+            ? null
+            : () {
+                context.go(
+                  '/prompt-creator/test',
+                  extra: {'from': '/prompt-creator/meta'},
+                );
+              },
       ),
       actions: [
         ScaffoldAction(
@@ -104,6 +145,7 @@ class _PromptCreationMetaState extends State<PromptCreationMeta> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: TextFormField(
+                        enabled: !isUploading,
                         controller: titleController,
                         maxLength: 50,
                         maxLengthEnforcement: MaxLengthEnforcement.enforced,
@@ -160,6 +202,7 @@ class _PromptCreationMetaState extends State<PromptCreationMeta> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: TextFormField(
+                        enabled: !isUploading,
                         controller: descriptionController,
                         maxLength: 200,
                         maxLengthEnforcement: MaxLengthEnforcement.enforced,
@@ -212,23 +255,27 @@ class _PromptCreationMetaState extends State<PromptCreationMeta> {
                         child: JennaTile(
                           child: Material(
                             color: Colors.transparent,
-                            child: CheckboxListTile(
-                              value: promptTestingManager.public,
-                              onChanged: (bool? value) {
-                                promptTestingManager.public = value ?? false;
-                                setState(() {});
-                              },
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                              selectedTileColor:
-                                  context.colorScheme.primaryContainer,
-                              selected: promptTestingManager.public,
-                              title: Text(
-                                'Publish this prompt on the prompt market.',
-                                style: context.textTheme.bodyMedium?.copyWith(
-                                  color: context.colorScheme.onPrimaryContainer,
+                            child: IgnorePointer(
+                              ignoring: !isUploading,
+                              child: CheckboxListTile(
+                                value: promptTestingManager.public,
+                                onChanged: (bool? value) {
+                                  promptTestingManager.public = value ?? false;
+                                  setState(() {});
+                                },
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                selectedTileColor:
+                                    context.colorScheme.primaryContainer,
+                                selected: promptTestingManager.public,
+                                title: Text(
+                                  'Publish this prompt on the prompt market.',
+                                  style: context.textTheme.bodyMedium?.copyWith(
+                                    color:
+                                        context.colorScheme.onPrimaryContainer,
+                                  ),
                                 ),
                               ),
                             ),
@@ -242,16 +289,21 @@ class _PromptCreationMetaState extends State<PromptCreationMeta> {
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: FilledBounceButton(
-                          icon: const Icon(Icons.check),
-                          label: const Text('Finish'),
-                          onPressed: () {
-                            if (Form.of(context).validate()) {
-                              promptTestingManager.description =
-                                  descriptionController.text;
-                              promptTestingManager.title = titleController.text;
-                              context.go('/prompt-creator/finish');
-                            }
-                          },
+                          icon: isUploading
+                              ? const CupertinoActivityIndicator()
+                              : const Icon(Icons.check),
+                          label: Text(isUploading ? 'Uploading...' : 'Finish'),
+                          onPressed: isUploading
+                              ? null
+                              : () {
+                                  if (Form.of(context).validate()) {
+                                    promptTestingManager.description =
+                                        descriptionController.text;
+                                    promptTestingManager.title =
+                                        titleController.text;
+                                    upload();
+                                  }
+                                },
                         ),
                       ),
                     ),

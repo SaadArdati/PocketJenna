@@ -30,6 +30,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  StreamSubscription<Map<String, Prompt>>? promptListener;
+
   @override
   void initState() {
     super.initState();
@@ -37,6 +39,16 @@ class _HomeScreenState extends State<HomeScreen> {
     if (!kIsWeb && Platform.isWindows) {
       runUpdateCheck();
     }
+
+    promptListener = PromptManager.instance.stream.listen((prompts) {
+      setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    promptListener?.cancel();
+    super.dispose();
   }
 
   Future<void> runUpdateCheck() async {
@@ -132,11 +144,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     physics: const NeverScrollableScrollPhysics(),
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     shrinkWrap: true,
-                    itemCount: PromptManager.instance.pinnedPrompts.length,
+                    itemCount:
+                        DataManager.instance.currentUser!.pinnedPrompts.length,
                     itemBuilder: (context, index) {
-                      final Prompt prompt = PromptManager
-                          .instance.pinnedPrompts.values
-                          .toList()[index];
+                      final Prompt? prompt =
+                          PromptManager.instance.getPromptByID(
+                        DataManager.instance.currentUser!.pinnedPrompts[index],
+                      );
+                      if (prompt == null) return const SizedBox();
                       // final bool isComingSoon;
                       // switch (type) {
                       //   case ChatType.general:

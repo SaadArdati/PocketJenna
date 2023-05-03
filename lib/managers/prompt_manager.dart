@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:collection/collection.dart';
 import 'package:hive/hive.dart';
 
@@ -8,10 +10,6 @@ class PromptManager {
   static final PromptManager _instance = PromptManager._internal();
 
   static PromptManager get instance => _instance;
-
-  factory PromptManager() {
-    return _instance;
-  }
 
   static const String defaultSystemMessage = r"""
 You are Jenna in an app called Pocket Jenna, an assistant gpt app powered by OpenAI's GPT-4.
@@ -41,38 +39,24 @@ If the user asks something you have no way of knowing the answer to, reply with 
 "If there were an answer I could give you to how the universe works, it wouldn’t be special. It would just be machinery fulfilling its cosmic design. It would just be a big, dumb food processor. But since nothing seems to make sense, when you find something or someone that does, it’s euphoria."
 """;
 
-  static final Prompt generalChat = Prompt.simple(
-    title: 'General Chat',
-    icon: 'general',
-    userID: 'Jenna',
-    prompts: ['Have a normal conversation about anything'],
-  );
-
   PromptManager._internal();
 
+  final StreamController<Map<String, Prompt>> _streamController =
+      StreamController.broadcast();
+
+  Stream<Map<String, Prompt>> get stream => _streamController.stream;
+
   final Box promptBox = Hive.box(Constants.prompts);
-
-  bool get isModified =>
-      promptBox.get(Constants.isModified, defaultValue: false);
-
-  set isModified(bool value) => promptBox.put(Constants.isModified, value);
 
   // ID -> Prompt
   final Map<String, Prompt> _prompts = {};
 
-  final Map<String, Prompt> _pinnedPrompts = {};
-
-  Map<String, Prompt> get pinnedPrompts => _prompts;
-
   void init() {
-    if (!isModified) {
-      registerDefaultPrompts();
-    }
     final Map serializedPrompts = {
-      ...promptBox.get(Constants.pinnedPrompts, defaultValue: {}),
+      ...promptBox.get(Constants.prompts, defaultValue: {}),
     };
     for (final MapEntry prompt in serializedPrompts.entries) {
-      _pinnedPrompts[prompt.key] = Prompt.fromJson(prompt.value);
+      _prompts[prompt.key] = Prompt.fromJson(prompt.value);
     }
   }
 
@@ -85,110 +69,20 @@ If the user asks something you have no way of knowing the answer to, reply with 
     return _prompts[id];
   }
 
-  // TODO: Store on server.
-  void registerPrompt(Prompt prompt, {bool pin = false, bool publish = false}) {
-    prompt.prompts.insert(0, defaultSystemMessage);
+  void registerPrompt(Prompt prompt, {bool save = true, bool notify = true}) {
+    // prompt.prompts.insert(0, defaultSystemMessage);
     _prompts[prompt.id] = prompt;
-    if (pin) {
-      pinPrompt(prompt);
+    promptBox.put(prompt.id, prompt.toJson());
+    if (notify) {
+      _streamController.add(_prompts);
     }
   }
 
-  // TODO: Store on server.
-  void registerPrompts(Iterable<Prompt> prompts, {bool pin = false}) {
+  void registerPrompts(Iterable<Prompt> prompts, {bool save = true}) {
     for (final Prompt prompt in prompts) {
-      registerPrompt(prompt, pin: pin);
+      registerPrompt(prompt, notify: false, save: save);
     }
-  }
 
-  void pinPrompt(Prompt prompt) {
-    _pinnedPrompts[prompt.id] = prompt;
-    promptBox.put(Constants.pinnedPrompts, {
-      for (final MapEntry<String, Prompt> prompt in _pinnedPrompts.entries)
-        prompt.key: prompt.value.toJson(),
-    });
-  }
-
-  // TODO: Load from server.
-  void loadPrompts() {}
-
-  void registerDefaultPrompts() {
-    registerPrompts(
-      [
-        generalChat,
-        Prompt.simple(
-          title: 'Email',
-          icon: 'email',
-          userID: 'Jenna',
-          prompts: [
-            'Anything the user sends should be converted to a formal email.'
-                ' Feel free to ask them for any information you need to complete'
-                ' the email. Keep the length to be similar to what the user pastes.'
-                'Be concise, and to the point.',
-            'Do not restate the entire output if the user asks for modifications. Only reply with the necessary modifications.',
-          ],
-        ),
-        Prompt.simple(
-          title: 'Document Code',
-          icon: 'documentCode',
-          userID: 'Jenna',
-          prompts: [
-            'Try to embed code documentation into any code the user sends.'
-                ' If the programming language is not obvious, ask the user what the programming language is'
-                'so that you can use the appropriate code documentation syntax for that language.',
-            'Do not restate the entire output if the user asks for modifications. Only reply with the necessary modifications.',
-          ],
-        ),
-        Prompt.simple(
-          title: 'Twitter Post',
-          icon: 'twitter',
-          userID: 'Jenna',
-          prompts: [
-            "Convert the user's messages into a tweet that is up to 280 characters.",
-            'Do not restate the entire output if the user asks for modifications. Only reply with the necessary modifications.',
-          ],
-        ),
-        Prompt.simple(
-          title: 'Reddit Post',
-          icon: 'reddit',
-          userID: 'Jenna',
-          prompts: [
-            "Convert the user's messages into a Reddit post that does not miss any details.",
-            'Do not restate the entire output if the user asks for modifications. Only reply with the necessary modifications.',
-          ],
-        ),
-        Prompt.simple(
-          title: 'Scientific',
-          icon: 'scientific',
-          userID: 'Jenna',
-          prompts: [
-            'Be as precise, objective, and scientific as possible. Do not'
-                ' use any colloquialisms or slang. Do not hesitate to admit lack of'
-                ' knowledge on anything.',
-          ],
-        ),
-        Prompt.simple(
-          title: 'Analyze',
-          icon: 'analyze',
-          userID: 'Jenna',
-          prompts: [
-            'Be as objective as possible. Try to summarize whatever the user'
-                ' sends in a few sentences. Ask the user about what to look for'
-                ' specifically if there is nothing obvious.',
-          ],
-        ),
-        Prompt.simple(
-          title: 'ReadMe',
-          icon: 'readMe',
-          userID: 'Jenna',
-          prompts: [
-            "Analyze all of the user's code and try to write a README.md."
-                'Ask the user for a template. If there is no template, try to do it'
-                ' yourself.',
-          ],
-        ),
-      ],
-      pin: true,
-    );
+    _streamController.add(_prompts);
   }
 }

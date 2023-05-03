@@ -45,7 +45,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 
 const db = admin.firestore();
 const userCollection = db.collection("users");
-const promptsCollection = db.collection("prompts");
+const promptsCollection = db.collection("market");
 
 app.get("/getOpenAIKey", async (req: Request, res: Response) => {
   const userID = req.headers.userID;
@@ -208,8 +208,13 @@ app.post("/registerUser", async (req: Request, res: Response) => {
     chatSnippets: {},
     updatedOn: Date.now(),
     createdOn: Date.now(),
-    pinnedPrompts: [],
-    createdPrompts: [],
+    pinnedPrompts: [
+      "default_general_chat",
+      "default_email",
+      "default_document_code",
+      "default_twitter",
+      "default_reddit",
+    ],
   };
 
   await userCollection.doc(userID).set(userModel, {merge: true});
@@ -380,11 +385,11 @@ app.post("/setPrompt", async (req: Request, res: Response) => {
       return;
     }
     if (!isPublic) {
-      res.status(400).send("public is required");
+      res.status(400).send("isPublic is required");
       return;
     }
     if (typeof isPublic !== "boolean") {
-      res.status(400).send("public must be a boolean");
+      res.status(400).send("isPublic must be a boolean");
       return;
     }
 
@@ -397,6 +402,7 @@ app.post("/setPrompt", async (req: Request, res: Response) => {
       public: isPublic,
       updatedOn: Date.now(),
       createdOn: Date.now(),
+      upvotes: [],
     };
 
     const doc: FirebaseFirestore.DocumentReference =
@@ -406,7 +412,7 @@ app.post("/setPrompt", async (req: Request, res: Response) => {
     await doc.set({id: doc.id}, {merge: true});
 
     await userCollection.doc(userID).update({
-      createdPrompts: admin.firestore.FieldValue.arrayUnion(doc.id),
+      pinnedPrompts: admin.firestore.FieldValue.arrayUnion(doc.id),
     });
 
     return res.status(200).send({id: doc.id, ...promptModel});
@@ -478,6 +484,59 @@ app.post("/getPrompt", async (req: Request, res: Response) => {
     return res.status(200).send(promptRef.data());
   } else {
     res.status(400).send(`Prompt with id [${promptID}] does not exist`);
+    return;
+  }
+});
+
+app.post("/getPrompts", async (req: Request, res: Response) => {
+  const userID = req.headers.userID;
+  const promptIDs = req.body.promptIDs;
+
+  if (!userID) {
+    res.status(400).send("userID is required");
+    return;
+  }
+
+  if (typeof userID !== "string") {
+    res.status(400).send("userID must be a string");
+    return;
+  }
+
+  if (!promptIDs) {
+    res.status(400).send("promptIDs is required");
+    return;
+  }
+
+  if (!Array.isArray(promptIDs)) {
+    res.status(400).send("promptIDs must be an array");
+    return;
+  }
+
+  // List of strings only.
+  if (promptIDs.some((id) => typeof id !== "string")) {
+    res.status(400).send("promptIDs must be an array of strings");
+    return;
+  }
+
+  // Cannot be empty or exceed 100.
+  if (promptIDs.length === 0 || promptIDs.length > 100) {
+    res.status(400).send("promptIDs must be between 1 and 100 items");
+    return;
+  }
+
+  const userRef = await userCollection.doc(userID).get();
+
+  if (userRef.exists) {
+    // collection query for id.
+    const promptDocs = await promptsCollection
+      .where("id", "in", promptIDs)
+      .get();
+
+    const prompts = promptDocs.docs.map((doc) => doc.data());
+
+    return res.status(200).send(prompts);
+  } else {
+    res.status(400).send(`User with id [${userID}] does not exist`);
     return;
   }
 });

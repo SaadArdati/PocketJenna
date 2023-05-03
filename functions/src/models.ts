@@ -5,7 +5,6 @@ export interface UserModel {
   updatedOn: number;
   createdOn: number;
   pinnedPrompts: string[];
-  createdPrompts: string[];
 }
 
 export interface ChatSnippet {

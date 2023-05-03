@@ -1,6 +1,5 @@
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:pocketjenna/models/prompt.dart';
 
 import 'chat_snippet.dart';
 import 'model_utils.dart';
@@ -12,7 +11,7 @@ class UserModel extends Equatable {
   final String id;
   final int tokens;
   final Map<String, ChatSnippet> chatSnippets;
-  final List<Prompt> pinnedPrompts;
+  final List<String> pinnedPrompts;
 
   @JsonKey(fromJson: jsonToDate, toJson: dateToJson)
   final DateTime updatedOn;
@@ -26,7 +25,7 @@ class UserModel extends Equatable {
     required this.updatedOn,
     required this.createdOn,
     Map<String, ChatSnippet>? chatSnippets,
-    List<Prompt>? pinnedPrompts,
+    List<String>? pinnedPrompts,
   })  : chatSnippets = chatSnippets ?? {},
         pinnedPrompts = pinnedPrompts ?? [];
 
@@ -35,7 +34,7 @@ class UserModel extends Equatable {
     DateTime? updatedOn,
     DateTime? createdOn,
     Map<String, ChatSnippet>? chatSnippets,
-    List<Prompt>? pinnedPrompts,
+    List<String>? pinnedPrompts,
   }) {
     return UserModel(
       id: id,

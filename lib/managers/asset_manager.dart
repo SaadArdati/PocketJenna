@@ -64,20 +64,25 @@ class AssetManager {
         break;
       default:
         if (icon.startsWith('https://')) {
-          return ImageIcon(NetworkImage(icon), color: color);
+          return Image.network(icon, fit: BoxFit.fitWidth);
         }
 
         return const Icon(Icons.question_mark);
     }
 
-    return SvgPicture(
-      AssetBytesLoader(iconPath),
-      width: size,
-      height: size,
-      placeholderBuilder: (BuildContext context) =>
-          const CupertinoActivityIndicator(),
-      colorFilter:
-          color == null ? null : ColorFilter.mode(color, BlendMode.srcIn),
+    return Container(
+      width: size ?? 24,
+      height: size ?? 24,
+      alignment: Alignment.center,
+      child: SvgPicture(
+        AssetBytesLoader(iconPath),
+        width: size,
+        height: size,
+        placeholderBuilder: (BuildContext context) =>
+            const CupertinoActivityIndicator(),
+        colorFilter:
+            color == null ? null : ColorFilter.mode(color, BlendMode.srcIn),
+      ),
     );
   }
 }

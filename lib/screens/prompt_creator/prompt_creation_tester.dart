@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 
 import '../../managers/auth/auth_manager.dart';
 import '../../managers/gpt_manager.dart';
-import '../../managers/prompt_manager.dart';
 import '../../managers/prompt_testing_manager.dart';
 import '../../models/chat.dart';
 import '../../models/prompt.dart';
@@ -61,7 +60,7 @@ class _PromptCreationTesterState extends State<PromptCreationTester> {
               prompts: [promptTestingManager.prompt!],
               icon: '${Icons.construction.codePoint}',
               userID: AuthManager.instance.currentAuth!.id,
-            )..prompts.insert(0, PromptManager.defaultSystemMessage)),
+            )),
     );
 
     gpt.addListener(gptListener);

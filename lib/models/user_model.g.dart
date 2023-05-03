@@ -15,7 +15,7 @@ UserModel _$UserModelFromJson(Map json) => UserModel(
         (k, e) => MapEntry(k as String, ChatSnippet.fromJson(e as Map)),
       ),
       pinnedPrompts: (json['pinnedPrompts'] as List<dynamic>?)
-          ?.map((e) => Prompt.fromJson(e as Map))
+          ?.map((e) => e as String)
           .toList(),
     );
 
@@ -24,7 +24,7 @@ Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
       'tokens': instance.tokens,
       'chatSnippets':
           instance.chatSnippets.map((k, e) => MapEntry(k, e.toJson())),
-      'pinnedPrompts': instance.pinnedPrompts.map((e) => e.toJson()).toList(),
+      'pinnedPrompts': instance.pinnedPrompts,
       'updatedOn': dateToJson(instance.updatedOn),
       'createdOn': dateToJson(instance.createdOn),
     };

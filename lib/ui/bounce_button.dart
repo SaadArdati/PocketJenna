@@ -103,7 +103,7 @@ class _BounceWrapperState extends State<BounceWrapper> {
 class FilledBounceButton extends StatefulWidget {
   final Widget label;
   final Widget? icon;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final Color? primaryColor;
   final Color? onPrimaryColor;
 
@@ -127,42 +127,55 @@ class _FilledBounceButtonState extends State<FilledBounceButton> {
 
   @override
   Widget build(BuildContext context) {
+    final bool disabled = widget.onPressed == null;
     return GestureDetector(
-      onTapDown: (_) {
-        setState(() {
-          isPressingDown = true;
-        });
-      },
-      onTapUp: (_) {
-        setState(() {
-          isPressingDown = false;
-          widget.onPressed();
-        });
-      },
-      onTapCancel: () {
-        setState(() {
-          isPressingDown = false;
-        });
-      },
+      onTapDown: disabled
+          ? null
+          : (_) {
+              setState(() {
+                isPressingDown = true;
+              });
+            },
+      onTapUp: disabled
+          ? null
+          : (_) {
+              setState(() {
+                isPressingDown = false;
+                widget.onPressed?.call();
+              });
+            },
+      onTapCancel: disabled
+          ? null
+          : () {
+              setState(() {
+                isPressingDown = false;
+              });
+            },
       child: FocusableActionDetector(
-        onShowFocusHighlight: (bool highlight) {
-          setState(() {
-            isHighlighting = highlight;
-          });
-        },
-        onShowHoverHighlight: (bool hover) {
-          setState(() {
-            isHovering = hover;
-          });
-        },
-        actions: {
-          ActivateIntent: CallbackAction<ActivateIntent>(
-            onInvoke: (_) => widget.onPressed(),
-          ),
-          ButtonActivateIntent: CallbackAction<ButtonActivateIntent>(
-            onInvoke: (_) => widget.onPressed(),
-          ),
-        },
+        onShowFocusHighlight: disabled
+            ? null
+            : (bool highlight) {
+                setState(() {
+                  isHighlighting = highlight;
+                });
+              },
+        onShowHoverHighlight: disabled
+            ? null
+            : (bool hover) {
+                setState(() {
+                  isHovering = hover;
+                });
+              },
+        actions: disabled
+            ? null
+            : {
+                ActivateIntent: CallbackAction<ActivateIntent>(
+                  onInvoke: (_) => widget.onPressed?.call(),
+                ),
+                ButtonActivateIntent: CallbackAction<ButtonActivateIntent>(
+                  onInvoke: (_) => widget.onPressed?.call(),
+                ),
+              },
         descendantsAreFocusable: false,
         descendantsAreTraversable: false,
         mouseCursor: SystemMouseCursors.click,

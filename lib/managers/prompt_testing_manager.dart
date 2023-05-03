@@ -1,4 +1,5 @@
 import '../models/chat.dart';
+import 'data/data_manager.dart';
 
 class PromptTestingManager {
   String? prompt;
@@ -28,5 +29,17 @@ class PromptTestingManager {
       return false;
     }
     return true;
+  }
+
+  Future<void> upload() async {
+    assert(validate(), 'Prompt data was not validated!');
+
+    return DataManager.instance.uploadPrompt(
+      title: title!,
+      prompts: [prompt!],
+      icon: 'https://picsum.photos/256',
+      description: description,
+      public: public,
+    );
   }
 }

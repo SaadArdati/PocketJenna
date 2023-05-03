@@ -359,24 +359,34 @@ class NavigationManager {
       ),
       GoRoute(
         path: '/chat',
-        redirect: authGuard,
+        redirect: (context, state) async {
+          final String? promptID = state.queryParams['promptID'];
+          final String? chatID = state.queryParams['chatID'];
+
+          if (chatID == null && promptID == null) {
+            return '/home';
+          }
+          if (chatID != null && promptID != null) {
+            return '/home';
+          }
+
+          final String? authDirect = await authGuard(context, state);
+          if (authDirect != null) {
+            return authDirect;
+          }
+
+          return null;
+        },
         pageBuilder: (context, GoRouterState state) {
           final String? promptID = state.queryParams['promptID'];
           final String? chatID = state.queryParams['chatID'];
 
-          final Widget child;
-          if (chatID == null && promptID == null) {
-            child = ChatScreenWrapper(prompt: PromptManager.generalChat);
-          } else {
-            child = ChatScreenWrapper(
-              chatID: chatID,
-              prompt: chatID != null
-                  ? null
-                  : promptID == null
-                      ? PromptManager.generalChat
-                      : PromptManager.instance.getPromptByID(promptID),
-            );
-          }
+          final Widget child = ChatScreenWrapper(
+            chatID: chatID,
+            prompt: chatID != null
+                ? null
+                : PromptManager.instance.getPromptByID(promptID!),
+          );
 
           return CustomTransitionPage(
             key: state.pageKey,

@@ -11,6 +11,7 @@ import '../../models/chat.dart';
 import '../../models/prompt.dart';
 import '../../models/user_model.dart';
 import '../auth/auth_manager.dart';
+import '../prompt_manager.dart';
 import 'firebase_data_manager.dart';
 import 'firedart_data_manager.dart';
 
@@ -141,7 +142,47 @@ abstract class DataManager {
 
   Future<List<Prompt>> fetchMarket(int page, int pageSize);
 
-  Future<void> uploadPrompt(Prompt prompt, {bool public = false}) async {
+  Future<Set<Prompt>> fetchPrompts({
+    required List<String> promptIDs,
+  }) async {
+    debugPrint('Getting prompts [${promptIDs.join(', ')}]...');
+    final String token = await AuthManager.instance.getAuthToken();
+
+    final response = await post(
+      Uri.https(Constants.firebaseFunctionsBaseURL, '/widgets/getPrompts'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'promptIDs': promptIDs,
+      }),
+    );
+    if (response.statusCode == 200) {
+      debugPrint(response.body);
+      final json = jsonDecode(response.body);
+      final Set<Prompt> prompts = {
+        ...json.map(
+          (prompt) =>
+              Prompt.fromJson(prompt..['upvotes'] = prompt['upvotes'].length),
+        ),
+      };
+
+      debugPrint('${prompts.length} prompts fetched');
+      return prompts;
+    } else {
+      throw Exception(
+          'Failed to fetch prompts: ${response.statusCode} ${response.body} ${response.reasonPhrase}');
+    }
+  }
+
+  Future<void> uploadPrompt({
+    required List<String> prompts,
+    required String title,
+    required String icon,
+    String? description,
+    bool public = false,
+  }) async {
     debugPrint('Setting prompt [${AuthManager.instance.currentAuth!.id}]...');
     final String token = await AuthManager.instance.getAuthToken();
 
@@ -152,11 +193,11 @@ abstract class DataManager {
         'Content-Type': 'application/json',
       },
       body: jsonEncode({
-        'prompts': prompt.prompts,
-        'promptTitle': prompt.title,
-        'promptIcon': prompt.icon,
-        'promptDescription': prompt.description,
-        'public': public,
+        'prompts': prompts,
+        'promptTitle': title,
+        'promptIcon': icon,
+        'promptDescription': description,
+        'isPublic': public,
       }),
     );
     if (response.statusCode == 200) {
@@ -206,7 +247,10 @@ abstract class DataManager {
       },
       body: jsonEncode({
         'pinnedPrompts': [
-          ...currentUser!.pinnedPrompts.map((prompt) => prompt.toJson())
+          ...currentUser!.pinnedPrompts.map(
+            (promptID) =>
+                PromptManager.instance.getPromptByID(promptID)!.toJson(),
+          )
         ],
       }),
     );

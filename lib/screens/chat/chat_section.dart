@@ -58,7 +58,7 @@ class _ChatSectionState extends State<ChatSection> {
                       );
                     }
 
-                    final fullChat = snapshot.data!.toFullChat..removeAt(0);
+                    final fullChat = snapshot.data!.toFullChat;
                     return SelectionArea(
                       child: ListView.separated(
                         physics: const AlwaysScrollableScrollPhysics(),
