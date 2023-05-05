@@ -94,28 +94,6 @@ abstract class DataManager {
     }
   }
 
-  Future<void> registerUser() async {
-    assert(AuthManager.instance.currentAuth != null, 'No current user');
-
-    debugPrint('Registering user [${AuthManager.instance.currentAuth!.id}]...');
-    final String token = await AuthManager.instance.getAuthToken();
-
-    final response = await post(
-      Uri.https(Constants.firebaseFunctionsBaseURL, '/widgets/registerUser'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-    );
-    if (response.statusCode == 200) {
-      debugPrint('User registered');
-      debugPrint(response.body);
-    } else {
-      throw Exception(
-          'Registration failed: ${response.statusCode} ${response.body} ${response.reasonPhrase}');
-    }
-  }
-
   /// Get the openAI key from the server.
   Future<String> fetchOpenAIKey() async {
     final String token = await AuthManager.instance.getAuthToken();
@@ -159,7 +137,7 @@ abstract class DataManager {
       }),
     );
     if (response.statusCode == 200) {
-      debugPrint(response.body);
+      debugPrint('Prompts fetched successfully, deserializing...');
       final json = jsonDecode(response.body);
       final Set<Prompt> prompts = {
         ...json.map(

@@ -63,9 +63,6 @@ class NavigationManager {
         path: '/onboarding',
         builder: (state, context) => const SizedBox.shrink(),
         redirect: (BuildContext context, GoRouterState state) {
-          if (!AuthManager.instance.isAuthenticated) {
-            return '/auth';
-          }
           if (state.location == '/onboarding') {
             return '/onboarding/one';
           }
@@ -121,6 +118,7 @@ class NavigationManager {
               // ),
               GoRoute(
                 path: 'two',
+                redirect: authGuard,
                 pageBuilder: (context, state) {
                   return CustomTransitionPage(
                     key: state.pageKey,
@@ -360,6 +358,11 @@ class NavigationManager {
       GoRoute(
         path: '/chat',
         redirect: (context, state) async {
+          final String? authDirect = await authGuard(context, state);
+          if (authDirect != null) {
+            return authDirect;
+          }
+
           final String? promptID = state.queryParams['promptID'];
           final String? chatID = state.queryParams['chatID'];
 
@@ -368,11 +371,6 @@ class NavigationManager {
           }
           if (chatID != null && promptID != null) {
             return '/home';
-          }
-
-          final String? authDirect = await authGuard(context, state);
-          if (authDirect != null) {
-            return authDirect;
           }
 
           return null;

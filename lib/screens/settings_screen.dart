@@ -51,20 +51,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ],
       body: Builder(builder: (context) {
         return SizedBox.expand(
-          child: Container(
-            constraints: const BoxConstraints(maxWidth: 350),
-            child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                const AppSettingsTile(),
-                const SizedBox(height: 16),
-                // const OpenAIKeyTile(),
-                // const SizedBox(height: 16),
-                const AccountSettingsTile(),
-                const SizedBox(height: 16),
-                buildAboutTile(context),
-                const SizedBox(height: 32)
-              ],
+          child: Center(
+            child: Container(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  const AppSettingsTile(),
+                  const SizedBox(height: 16),
+                  // const OpenAIKeyTile(),
+                  // const SizedBox(height: 16),
+                  const AccountSettingsTile(),
+                  const SizedBox(height: 16),
+                  buildAboutTile(context),
+                  const SizedBox(height: 32)
+                ],
+              ),
             ),
           ),
         );

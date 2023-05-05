@@ -9,8 +9,8 @@ service cloud.firestore {
             allow read: if request.auth.uid == id;
             allow write: if false;
         }
-        match /prompts/{id} {
-            allow read: if resource.data.public == true || request.auth.uid == resource.data.userID;
+        match /market/{id} {
+            allow read: if resource.data.isPublic == true || request.auth.uid == resource.data.userID;
             allow write: if false;
         }
     }

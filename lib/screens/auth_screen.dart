@@ -98,9 +98,11 @@ class _AuthScreenState extends State<AuthScreen> {
       }
     }
 
-    setState(() {
-      isLoading = false;
-    });
+    if (mounted) {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   Future<void> signUp() async {
@@ -114,7 +116,7 @@ class _AuthScreenState extends State<AuthScreen> {
         await AuthManager.instance.signUp(
           emailController.text,
           passwordController.text,
-          onSignUp: () => DataManager.instance.registerUser(),
+          // onSignUp: () => DataManager.instance.registerUser(),
         );
         await Future.delayed(const Duration(seconds: 1));
         if (mounted) {
@@ -128,9 +130,11 @@ class _AuthScreenState extends State<AuthScreen> {
       }
     }
 
-    setState(() {
-      isLoading = false;
-    });
+    if (mounted) {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   Future<void> forgotPassword() async {

@@ -12,6 +12,33 @@ const openAIKey = defineSecret("OPEN_AI_KEY");
 
 admin.initializeApp();
 
+exports.onSignUp = functions.auth.user().onCreate((user) => {
+  const userModel: UserModel = {
+    id: user.uid,
+    tokens: 50000,
+    chatSnippets: {},
+    updatedOn: new Date().getTime(),
+    createdOn: new Date().getTime(),
+    pinnedPrompts: [
+      "default_general_chat",
+      "default_email",
+      "default_document_code",
+      "default_twitter",
+      "default_reddit",
+    ],
+  };
+
+  return admin
+    .firestore()
+    .collection("users")
+    .doc(user.uid)
+    .set(userModel, {merge: true});
+});
+
+exports.onDeleteAccount = functions.auth.user().onDelete((user) => {
+  return admin.firestore().collection("users").doc(user.uid).delete();
+});
+
 const app = express();
 
 // Convert request body to JSON
@@ -124,9 +151,9 @@ app.post("/updateChat", async (req: Request, res: Response) => {
     snippet: (chat.messages && chat.messages[0].text) || "No messages",
     promptTitle: chat.prompt.title,
     promptIcon: chat.prompt.icon,
-    updatedOn: new Date().getMilliseconds(),
+    updatedOn: new Date().getTime(),
   };
-  userModel.updatedOn = new Date().getMilliseconds();
+  userModel.updatedOn = new Date().getTime();
 
   log("User model: " + JSON.stringify(userModel));
 
@@ -206,8 +233,8 @@ app.post("/registerUser", async (req: Request, res: Response) => {
     id: userID,
     tokens: 50000,
     chatSnippets: {},
-    updatedOn: Date.now(),
-    createdOn: Date.now(),
+    updatedOn: new Date().getTime(),
+    createdOn: new Date().getTime(),
     pinnedPrompts: [
       "default_general_chat",
       "default_email",
@@ -257,8 +284,11 @@ app.post("/setPrompt", async (req: Request, res: Response) => {
     res.status(400).send("prompts must be an array of strings");
     return;
   }
-  // Check if every string is less than 5000 but more than 20 chars.
-  if (!prompts.every((prompt) => prompt.length < 5000 && prompt.length > 20)) {
+
+  // Check if every string is less than 5000 but more than 15 chars.
+  if (
+    !prompts.every((prompt) => prompt.length <= 5000 && prompt.length >= 15)
+  ) {
     res.status(400).send("Prompt must be between 20 and 5000 characters");
     return;
   }
@@ -327,7 +357,7 @@ app.post("/setPrompt", async (req: Request, res: Response) => {
         icon: promptIcon,
         promptDescription: promptDescription,
         public: isPublic,
-        updatedOn: Date.now(),
+        updatedOn: new Date().getTime(),
       };
 
       await promptsCollection.doc(promptID).set(promptUpdate, {merge: true});
@@ -400,8 +430,8 @@ app.post("/setPrompt", async (req: Request, res: Response) => {
       icon: promptIcon,
       description: promptDescription,
       public: isPublic,
-      updatedOn: Date.now(),
-      createdOn: Date.now(),
+      updatedOn: new Date().getTime(),
+      createdOn: new Date().getTime(),
       upvotes: [],
     };
 

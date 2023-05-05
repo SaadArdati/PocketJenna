@@ -127,11 +127,6 @@ class FireDartDataManager extends DataManager {
     final userDoc = Firestore.instance
         .collection(Constants.collectionUsers)
         .document(authModel.id);
-    userDoc.exists.then((bool exists) {
-      if (!exists) {
-        registerUser();
-      }
-    });
     _firebaseStreamSubscription?.cancel();
     _firebaseStreamSubscription = userDoc.stream.listen((Document? event) {
       if (event == null || event.map.isEmpty) {

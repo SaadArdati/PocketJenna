@@ -125,11 +125,6 @@ class FirebaseDataManager extends DataManager {
     final userDoc = FirebaseFirestore.instance
         .collection(Constants.collectionUsers)
         .doc(authModel.id);
-    userDoc.get().then((userSnapshot) {
-      if (!userSnapshot.exists) {
-        registerUser();
-      }
-    });
     _firebaseStreamSubscription?.cancel();
     _firebaseStreamSubscription = userDoc
         .snapshots()
@@ -192,11 +187,17 @@ class FirebaseDataManager extends DataManager {
   Future<List<Prompt>> fetchMarket(int page, int pageSize) {
     return FirebaseFirestore.instance
         .collection(Constants.collectionMarket)
-        .orderBy('upvotes', descending: true)
+        // .orderBy('upvotes', descending: true)
         .limit(pageSize)
         .get()
         .then(
-          (value) => value.docs.map((e) => Prompt.fromJson(e.data())).toList(),
-        );
+          (value) => value.docs
+              .map((prompt) => Prompt.fromJson(prompt.data()))
+              .toList(),
+        )
+        .catchError((error, str) {
+      debugPrint('error fetching market');
+      debugPrintStack(label: '$error', stackTrace: str);
+    });
   }
 }

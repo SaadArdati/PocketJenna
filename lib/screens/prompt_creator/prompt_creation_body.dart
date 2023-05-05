@@ -131,7 +131,7 @@ class _PromptCreationBodyState extends State<PromptCreationBody> {
                           if (text == null || text.isEmpty) {
                             return 'Please enter a prompt.';
                           }
-                          if (text.length < 20) {
+                          if (text.length < 15) {
                             return 'Prompt is too short.';
                           }
                           return null;
