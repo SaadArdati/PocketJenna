@@ -72,7 +72,7 @@ class GPTManager extends ChangeNotifier {
 
   GPTManager({this.isTestMode = false});
 
-  void loadHistory() {
+  Future<void> loadHistory() async {
     historyBox.clear();
     final Map serializedHistory = {
       ...historyBox.get(Constants.history, defaultValue: {}),
@@ -101,7 +101,7 @@ class GPTManager extends ChangeNotifier {
       chat = history[chatID];
 
       if (chat != null) {
-        DataManager.instance.uploadIfNecessary(chat!);
+        // DataManager.instance.uploadIfNecessary(chat!);
       } else {
         chat ??= await DataManager.instance.fetchChat(chatID);
       }

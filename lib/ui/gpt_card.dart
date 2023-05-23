@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-import '../managers/asset_manager.dart';
 import '../models/prompt.dart';
 import 'bounce_button.dart';
 import 'theme_extensions.dart';
@@ -64,6 +63,8 @@ class GPTCard extends StatelessWidget {
                         child: Text(
                           prompt.title,
                           maxLines: 2,
+                          textAlign: TextAlign.center,
+                          overflow: TextOverflow.ellipsis,
                           style: context.textTheme.bodyMedium!.copyWith(
                             color: context.colorScheme.onPrimary,
                             fontWeight: FontWeight.bold,
@@ -83,15 +84,15 @@ class GPTCard extends StatelessWidget {
                           ),
                         ),
                       ),
-                      SizedBox(
-                        height: 56,
-                        width: double.infinity,
-                        child: AssetManager.getPromptIcon(
-                          prompt.icon,
-                          color: context.colorScheme.onSurface,
-                          size: 24,
-                        ),
-                      ),
+                      // SizedBox(
+                      //   height: 56,
+                      //   width: double.infinity,
+                      //   child: AssetManager.getPromptIcon(
+                      //     prompt.icon,
+                      //     color: context.colorScheme.onSurface,
+                      //     size: 24,
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),

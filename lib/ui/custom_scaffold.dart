@@ -350,11 +350,11 @@ class CustomScaffold extends StatelessWidget {
   ///    Flutter.
   final String? restorationId;
 
-  final Color? containerColor;
+  final Color? headerColor;
 
   const CustomScaffold({
     super.key,
-    this.containerColor,
+    this.headerColor,
     this.leading,
     this.automaticallyImplyLeading = true,
     this.title,
@@ -394,12 +394,12 @@ class CustomScaffold extends StatelessWidget {
         ),
         child: Container(
           decoration: BoxDecoration(
-            color: containerColor ?? context.colorScheme.primary,
+            color: headerColor ?? context.colorScheme.primary,
           ),
           child: SafeArea(
             bottom: false,
             child: CustomAppBar(
-              containerColor: containerColor,
+              containerColor: headerColor,
               automaticallyImplyLeading: automaticallyImplyLeading,
               centerTitle: centerTitle,
               leading: leading,

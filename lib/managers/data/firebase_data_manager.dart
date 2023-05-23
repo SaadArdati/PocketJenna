@@ -184,18 +184,21 @@ class FirebaseDataManager extends DataManager {
   }
 
   @override
-  Future<List<Prompt>> fetchMarket(int page, int pageSize) {
+  Future<List<Prompt>> fetchMarket(int page, int pageSize) async {
     return FirebaseFirestore.instance
-        .collection(Constants.collectionMarket)
+        .collection('market')
+        .where('isPublic', isEqualTo: true)
         // .orderBy('upvotes', descending: true)
-        .limit(pageSize)
+        // .startAfter([page * pageSize])
+        // .limit(pageSize)
         .get()
         .then(
-          (value) => value.docs
-              .map((prompt) => Prompt.fromJson(prompt.data()))
-              .toList(),
-        )
-        .catchError((error, str) {
+      (QuerySnapshot<Map<String, dynamic>> value) {
+        return value.docs
+            .map((prompt) => Prompt.fromJson(prompt.data()))
+            .toList();
+      },
+    ).catchError((error, str) {
       debugPrint('error fetching market');
       debugPrintStack(label: '$error', stackTrace: str);
     });

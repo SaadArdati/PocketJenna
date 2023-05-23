@@ -39,59 +39,82 @@ class _ChatSectionState extends State<ChatSection> {
         Column(
           children: [
             Expanded(
-              child: StreamBuilder<Chat?>(
-                  stream: gpt.chatStream,
-                  initialData: gpt.chat,
-                  builder: (context, snapshot) {
-                    if (snapshot.hasError) {
-                      return Center(
-                        child: Text(
-                          snapshot.error.toString(),
-                          style: context.textTheme.bodyMedium,
-                        ),
-                      );
-                    }
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: StreamBuilder<Chat?>(
+                        stream: gpt.chatStream,
+                        initialData: gpt.chat,
+                        builder: (context, snapshot) {
+                          if (snapshot.hasError) {
+                            return Center(
+                              child: Text(
+                                snapshot.error.toString(),
+                                style: context.textTheme.bodyMedium,
+                              ),
+                            );
+                          }
 
-                    if (!snapshot.hasData) {
-                      return const Center(
-                        child: CupertinoActivityIndicator(),
-                      );
-                    }
+                          if (!snapshot.hasData) {
+                            return const Center(
+                              child: CupertinoActivityIndicator(),
+                            );
+                          }
 
-                    final fullChat = snapshot.data!.toFullChat;
-                    return SelectionArea(
-                      child: ListView.separated(
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        keyboardDismissBehavior:
-                            ScrollViewKeyboardDismissBehavior.onDrag,
-                        controller: widget.scrollController,
-                        reverse: true,
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        itemCount: fullChat.length,
-                        separatorBuilder: (context, index) =>
-                            const SizedBox(height: 8),
-                        itemBuilder: (context, index) {
-                          final int reversedIndex = fullChat.length - 1 - index;
-                          final ChatMessage message = fullChat[reversedIndex];
-                          return Padding(
-                            padding: EdgeInsets.only(
-                              top: index == fullChat.length - 1
-                                  ? (Scaffold.of(context).appBarMaxHeight ??
-                                          48) +
-                                      16
-                                  : 0,
-                              bottom: index == 0 ? 16 : 0,
-                            ),
-                            child: ChatMessageBubble(
-                              message: message,
+                          final bool isGenerating =
+                              snapshot.data!.messages.isNotEmpty &&
+                                  gpt.messages.last.status ==
+                                      MessageStatus.streaming;
+
+                          final fullChat = snapshot.data!.toFullChat;
+                          return SelectionArea(
+                            child: ListView.separated(
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              keyboardDismissBehavior:
+                                  ScrollViewKeyboardDismissBehavior.onDrag,
+                              controller: widget.scrollController,
+                              reverse: true,
+                              padding: EdgeInsets.only(
+                                left: 16,
+                                right: 16,
+                                bottom: isGenerating ? 32 : 0,
+                              ),
+                              itemCount: fullChat.length,
+                              separatorBuilder: (context, index) =>
+                                  const SizedBox(height: 8),
+                              itemBuilder: (context, index) {
+                                final int reversedIndex =
+                                    fullChat.length - 1 - index;
+                                final ChatMessage message =
+                                    fullChat[reversedIndex];
+                                return Padding(
+                                  padding: EdgeInsets.only(
+                                    top: index == fullChat.length - 1
+                                        ? (Scaffold.of(context)
+                                                    .appBarMaxHeight ??
+                                                48) +
+                                            16
+                                        : 0,
+                                    bottom: index == 0 ? 16 : 0,
+                                  ),
+                                  child: ChatMessageBubble(
+                                    message: message,
+                                  ),
+                                );
+                              },
                             ),
                           );
-                        },
-                      ),
-                    );
-                  }),
+                        }),
+                  ),
+                  const Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    child: StopGeneratingButton(),
+                  ),
+                ],
+              ),
             ),
-            const StopGeneratingButton(),
             UserInteractionInput(
               primaryColor: widget.primaryColor,
               onPrimaryColor: widget.onPrimaryColor,

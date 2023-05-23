@@ -34,7 +34,7 @@ class ChatMessageBubble extends StatelessWidget {
 
     return Center(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 800),
+        constraints: const BoxConstraints(maxWidth: 1000),
         child: child,
       ),
     );

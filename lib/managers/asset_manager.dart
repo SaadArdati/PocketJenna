@@ -35,7 +35,13 @@ class AssetManager {
     logoFilledWhitePicInfo = await vg.loadPicture(logoFilledWhiteLoader, null);
   }
 
-  static Widget getPromptIcon(String icon, {Color? color, double? size}) {
+  static Widget getPromptIcon(
+    String icon, {
+    Color? color,
+    double? size,
+    BoxFit? fit,
+    EdgeInsets? nonImagePadding,
+  }) {
     final String iconPath;
     switch (icon) {
       case 'analyze':
@@ -64,7 +70,9 @@ class AssetManager {
         break;
       default:
         if (icon.startsWith('https://')) {
-          return Image.network(icon, fit: BoxFit.fitWidth);
+          return SizedBox.square(
+              dimension: size,
+              child: Image.network(icon, fit: fit ?? BoxFit.fitWidth));
         }
 
         return const Icon(Icons.question_mark);
@@ -74,6 +82,7 @@ class AssetManager {
       width: size ?? 24,
       height: size ?? 24,
       alignment: Alignment.center,
+      padding: nonImagePadding ?? EdgeInsets.zero,
       child: SvgPicture(
         AssetBytesLoader(iconPath),
         width: size,

@@ -141,8 +141,7 @@ abstract class DataManager {
       final json = jsonDecode(response.body);
       final Set<Prompt> prompts = {
         ...json.map(
-          (prompt) =>
-              Prompt.fromJson(prompt..['upvotes'] = prompt['upvotes'].length),
+          (prompt) => Prompt.fromJson(prompt),
         ),
       };
 

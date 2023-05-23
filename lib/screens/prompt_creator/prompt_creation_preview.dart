@@ -108,6 +108,11 @@ class _PromptCreationPreviewState extends State<PromptCreationPreview> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: BounceWrapper(
+                    onTap: () {
+                      promptTestingManager.public =
+                          !promptTestingManager.public;
+                      setState(() {});
+                    },
                     child: JennaTile(
                       child: Material(
                         color: Colors.transparent,
@@ -145,8 +150,13 @@ class _PromptCreationPreviewState extends State<PromptCreationPreview> {
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: FilledBounceButton(
                       icon: isUploading
-                          ? const CupertinoActivityIndicator()
-                          : const Icon(Icons.check),
+                          ? CupertinoActivityIndicator(
+                              color: context.colorScheme.onPrimary,
+                            )
+                          : Icon(
+                              Icons.check,
+                              color: context.colorScheme.onPrimary,
+                            ),
                       label: Text(isUploading ? 'Uploading...' : 'Finish'),
                       onPressed: isUploading
                           ? null

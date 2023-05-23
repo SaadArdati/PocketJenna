@@ -86,7 +86,7 @@ class _PromptCreationTesterState extends State<PromptCreationTester> {
   @override
   Widget build(BuildContext context) {
     return CustomScaffold(
-      containerColor: context.colorScheme.secondary,
+      headerColor: context.colorScheme.secondary,
       automaticallyImplyLeading: false,
       leading: ScaffoldAction(
         tooltip: MaterialLocalizations.of(context).backButtonTooltip,

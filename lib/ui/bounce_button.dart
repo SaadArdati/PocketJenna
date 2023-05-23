@@ -8,12 +8,14 @@ class BounceWrapper extends StatefulWidget {
   final Widget child;
   final VoidCallback? onTap;
   final double scaleStrength;
+  final AxisDirection direction;
 
   const BounceWrapper({
     super.key,
     required this.child,
     this.onTap,
     this.scaleStrength = 0.025,
+    this.direction = AxisDirection.up,
   });
 
   @override
@@ -28,6 +30,7 @@ class _BounceWrapperState extends State<BounceWrapper> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTapDown: (_) {
         setState(() {
           isPressingDown = true;
@@ -78,7 +81,12 @@ class _BounceWrapperState extends State<BounceWrapper> {
             duration: 200.ms,
             builder: (context, value, child) {
               return Transform.translate(
-                offset: Offset(0, value * -5),
+                offset: switch (widget.direction) {
+                  AxisDirection.up => Offset(0, value * -5),
+                  AxisDirection.down => Offset(0, value * 5),
+                  AxisDirection.left => Offset(value * -5, 0),
+                  AxisDirection.right => Offset(value * 5, 0),
+                },
                 transformHitTests: false,
                 child: child,
               );

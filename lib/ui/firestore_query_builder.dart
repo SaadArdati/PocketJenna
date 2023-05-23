@@ -153,7 +153,9 @@ class _FirestoreQueryBuilderState<T> extends State<FirestoreQueryBuilder<T>> {
 
     // Delaying the setState so that fetchNextpage can be used within a child's
     // "build" – most commonly ListView's itemBuilder
-    Future.microtask(() => setState(() {}));
+    Future.microtask(() {
+      if (mounted) setState(() {});
+    });
 
     final expectedDocsCount = (_pageCount + 1) * widget.pageSize
 
@@ -164,39 +166,37 @@ class _FirestoreQueryBuilderState<T> extends State<FirestoreQueryBuilder<T>> {
         1;
 
     widget.query(expectedDocsCount).then((List<T> event) {
-      setState(() {
-        if (nextPage) {
-          _snapshot = _snapshot.copyWith(isFetchingMore: false);
-        } else {
-          _snapshot = _snapshot.copyWith(isFetching: false);
-        }
+      if (nextPage) {
+        _snapshot = _snapshot.copyWith(isFetchingMore: false);
+      } else {
+        _snapshot = _snapshot.copyWith(isFetching: false);
+      }
 
-        _snapshot = _snapshot.copyWith(
-          hasData: true,
-          docs: event.length < expectedDocsCount
-              ? event
-              : event.take(expectedDocsCount - 1).toList(),
-          error: null,
-          hasMore: event.length == expectedDocsCount,
-          stackTrace: null,
-          hasError: false,
-        );
-      });
+      _snapshot = _snapshot.copyWith(
+        hasData: true,
+        docs: event.length < expectedDocsCount
+            ? event
+            : event.take(expectedDocsCount - 1).toList(),
+        error: null,
+        hasMore: event.length == expectedDocsCount,
+        stackTrace: null,
+        hasError: false,
+      );
     }).catchError((Object error, StackTrace stackTrace) {
-      setState(() {
-        if (nextPage) {
-          _snapshot = _snapshot.copyWith(isFetchingMore: false);
-        } else {
-          _snapshot = _snapshot.copyWith(isFetching: false);
-        }
+      if (nextPage) {
+        _snapshot = _snapshot.copyWith(isFetchingMore: false);
+      } else {
+        _snapshot = _snapshot.copyWith(isFetching: false);
+      }
 
-        _snapshot = _snapshot.copyWith(
-          error: error,
-          stackTrace: stackTrace,
-          hasError: true,
-          hasMore: false,
-        );
-      });
+      _snapshot = _snapshot.copyWith(
+        error: error,
+        stackTrace: stackTrace,
+        hasError: true,
+        hasMore: false,
+      );
+    }).whenComplete(() {
+      if (mounted) setState(() {});
     });
   }
 

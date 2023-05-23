@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:universal_io/io.dart';
 
 import '../../models/auth_model.dart';
@@ -18,7 +19,7 @@ abstract class AuthManager {
   const AuthManager.internal();
 
   factory AuthManager._() {
-    if (Platform.isWindows) {
+    if (!kIsWeb && Platform.isWindows) {
       return FireDartAuthManager.internal();
     } else {
       return FirebaseAuthManager.internal();

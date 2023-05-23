@@ -249,41 +249,6 @@ class _PromptCreationMetaState extends State<PromptCreationMeta> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: BounceWrapper(
-                        child: JennaTile(
-                          child: Material(
-                            color: Colors.transparent,
-                            child: IgnorePointer(
-                              ignoring: !isUploading,
-                              child: CheckboxListTile(
-                                value: promptTestingManager.public,
-                                onChanged: (bool? value) {
-                                  promptTestingManager.public = value ?? false;
-                                  setState(() {});
-                                },
-                                contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 4,
-                                ),
-                                selectedTileColor:
-                                    context.colorScheme.primaryContainer,
-                                selected: promptTestingManager.public,
-                                title: Text(
-                                  'Publish this prompt on the prompt market.',
-                                  style: context.textTheme.bodyMedium?.copyWith(
-                                    color:
-                                        context.colorScheme.onPrimaryContainer,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
                     Align(
                       alignment: Alignment.centerRight,
                       child: Padding(
@@ -291,8 +256,8 @@ class _PromptCreationMetaState extends State<PromptCreationMeta> {
                         child: FilledBounceButton(
                           icon: isUploading
                               ? const CupertinoActivityIndicator()
-                              : const Icon(Icons.check),
-                          label: Text(isUploading ? 'Uploading...' : 'Finish'),
+                              : const Icon(Icons.arrow_forward),
+                          label: Text(isUploading ? 'Uploading...' : 'Next'),
                           onPressed: isUploading
                               ? null
                               : () {
@@ -301,7 +266,11 @@ class _PromptCreationMetaState extends State<PromptCreationMeta> {
                                         descriptionController.text;
                                     promptTestingManager.title =
                                         titleController.text;
-                                    upload();
+
+                                    context.go(
+                                      '/prompt-creator/preview',
+                                      extra: {'from': '/prompt-creator/meta'},
+                                    );
                                   }
                                 },
                         ),

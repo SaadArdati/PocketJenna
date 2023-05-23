@@ -14,6 +14,7 @@ import '../screens/onboarding/macos_onboarding_screen.dart';
 import '../screens/onboarding/onboarding_screen.dart';
 import '../screens/prompt_creator/prompt_creation_body.dart';
 import '../screens/prompt_creator/prompt_creation_meta.dart';
+import '../screens/prompt_creator/prompt_creation_preview.dart';
 import '../screens/prompt_creator/prompt_creation_tester.dart';
 import '../screens/prompt_market.dart';
 import '../screens/settings_screen.dart';
@@ -336,6 +337,46 @@ class NavigationManager {
               return CustomTransitionPage(
                 key: state.pageKey,
                 child: const PromptCreationMeta(),
+                opaque: false,
+                transitionDuration: const Duration(milliseconds: 600),
+                reverseTransitionDuration: const Duration(milliseconds: 600),
+                transitionsBuilder:
+                    (context, animation, secondaryAnimation, child) {
+                  return pocketJennaTransition(
+                    context,
+                    animation,
+                    secondaryAnimation,
+                    child,
+                    state: state,
+                    comesFrom: comesFrom,
+                  );
+                },
+              );
+            },
+          ),
+          GoRoute(
+            path: '/prompt-creator/preview',
+            parentNavigatorKey: _promptCreationNavigatorKey,
+            redirect: (context, state) async {
+              // final PromptTestingManager promptTestingManager =
+              //     context.read<PromptTestingManager>();
+              // if (promptTestingManager.prompt == null) {
+              //   return '/prompt-creator/body';
+              // }
+
+              final String? authDirect = await authGuard(context, state);
+              if (authDirect != null) {
+                return authDirect;
+              }
+
+              return null;
+            },
+            pageBuilder: (context, state) {
+              AxisDirection comesFrom = AxisDirection.right;
+
+              return CustomTransitionPage(
+                key: state.pageKey,
+                child: const PromptCreationPreview(),
                 opaque: false,
                 transitionDuration: const Duration(milliseconds: 600),
                 reverseTransitionDuration: const Duration(milliseconds: 600),
