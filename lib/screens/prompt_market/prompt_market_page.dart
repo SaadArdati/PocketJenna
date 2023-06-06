@@ -56,8 +56,10 @@ class _PromptMarketPageState extends State<PromptMarketPage> {
             tooltip: 'Prompt Market',
             icon: Icons.arrow_back,
             onTap: () {
-              context.go('/prompt-market',
-                  extra: {'from': '/prompt-market/${widget.promptID}'});
+              context.go(
+                '/prompt-market',
+                extra: {'from': '/prompt-market/${widget.promptID}'},
+              );
             },
           ),
           body: Center(
@@ -68,6 +70,32 @@ class _PromptMarketPageState extends State<PromptMarketPage> {
                   ? const CupertinoActivityIndicator()
                   : Column(
                       children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Expanded(
+                              child: FilledBounceButton(
+                                onPressed: () {
+                                  context.go(
+                                    '/prompt-market/${prompt.id}/try',
+                                    extra: prompt,
+                                  );
+                                },
+                                icon: const Icon(Icons.play_arrow),
+                                label: const Text('Try out'),
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: FilledBounceButton(
+                                onPressed: () {},
+                                icon: const Icon(Icons.favorite),
+                                label: const Text('Save'),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
                         if (prompt.description != null) ...[
                           JennaTile(
                             title: 'Description',
@@ -88,6 +116,23 @@ class _PromptMarketPageState extends State<PromptMarketPage> {
                                 child: Text(text),
                               ),
                             ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        JennaTile(
+                          title: 'Details',
+                          padding: const EdgeInsets.all(8),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Author: ${prompt.userID}'),
+                              Text(
+                                'Created On: ${prompt.createdOn.toLocal().toString().split(' ').first}',
+                              ),
+                              Text(
+                                'Last Updated: ${prompt.updatedOn.toLocal().toString().split(' ').first}',
+                              ),
+                            ],
                           ),
                         ),
                       ],

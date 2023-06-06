@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 
 import '../constants.dart';
 import '../main.dart';
+import '../models/prompt.dart';
 import '../screens/auth_screen.dart';
 import '../screens/chat/chat_screen.dart';
 import '../screens/home_screen.dart';
@@ -19,6 +20,7 @@ import '../screens/prompt_creator/prompt_creation_preview.dart';
 import '../screens/prompt_creator/prompt_creation_tester.dart';
 import '../screens/prompt_market/prompt_market.dart';
 import '../screens/prompt_market/prompt_market_page.dart';
+import '../screens/prompt_market/prompt_market_page_try.dart';
 import '../screens/settings_screen.dart';
 import '../ui/window_drag_handle.dart';
 import 'auth/auth_manager.dart';
@@ -239,45 +241,87 @@ class NavigationManager {
         },
         routes: [
           GoRoute(
-            path: ':promptID',
-            redirect: (context, state) async {
-              final String? promptID = state.pathParameters['promptID'];
-              if (promptID == null) {
-                return '/prompt-market';
-              }
+              path: ':promptID',
+              redirect: (context, state) async {
+                final String? promptID = state.pathParameters['promptID'];
+                if (promptID == null) {
+                  return '/prompt-market';
+                }
 
-              final String? authDirect = await authGuard(context, state);
-              if (authDirect != null) {
-                return authDirect;
-              }
+                final String? authDirect = await authGuard(context, state);
+                if (authDirect != null) {
+                  return authDirect;
+                }
 
-              return null;
-            },
-            pageBuilder: (context, state) {
-              AxisDirection comesFrom = AxisDirection.right;
+                return null;
+              },
+              pageBuilder: (context, state) {
+                AxisDirection comesFrom = AxisDirection.right;
 
-              final String? promptID = state.pathParameters['promptID'];
+                final String? promptID = state.pathParameters['promptID'];
 
-              return CustomTransitionPage(
-                key: state.pageKey,
-                child: PromptMarketPage(promptID: promptID!),
-                opaque: false,
-                transitionDuration: const Duration(milliseconds: 600),
-                reverseTransitionDuration: const Duration(milliseconds: 600),
-                transitionsBuilder:
-                    (context, animation, secondaryAnimation, child) {
-                  return pocketJennaTransition(
-                    context,
-                    animation,
-                    secondaryAnimation,
-                    child,
-                    state: state,
-                    comesFrom: comesFrom,
-                  );
-                },
-              );
-            },
-          ),
+                return CustomTransitionPage(
+                  key: state.pageKey,
+                  child: PromptMarketPage(promptID: promptID!),
+                  opaque: false,
+                  transitionDuration: const Duration(milliseconds: 600),
+                  reverseTransitionDuration: const Duration(milliseconds: 600),
+                  transitionsBuilder:
+                      (context, animation, secondaryAnimation, child) {
+                    return pocketJennaTransition(
+                      context,
+                      animation,
+                      secondaryAnimation,
+                      child,
+                      state: state,
+                      comesFrom: comesFrom,
+                    );
+                  },
+                );
+              },
+              routes: [
+                GoRoute(
+                  path: 'try',
+                  redirect: (context, state) async {
+                    final dynamic prompt = state.extra;
+                    if (prompt is! Prompt) {
+                      return '/prompt-market';
+                    }
+
+                    final String? authDirect = await authGuard(context, state);
+                    if (authDirect != null) {
+                      return authDirect;
+                    }
+
+                    return null;
+                  },
+                  pageBuilder: (context, state) {
+                    AxisDirection comesFrom = AxisDirection.right;
+
+                    final prompt = state.extra as Prompt;
+
+                    return CustomTransitionPage(
+                      key: state.pageKey,
+                      child: PromptMarketPageTrialWrapper(prompt: prompt),
+                      opaque: false,
+                      transitionDuration: const Duration(milliseconds: 600),
+                      reverseTransitionDuration:
+                          const Duration(milliseconds: 600),
+                      transitionsBuilder:
+                          (context, animation, secondaryAnimation, child) {
+                        return pocketJennaTransition(
+                          context,
+                          animation,
+                          secondaryAnimation,
+                          child,
+                          state: state,
+                          comesFrom: comesFrom,
+                        );
+                      },
+                    );
+                  },
+                ),
+              ]),
         ],
       ),
       ShellRoute(

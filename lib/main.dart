@@ -60,11 +60,10 @@ class PocketJenna extends StatefulWidget {
     }
     log('Encryption key: $key');
 
-    final settingsBox = await Hive.openBox(
+    await Hive.openBox(
       Constants.settings,
       encryptionCipher: HiveAesCipher(encryptionKeyData),
     );
-    settingsBox.clear();
 
     if (!kIsWeb) {
       if (Platform.isWindows ||

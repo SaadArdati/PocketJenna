@@ -216,6 +216,7 @@ class _FilledBounceButtonState extends State<FilledBounceButton> {
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       if (widget.icon != null) widget.icon!,
                       if (widget.icon != null) const SizedBox(width: 8),
