@@ -12,6 +12,7 @@ import '../screens/chat/chat_screen.dart';
 import '../screens/home_screen.dart';
 import '../screens/onboarding/macos_onboarding_screen.dart';
 import '../screens/onboarding/onboarding_screen.dart';
+import '../screens/open_ai_key_screen.dart';
 import '../screens/prompt_creator/prompt_creation_body.dart';
 import '../screens/prompt_creator/prompt_creation_meta.dart';
 import '../screens/prompt_creator/prompt_creation_preview.dart';
@@ -65,7 +66,7 @@ class NavigationManager {
         builder: (state, context) => const SizedBox.shrink(),
         redirect: (BuildContext context, GoRouterState state) {
           if (state.location == '/onboarding') {
-            return '/onboarding/one';
+            return '/onboarding/hello';
           }
           return null;
         },
@@ -76,7 +77,7 @@ class NavigationManager {
             },
             routes: [
               GoRoute(
-                path: 'one',
+                path: 'hello',
                 pageBuilder: (context, state) {
                   return CustomTransitionPage(
                     key: state.pageKey,
@@ -96,29 +97,29 @@ class NavigationManager {
                   );
                 },
               ),
-              // GoRoute(
-              //   path: 'two',
-              //   pageBuilder: (context, state) {
-              //     return CustomTransitionPage(
-              //       key: state.pageKey,
-              //       child: const OpenAIKeyScreen(),
-              //       opaque: false,
-              //       transitionsBuilder:
-              //           (context, animation, secondaryAnimation, child) {
-              //         return pocketJennaTransition(
-              //           context,
-              //           animation,
-              //           secondaryAnimation,
-              //           child,
-              //           state: state,
-              //           comesFrom: AxisDirection.right,
-              //         );
-              //       },
-              //     );
-              //   },
-              // ),
               GoRoute(
-                path: 'two',
+                path: 'openai',
+                pageBuilder: (context, state) {
+                  return CustomTransitionPage(
+                    key: state.pageKey,
+                    child: const OpenAIKeyScreen(),
+                    opaque: false,
+                    transitionsBuilder:
+                        (context, animation, secondaryAnimation, child) {
+                      return pocketJennaTransition(
+                        context,
+                        animation,
+                        secondaryAnimation,
+                        child,
+                        state: state,
+                        comesFrom: AxisDirection.right,
+                      );
+                    },
+                  );
+                },
+              ),
+              GoRoute(
+                path: 'done',
                 redirect: authGuard,
                 pageBuilder: (context, state) {
                   return CustomTransitionPage(

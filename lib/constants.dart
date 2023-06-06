@@ -2,6 +2,7 @@ class Constants {
   Constants._();
 
   static const String encryptionKey = 'encryption_key';
+  static const String openAIKey = 'openai_key';
 
   /// ------- Firebase
   static const String firebaseWebAPIKey =

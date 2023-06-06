@@ -14,6 +14,7 @@ import '../managers/auth/auth_manager.dart';
 import '../managers/system_manager.dart';
 import '../ui/custom_scaffold.dart';
 import '../ui/theme_extensions.dart';
+import 'open_ai_key_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -59,8 +60,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 children: [
                   const AppSettingsTile(),
                   const SizedBox(height: 16),
-                  // const OpenAIKeyTile(),
-                  // const SizedBox(height: 16),
+                  const OpenAIKeyTile(),
+                  const SizedBox(height: 16),
                   const AccountSettingsTile(),
                   const SizedBox(height: 16),
                   buildAboutTile(context),
@@ -82,10 +83,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
+          const Row(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: const [
+            children: [
               ContactCard(
                 asset: 'assets/hyperdesigned_banner.png',
                 name: 'Hyperdesigned',

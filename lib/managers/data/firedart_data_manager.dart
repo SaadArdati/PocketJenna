@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:dart_openai/openai.dart';
 import 'package:firedart/firedart.dart';
 import 'package:flutter/widgets.dart';
 
@@ -10,7 +9,6 @@ import '../../models/chat.dart';
 import '../../models/prompt.dart';
 import '../../models/user_model.dart';
 import '../auth/auth_manager.dart';
-import '../gpt_manager.dart';
 import '../prompt_manager.dart';
 import 'data_manager.dart';
 
@@ -30,7 +28,7 @@ class FireDartDataManager extends DataManager {
   late StreamSubscription<AuthModel?> _authStreamSubscription;
   late AuthModel? _authModel;
 
-  bool _didFetchOpenAIKey = false;
+  // bool _didFetchOpenAIKey = false;
 
   FireDartDataManager.internal() : super.internal();
 
@@ -54,16 +52,16 @@ class FireDartDataManager extends DataManager {
           if (user == null) {
             // registerUser();
           } else {
-            if (!_didFetchOpenAIKey) {
-              _didFetchOpenAIKey = true;
-              fetchOpenAIKey().then((value) {
-                OpenAI.apiKey = value;
-                GPTManager.fetchAndStoreModels();
-              }).catchError((error) {
-                debugPrint('Error fetching OpenAI key: $error');
-                _didFetchOpenAIKey = false;
-              });
-            }
+            // if (!_didFetchOpenAIKey) {
+            //   _didFetchOpenAIKey = true;
+            //   fetchOpenAIKey().then((value) {
+            //     OpenAI.apiKey = value;
+            //     GPTManager.fetchAndStoreModels();
+            //   }).catchError((error) {
+            //     debugPrint('Error fetching OpenAI key: $error');
+            //     _didFetchOpenAIKey = false;
+            //   });
+            // }
 
             fetchPrompts(promptIDs: user.pinnedPrompts).then(
               (prompts) => PromptManager.instance.registerPrompts(prompts),
@@ -88,16 +86,16 @@ class FireDartDataManager extends DataManager {
           if (user == null) {
             // registerUser();
           } else {
-            if (!_didFetchOpenAIKey) {
-              _didFetchOpenAIKey = true;
-              try {
-                OpenAI.apiKey = await fetchOpenAIKey();
-                await GPTManager.fetchAndStoreModels();
-              } catch (error) {
-                debugPrint('Error fetching OpenAI key: $error');
-                _didFetchOpenAIKey = false;
-              }
-            }
+            // if (!_didFetchOpenAIKey) {
+            //   _didFetchOpenAIKey = true;
+            //   try {
+            //     OpenAI.apiKey = await fetchOpenAIKey();
+            //     await GPTManager.fetchAndStoreModels();
+            //   } catch (error) {
+            //     debugPrint('Error fetching OpenAI key: $error');
+            //     _didFetchOpenAIKey = false;
+            //   }
+            // }
 
             fetchPrompts(promptIDs: user.pinnedPrompts).then(
               (prompts) => PromptManager.instance.registerPrompts(prompts),

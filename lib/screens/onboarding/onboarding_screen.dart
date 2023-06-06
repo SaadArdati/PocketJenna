@@ -29,7 +29,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       leading: viewingImage
           ? ScaffoldAction(
               onTap: () {
-                context.go('/onboarding/two');
+                context.go('/onboarding/done');
               },
               icon: Icons.arrow_back,
               tooltip: 'Back',
@@ -174,7 +174,7 @@ class OnboardingDone extends StatelessWidget {
                     );
                     if (!kIsWeb &&
                         defaultTargetPlatform == TargetPlatform.macOS) {
-                      context.go('/onboarding/two/macos_onboarding');
+                      context.go('/onboarding/done/macos_onboarding');
                     } else {
                       context.go('/home', extra: {'from': '/onboarding'});
                     }
@@ -202,7 +202,7 @@ class OnboardingDone extends StatelessWidget {
               onTap: () {
                 // Show full screen image in a dialog
                 context.go(
-                  '/onboarding/two/tray_position',
+                  '/onboarding/done/tray_position',
                   extra: {'instructionID': id},
                 );
               },
@@ -221,24 +221,19 @@ class InstructionView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: context.colorScheme.background,
-      body: Builder(builder: (context) {
-        if (!instructionIDs.containsKey(instructionID)) {
-          return const SizedBox.expand(
-            child: Center(
-              child: Text('Image not found'),
-            ),
-          );
-        }
+    if (!instructionIDs.containsKey(instructionID)) {
+      return const SizedBox.expand(
+        child: Center(
+          child: Text('Image not found'),
+        ),
+      );
+    }
 
-        return SizedBox.expand(
-          child: InteractiveViewer(
-            maxScale: 6,
-            child: Image.asset(instructionIDs[instructionID]!),
-          ),
-        );
-      }),
+    return SizedBox.expand(
+      child: InteractiveViewer(
+        maxScale: 6,
+        child: Image.asset(instructionIDs[instructionID]!),
+      ),
     );
   }
 }

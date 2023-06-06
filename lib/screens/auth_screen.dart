@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive/hive.dart';
@@ -58,9 +59,23 @@ class _AuthScreenState extends State<AuthScreen> {
   void initState() {
     super.initState();
 
+    SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+      if (!mounted) return;
+      final user = DataManager.instance.currentUser;
+      if (user != null) {
+        final box = Hive.box(Constants.settings);
+        final bool onboarding =
+            box.get(Constants.isFirstTime, defaultValue: true);
+        context.go(onboarding ? '/onboarding/openai' : '/home');
+      }
+    });
+
     listener = DataManager.instance.userStream.listen((UserModel? user) {
       if (user != null) {
-        context.go('/home');
+        final box = Hive.box(Constants.settings);
+        final bool onboarding =
+            box.get(Constants.isFirstTime, defaultValue: true);
+        context.go(onboarding ? '/onboarding/openai' : '/home');
       }
     });
   }
@@ -91,7 +106,7 @@ class _AuthScreenState extends State<AuthScreen> {
           final box = Hive.box(Constants.settings);
           final bool onboarding =
               box.get(Constants.isFirstTime, defaultValue: true);
-          context.go(onboarding ? '/onboarding/two' : '/home');
+          context.go(onboarding ? '/onboarding/openai' : '/home');
         }
       } catch (e) {
         error = e.toString();
@@ -123,7 +138,7 @@ class _AuthScreenState extends State<AuthScreen> {
           final box = Hive.box(Constants.settings);
           final bool onboarding =
               box.get(Constants.isFirstTime, defaultValue: true);
-          context.go(onboarding ? '/onboarding/two' : '/home');
+          context.go(onboarding ? '/onboarding/openai' : '/home');
         }
       } catch (e) {
         error = e.toString();

@@ -39,6 +39,7 @@ class PocketJenna extends StatefulWidget {
 
   static Future<bool> initPocketJenna() async {
     await Hive.initFlutter('PocketJenna');
+    await Hive.deleteFromDisk();
     await Hive.openBox(Constants.history);
     await Hive.openBox(Constants.prompts);
 
@@ -60,10 +61,11 @@ class PocketJenna extends StatefulWidget {
     }
     log('Encryption key: $key');
 
-    await Hive.openBox(
+    final settingsBox = await Hive.openBox(
       Constants.settings,
       encryptionCipher: HiveAesCipher(encryptionKeyData),
     );
+    settingsBox.clear();
 
     if (!kIsWeb) {
       if (Platform.isWindows ||
@@ -398,7 +400,8 @@ class _NavigationBackgroundState extends State<NavigationBackground>
           AnimatedContainer(
             duration: const Duration(milliseconds: 500),
             curve: Curves.fastOutSlowIn,
-            color: context.colorScheme.background.withOpacity(isDark ? 0.8 : 0.65),
+            color:
+                context.colorScheme.background.withOpacity(isDark ? 0.8 : 0.65),
           ),
           widget.child,
         ],

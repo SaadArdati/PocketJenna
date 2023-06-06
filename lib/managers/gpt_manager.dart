@@ -151,7 +151,7 @@ class GPTManager extends ChangeNotifier {
   }
 
   bool needsExtendedContext() {
-    return false;
+    return true;
     // return currentChat!.type == ChatType.documentCode ||
     //     currentChat!.type == ChatType.scientific ||
     //     currentChat!.type == ChatType.readMe;

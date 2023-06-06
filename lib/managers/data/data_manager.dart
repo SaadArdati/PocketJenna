@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:dart_openai/openai.dart';
 import 'package:flutter/widgets.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart';
@@ -41,6 +42,8 @@ abstract class DataManager {
   @mustCallSuper
   Future<void> init() async {
     userBox = await Hive.openBox(Constants.user);
+    final settingsBox = await Hive.openBox(Constants.settings);
+    OpenAI.apiKey = settingsBox.get(Constants.openAIKey) ?? '';
   }
 
   /// Dispose of any resources related to the data manager.
@@ -95,24 +98,24 @@ abstract class DataManager {
   }
 
   /// Get the openAI key from the server.
-  Future<String> fetchOpenAIKey() async {
-    final String token = await AuthManager.instance.getAuthToken();
-
-    final response = await get(
-      Uri.https(Constants.firebaseFunctionsBaseURL, '/widgets/getOpenAIKey'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'text/plain',
-      },
-    );
-    if (response.statusCode == 200) {
-      debugPrint('OpenAI key fetched: ${response.body}');
-      return response.body;
-    } else {
-      throw Exception(
-          'OpenAI key fetch failed: ${response.statusCode} ${response.body} ${response.reasonPhrase}');
-    }
-  }
+  // Future<String> fetchOpenAIKey() async {
+  //   final String token = await AuthManager.instance.getAuthToken();
+  //
+  //   final response = await get(
+  //     Uri.https(Constants.firebaseFunctionsBaseURL, '/widgets/getOpenAIKey'),
+  //     headers: {
+  //       'Authorization': 'Bearer $token',
+  //       'Content-Type': 'text/plain',
+  //     },
+  //   );
+  //   if (response.statusCode == 200) {
+  //     debugPrint('OpenAI key fetched: ${response.body}');
+  //     return response.body;
+  //   } else {
+  //     throw Exception(
+  //         'OpenAI key fetch failed: ${response.statusCode} ${response.body} ${response.reasonPhrase}');
+  //   }
+  // }
 
   void saveChat(Chat chat) {
     userBox.put(chat.id, chat.toJson());
