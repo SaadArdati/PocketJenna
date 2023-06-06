@@ -39,7 +39,6 @@ class PocketJenna extends StatefulWidget {
 
   static Future<bool> initPocketJenna() async {
     await Hive.initFlutter('PocketJenna');
-    await Hive.deleteFromDisk();
     await Hive.openBox(Constants.history);
     await Hive.openBox(Constants.prompts);
 

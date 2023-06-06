@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:dart_openai/openai.dart';
+import 'package:dart_openai/dart_openai.dart';
 import 'package:flutter/widgets.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart';
@@ -122,6 +122,34 @@ abstract class DataManager {
   }
 
   Future<List<Prompt>> fetchMarket(int page, int pageSize);
+
+  Future<Prompt> fetchPrompt({
+    required String promptID,
+  }) async {
+    debugPrint('Getting prompt [$promptID]...');
+    final String token = await AuthManager.instance.getAuthToken();
+
+    final response = await post(
+      Uri.https(Constants.firebaseFunctionsBaseURL, '/widgets/getPrompt'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'promptID': promptID,
+      }),
+    );
+    if (response.statusCode == 200) {
+      debugPrint('Prompts fetched successfully, deserializing...');
+      final json = jsonDecode(response.body);
+      final Prompt prompt = Prompt.fromJson(json);
+
+      return prompt;
+    } else {
+      throw Exception(
+          'Failed to fetch prompts: ${response.statusCode} ${response.body} ${response.reasonPhrase}');
+    }
+  }
 
   Future<Set<Prompt>> fetchPrompts({
     required List<String> promptIDs,

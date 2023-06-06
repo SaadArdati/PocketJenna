@@ -17,7 +17,8 @@ import '../screens/prompt_creator/prompt_creation_body.dart';
 import '../screens/prompt_creator/prompt_creation_meta.dart';
 import '../screens/prompt_creator/prompt_creation_preview.dart';
 import '../screens/prompt_creator/prompt_creation_tester.dart';
-import '../screens/prompt_market.dart';
+import '../screens/prompt_market/prompt_market.dart';
+import '../screens/prompt_market/prompt_market_page.dart';
 import '../screens/settings_screen.dart';
 import '../ui/window_drag_handle.dart';
 import 'auth/auth_manager.dart';
@@ -215,7 +216,6 @@ class NavigationManager {
         path: '/prompt-market',
         redirect: authGuard,
         pageBuilder: (context, state) {
-          final extra = state.extra;
           AxisDirection comesFrom = AxisDirection.right;
 
           return CustomTransitionPage(
@@ -237,6 +237,48 @@ class NavigationManager {
             },
           );
         },
+        routes: [
+          GoRoute(
+            path: ':promptID',
+            redirect: (context, state) async {
+              final String? promptID = state.pathParameters['promptID'];
+              if (promptID == null) {
+                return '/prompt-market';
+              }
+
+              final String? authDirect = await authGuard(context, state);
+              if (authDirect != null) {
+                return authDirect;
+              }
+
+              return null;
+            },
+            pageBuilder: (context, state) {
+              AxisDirection comesFrom = AxisDirection.right;
+
+              final String? promptID = state.pathParameters['promptID'];
+
+              return CustomTransitionPage(
+                key: state.pageKey,
+                child: PromptMarketPage(promptID: promptID!),
+                opaque: false,
+                transitionDuration: const Duration(milliseconds: 600),
+                reverseTransitionDuration: const Duration(milliseconds: 600),
+                transitionsBuilder:
+                    (context, animation, secondaryAnimation, child) {
+                  return pocketJennaTransition(
+                    context,
+                    animation,
+                    secondaryAnimation,
+                    child,
+                    state: state,
+                    comesFrom: comesFrom,
+                  );
+                },
+              );
+            },
+          ),
+        ],
       ),
       ShellRoute(
         navigatorKey: _promptCreationNavigatorKey,
@@ -405,8 +447,8 @@ class NavigationManager {
             return authDirect;
           }
 
-          final String? promptID = state.queryParams['promptID'];
-          final String? chatID = state.queryParams['chatID'];
+          final String? promptID = state.queryParameters['promptID'];
+          final String? chatID = state.queryParameters['chatID'];
 
           if (chatID == null && promptID == null) {
             return '/home';
@@ -418,8 +460,8 @@ class NavigationManager {
           return null;
         },
         pageBuilder: (context, GoRouterState state) {
-          final String? promptID = state.queryParams['promptID'];
-          final String? chatID = state.queryParams['chatID'];
+          final String? promptID = state.queryParameters['promptID'];
+          final String? chatID = state.queryParameters['chatID'];
 
           final Widget child = ChatScreenWrapper(
             chatID: chatID,

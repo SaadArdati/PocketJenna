@@ -2,12 +2,12 @@ import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../managers/data/data_manager.dart';
-import '../models/prompt.dart';
-import '../ui/bounce_button.dart';
-import '../ui/custom_scaffold.dart';
-import '../ui/firestore_query_builder.dart';
-import '../ui/theme_extensions.dart';
+import '../../managers/data/data_manager.dart';
+import '../../models/prompt.dart';
+import '../../ui/bounce_button.dart';
+import '../../ui/custom_scaffold.dart';
+import '../../ui/firestore_query_builder.dart';
+import '../../ui/theme_extensions.dart';
 
 class PromptMarket extends StatefulWidget {
   const PromptMarket({super.key});
@@ -43,7 +43,7 @@ class _PromptMarketState extends State<PromptMarket> {
         )
       ],
       leading: ScaffoldAction(
-        tooltip: 'Prompt Market',
+        tooltip: 'Home',
         icon: Icons.arrow_back,
         onTap: () {
           context.go('/home', extra: {'from': '/prompt-market'});
@@ -63,24 +63,16 @@ class _PromptMarketState extends State<PromptMarket> {
                 padding: const EdgeInsets.all(4),
                 itemCount: item.docs.length,
                 clipBehavior: Clip.none,
-                // separatorBuilder: (BuildContext context, int index) =>
-                //     ColoredBox(
-                //         color: context.colorScheme.background,
-                //         child: Container(
-                //           height: 2,
-                //           margin: const EdgeInsets.symmetric(horizontal: 16),
-                //           decoration: BoxDecoration(
-                //             color: context.colorScheme.primary,
-                //           ),
-                //         )),
                 itemBuilder: (BuildContext context, int index) {
                   final prompt = item.docs[index];
                   return GPTPromptTile(
                     prompt: prompt,
-                    onTap: () => context.go(
-                      '/chat?promptID=${prompt.id}',
-                      extra: {'from': '/prompt-market'},
-                    ),
+                    onTap: () {
+                      context.go(
+                        '/prompt-market/${prompt.id}',
+                        extra: {'from': '/prompt-market'},
+                      );
+                    },
                   );
                 },
               );
@@ -111,6 +103,7 @@ class _GPTPromptTileState extends State<GPTPromptTile> {
         color: Colors.transparent,
         child: BounceWrapper(
           direction: AxisDirection.right,
+          onTap: widget.onTap,
           child: Container(
             margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
             decoration: BoxDecoration(

@@ -1,4 +1,4 @@
-import 'package:dart_openai/openai.dart';
+import 'package:dart_openai/dart_openai.dart';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:uuid/uuid.dart';
@@ -31,8 +31,7 @@ class ChatMessage with EquatableMixin {
     required this.role,
     this.status = MessageStatus.waiting,
     DateTime? timestamp,
-  })
-      : id = const Uuid().v4(),
+  })  : id = const Uuid().v4(),
         timestamp = timestamp ?? DateTime.now();
 
   OpenAIChatCompletionChoiceMessageModel toOpenAI() {
@@ -47,8 +46,7 @@ class ChatMessage with EquatableMixin {
   Map toJson() => _$ChatMessageToJson(this);
 
   @override
-  List<Object?> get props =>
-      [
+  List<Object?> get props => [
         text,
         status,
         timestamp,
