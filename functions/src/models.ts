@@ -50,9 +50,9 @@ export interface Prompt {
   prompts: string[];
   title: string;
   description: string;
-  upvotes: string[];
+  saves: string[];
   icon: string;
   createdOn: number;
   updatedOn: number;
-  public: number;
+  isPublic: boolean;
 }

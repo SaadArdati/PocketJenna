@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
@@ -6,6 +8,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../managers/data/data_manager.dart';
 import '../../models/prompt.dart';
+import '../../models/user_model.dart';
 import '../../ui/bounce_button.dart';
 import '../../ui/custom_scaffold.dart';
 import '../../ui/theme_extensions.dart';
@@ -21,13 +24,73 @@ class PromptMarketPage extends StatefulWidget {
 }
 
 class _PromptMarketPageState extends State<PromptMarketPage> {
+  bool loading = false;
+  String? error;
+
   late final Future<Prompt> fetchPromptFuture =
       DataManager.instance.fetchPrompt(
     promptID: widget.promptID,
   );
 
+  StreamSubscription<UserModel?>? userStreamListener;
+
+  @override
+  void initState() {
+    super.initState();
+
+    userStreamListener = DataManager.instance.userStream.listen(userListener);
+  }
+
+  @override
+  void dispose() {
+    userStreamListener?.cancel();
+    super.dispose();
+  }
+
+  void userListener(UserModel? user) {
+    setState(() {});
+  }
+
+  Future<void> save() async {
+    setState(() {
+      loading = true;
+      error = null;
+    });
+
+    try {
+      await DataManager.instance.savePrompt(promptID: widget.promptID);
+    } catch (e) {
+      error = e.toString();
+    } finally {
+      setState(() {
+        loading = false;
+      });
+    }
+  }
+
+  Future<void> unSave() async {
+    setState(() {
+      loading = true;
+      error = null;
+    });
+
+    try {
+      await DataManager.instance.unSavePrompt(promptID: widget.promptID);
+    } catch (e) {
+      error = e.toString();
+    } finally {
+      setState(() {
+        loading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final bool isSaved = DataManager.instance.currentUser?.pinnedPrompts
+            .contains(widget.promptID) ??
+        false;
+
     return FutureBuilder<Prompt>(
       future: fetchPromptFuture,
       builder: (context, snapshot) {
@@ -36,6 +99,8 @@ class _PromptMarketPageState extends State<PromptMarketPage> {
           title: Text(
             prompt?.title ?? 'Loading Prompt',
             textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: context.textTheme.titleMedium?.copyWith(
               color: context.colorScheme.onPrimary,
               fontWeight: FontWeight.bold,
@@ -62,12 +127,19 @@ class _PromptMarketPageState extends State<PromptMarketPage> {
               );
             },
           ),
-          body: Center(
+          body: SingleChildScrollView(
+            clipBehavior: Clip.none,
+            padding: EdgeInsets.zero,
             child: Container(
               margin: const EdgeInsets.all(16),
               constraints: const BoxConstraints(maxWidth: 800),
               child: prompt == null
-                  ? const CupertinoActivityIndicator()
+                  ? const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(32),
+                        child: CupertinoActivityIndicator(),
+                      ),
+                    )
                   : Column(
                       children: [
                         Row(
@@ -75,25 +147,76 @@ class _PromptMarketPageState extends State<PromptMarketPage> {
                           children: [
                             Expanded(
                               child: FilledBounceButton(
-                                onPressed: () {
-                                  context.go(
-                                    '/prompt-market/${prompt.id}/try',
-                                    extra: prompt,
-                                  );
-                                },
+                                onPressed: loading
+                                    ? null
+                                    : () {
+                                        context.go(
+                                          '/prompt-market/${prompt.id}/try',
+                                          extra: prompt,
+                                        );
+                                      },
                                 icon: const Icon(Icons.play_arrow),
                                 label: const Text('Try out'),
                               ),
                             ),
                             const SizedBox(width: 16),
                             Expanded(
-                              child: FilledBounceButton(
-                                onPressed: () {},
-                                icon: const Icon(Icons.favorite),
-                                label: const Text('Save'),
-                              ),
+                              child: isSaved
+                                  ? FilledBounceButton(
+                                      onPressed: loading ? null : unSave,
+                                      icon: loading
+                                          ? const CupertinoActivityIndicator()
+                                          : const Icon(
+                                              Icons.favorite,
+                                            ),
+                                      label: const Text('Unsave'),
+                                    )
+                                  : OutlinedBounceButton(
+                                      onPressed: loading ? null : save,
+                                      icon: loading
+                                          ? const CupertinoActivityIndicator()
+                                          : const Icon(
+                                              Icons.favorite_border,
+                                            ),
+                                      label: const Text('Save'),
+                                    ),
                             ),
                           ],
+                        ),
+                        AnimatedAlign(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeOutQuart,
+                          heightFactor: error == null ? 0 : 1,
+                          alignment: Alignment.topCenter,
+                          child: error == null
+                              ? const SizedBox.shrink()
+                              : Container(
+                                  margin: const EdgeInsets.only(top: 16),
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    color: context.colorScheme.error,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(
+                                        Icons.error_outline,
+                                        color: Colors.white,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          error!,
+                                          style: context.textTheme.bodySmall
+                                              ?.copyWith(
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                         ),
                         const SizedBox(height: 16),
                         if (prompt.description != null) ...[
@@ -113,26 +236,32 @@ class _PromptMarketPageState extends State<PromptMarketPage> {
                                   : 'Prompt ${index + 1}',
                               padding: const EdgeInsets.all(8),
                               child: SelectionArea(
-                                child: Text(text),
+                                child: Text(
+                                  text,
+                                  style: context.textTheme.bodySmall,
+                                ),
                               ),
                             ),
                           ),
                         ),
                         const SizedBox(height: 8),
-                        JennaTile(
-                          title: 'Details',
-                          padding: const EdgeInsets.all(8),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('Author: ${prompt.userID}'),
-                              Text(
-                                'Created On: ${prompt.createdOn.toLocal().toString().split(' ').first}',
-                              ),
-                              Text(
-                                'Last Updated: ${prompt.updatedOn.toLocal().toString().split(' ').first}',
-                              ),
-                            ],
+                        DefaultTextStyle(
+                          style: context.textTheme.bodySmall!,
+                          child: JennaTile(
+                            title: 'Details',
+                            padding: const EdgeInsets.all(8),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Author: ${prompt.userID}'),
+                                Text(
+                                  'Created On: ${prompt.createdOn.toLocal().toString().split(' ').first}',
+                                ),
+                                Text(
+                                  'Last Updated: ${prompt.updatedOn.toLocal().toString().split(' ').first}',
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ],
@@ -141,121 +270,6 @@ class _PromptMarketPageState extends State<PromptMarketPage> {
           ),
         );
       },
-    );
-  }
-}
-
-class GPTPromptTile extends StatefulWidget {
-  final Prompt prompt;
-  final VoidCallback onTap;
-
-  const GPTPromptTile({super.key, required this.prompt, required this.onTap});
-
-  @override
-  State<GPTPromptTile> createState() => _GPTPromptTileState();
-}
-
-class _GPTPromptTileState extends State<GPTPromptTile> {
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(8),
-      child: Material(
-        color: Colors.transparent,
-        child: BounceWrapper(
-          direction: AxisDirection.right,
-          child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-            decoration: BoxDecoration(
-              color: context.colorScheme.surface,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: context.colorScheme.primary,
-                width: 2,
-              ),
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: Padding(
-              padding: const EdgeInsets.all(8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          widget.prompt.title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: context.textTheme.labelMedium?.copyWith(
-                            color: context.colorScheme.onSurface,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      if (widget.prompt.description == null)
-                        upvoteButton(context),
-                    ],
-                  ),
-                  if (widget.prompt.description != null) ...[
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            widget.prompt.description!,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: context.textTheme.labelSmall?.copyWith(
-                              color: context.colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                        ),
-                        upvoteButton(context),
-                      ],
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget upvoteButton(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 8,
-        vertical: 4,
-      ),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(100),
-        border: Border.all(
-          color: context.colorScheme.primary,
-          width: 2,
-        ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.arrow_upward,
-            color: context.colorScheme.onSurfaceVariant,
-            size: 16,
-          ),
-          const SizedBox(width: 4),
-          Text(
-            '${widget.prompt.upvotes.length}',
-            style: context.textTheme.labelSmall?.copyWith(
-              color: context.colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

@@ -16,13 +16,14 @@ class Prompt with EquatableMixin {
   final String title;
   final String? description;
   final String icon;
+  final bool isPublic;
 
   @JsonKey(fromJson: jsonToDate, toJson: dateToJson)
   final DateTime createdOn;
   @JsonKey(fromJson: jsonToDate, toJson: dateToJson)
   final DateTime updatedOn;
 
-  final List<String> upvotes;
+  final List<String> saves;
 
   Prompt({
     required this.id,
@@ -32,8 +33,9 @@ class Prompt with EquatableMixin {
     required this.icon,
     required this.createdOn,
     required this.updatedOn,
+    required this.isPublic,
     this.description,
-    this.upvotes = const [],
+    this.saves = const [],
   });
 
   Prompt.simple({
@@ -41,11 +43,12 @@ class Prompt with EquatableMixin {
     required this.prompts,
     required this.icon,
     required this.userID,
+    required this.isPublic,
     this.description,
   })  : id = const Uuid().v4(),
         createdOn = DateTime.now(),
         updatedOn = DateTime.now(),
-        upvotes = [];
+        saves = [];
 
   List<ChatMessage> get toChatMessages => [
         ...prompts.map((prompt) => ChatMessage.simple(
@@ -65,7 +68,7 @@ class Prompt with EquatableMixin {
         createdOn,
         updatedOn,
         description,
-        upvotes,
+        saves,
         userID,
       ];
 }

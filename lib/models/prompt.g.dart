@@ -15,11 +15,11 @@ Prompt _$PromptFromJson(Map json) => Prompt(
       icon: json['icon'] as String,
       createdOn: jsonToDate(json['createdOn'] as int?),
       updatedOn: jsonToDate(json['updatedOn'] as int?),
+      isPublic: json['isPublic'] as bool,
       description: json['description'] as String?,
-      upvotes: (json['upvotes'] as List<dynamic>?)
-              ?.map((e) => e as String)
-              .toList() ??
-          const [],
+      saves:
+          (json['saves'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+              const [],
     );
 
 Map<String, dynamic> _$PromptToJson(Prompt instance) => <String, dynamic>{
@@ -29,7 +29,8 @@ Map<String, dynamic> _$PromptToJson(Prompt instance) => <String, dynamic>{
       'title': instance.title,
       'description': instance.description,
       'icon': instance.icon,
+      'isPublic': instance.isPublic,
       'createdOn': dateToJson(instance.createdOn),
       'updatedOn': dateToJson(instance.updatedOn),
-      'upvotes': instance.upvotes,
+      'saves': instance.saves,
     };

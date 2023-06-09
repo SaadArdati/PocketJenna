@@ -257,7 +257,7 @@ class TextBounceButton extends StatefulWidget {
   final Widget? label;
   final Widget? icon;
   final Widget? child;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final Color? primaryColor;
   final Color? onPrimaryColor;
   final BoxDecoration? decoration;
@@ -293,7 +293,7 @@ class _TextBounceButtonState extends State<TextBounceButton> {
       onTapUp: (_) {
         setState(() {
           isPressingDown = false;
-          widget.onPressed();
+          widget.onPressed?.call();
         });
       },
       onTapCancel: () {
@@ -314,10 +314,10 @@ class _TextBounceButtonState extends State<TextBounceButton> {
         },
         actions: {
           ActivateIntent: CallbackAction<ActivateIntent>(
-            onInvoke: (_) => widget.onPressed(),
+            onInvoke: (_) => widget.onPressed?.call(),
           ),
           ButtonActivateIntent: CallbackAction<ButtonActivateIntent>(
-            onInvoke: (_) => widget.onPressed(),
+            onInvoke: (_) => widget.onPressed?.call(),
           ),
         },
         descendantsAreFocusable: false,
@@ -357,6 +357,154 @@ class _TextBounceButtonState extends State<TextBounceButton> {
                   child: widget.child ??
                       Row(
                         mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          if (widget.icon != null) widget.icon!,
+                          if (widget.icon != null && widget.label != null)
+                            const SizedBox(width: 8),
+                          if (widget.label != null) widget.label!,
+                        ],
+                      ),
+                ),
+              ),
+            ),
+          ).custom(
+            curve: Curves.easeOutQuart,
+            duration: 200.ms,
+            builder: (context, value, child) {
+              return Transform.translate(
+                offset: Offset(0, value * -5),
+                transformHitTests: false,
+                child: child,
+              );
+            },
+          ),
+        ).custom(
+          curve: Curves.easeOutQuart,
+          duration: 200.ms,
+          builder: (context, value, child) {
+            return Transform.scale(
+              scale: 1 + value / 50,
+              transformHitTests: false,
+              child: child,
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class OutlinedBounceButton extends StatefulWidget {
+  final Widget? label;
+  final Widget? icon;
+  final Widget? child;
+  final VoidCallback? onPressed;
+  final Color? primaryColor;
+  final Color? onPrimaryColor;
+  final BoxDecoration? decoration;
+
+  const OutlinedBounceButton({
+    super.key,
+    this.label,
+    this.icon,
+    this.child,
+    this.primaryColor,
+    this.onPrimaryColor,
+    this.decoration,
+    required this.onPressed,
+  });
+
+  @override
+  State<OutlinedBounceButton> createState() => _OutlinedBounceButtonState();
+}
+
+class _OutlinedBounceButtonState extends State<OutlinedBounceButton> {
+  bool isHovering = false;
+  bool isHighlighting = false;
+  bool isPressingDown = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: (_) {
+        setState(() {
+          isPressingDown = true;
+        });
+      },
+      onTapUp: (_) {
+        setState(() {
+          isPressingDown = false;
+          widget.onPressed?.call();
+        });
+      },
+      onTapCancel: () {
+        setState(() {
+          isPressingDown = false;
+        });
+      },
+      child: FocusableActionDetector(
+        onShowFocusHighlight: (bool highlight) {
+          setState(() {
+            isHighlighting = highlight;
+          });
+        },
+        onShowHoverHighlight: (bool hover) {
+          setState(() {
+            isHovering = hover;
+          });
+        },
+        actions: {
+          ActivateIntent: CallbackAction<ActivateIntent>(
+            onInvoke: (_) => widget.onPressed?.call(),
+          ),
+          ButtonActivateIntent: CallbackAction<ButtonActivateIntent>(
+            onInvoke: (_) => widget.onPressed?.call(),
+          ),
+        },
+        descendantsAreFocusable: false,
+        descendantsAreTraversable: false,
+        mouseCursor: SystemMouseCursors.click,
+        child: Animate(
+          target: isPressingDown ? 1 : 0,
+          child: Animate(
+            target: isHovering ? 1 : 0,
+            child: IconTheme.merge(
+              data: IconThemeData(
+                  color: widget.primaryColor ?? context.colorScheme.primary,
+                  size: 22),
+              child: DefaultTextStyle(
+                style: context.textTheme.labelLarge!.copyWith(
+                  color: widget.primaryColor ?? context.colorScheme.primary,
+                ),
+                child: AnimatedContainer(
+                  duration: 200.ms,
+                  padding: widget.child != null
+                      ? EdgeInsets.zero
+                      : widget.icon != null && widget.label == null
+                          ? const EdgeInsets.all(4)
+                          : const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 4),
+                  decoration: widget.decoration ??
+                      BoxDecoration(
+                        color: Colors.white.withOpacity(
+                          isPressingDown || isHighlighting
+                              ? 0.5
+                              : isHovering
+                                  ? 0.35
+                                  : 0,
+                        ),
+                        borderRadius: BorderRadius.circular(100),
+                        border: Border.all(
+                          color: widget.primaryColor ??
+                              context.colorScheme.primary,
+                          width: 2,
+                        ),
+                      ),
+                  child: widget.child ??
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           if (widget.icon != null) widget.icon!,
                           if (widget.icon != null && widget.label != null)

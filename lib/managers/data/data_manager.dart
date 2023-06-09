@@ -189,7 +189,7 @@ abstract class DataManager {
     required String title,
     required String icon,
     String? description,
-    bool public = false,
+    bool isPublic = false,
   }) async {
     debugPrint('Setting prompt [${AuthManager.instance.currentAuth!.id}]...');
     final String token = await AuthManager.instance.getAuthToken();
@@ -205,7 +205,7 @@ abstract class DataManager {
         'promptTitle': title,
         'promptIcon': icon,
         'promptDescription': description,
-        'isPublic': public,
+        'isPublic': isPublic,
       }),
     );
     if (response.statusCode == 200) {
@@ -271,13 +271,13 @@ abstract class DataManager {
     }
   }
 
-  Future<void> upvotePrompt({required String promptID}) async {
-    debugPrint('Upvoting prompt [${AuthManager.instance.currentAuth!.id}]...');
+  Future<void> savePrompt({required String promptID}) async {
+    debugPrint('Saving prompt [${AuthManager.instance.currentAuth!.id}]...');
 
     final String token = await AuthManager.instance.getAuthToken();
 
     final response = await post(
-      Uri.https(Constants.firebaseFunctionsBaseURL, '/widgets/upvotePrompt'),
+      Uri.https(Constants.firebaseFunctionsBaseURL, '/widgets/savePrompt'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -285,21 +285,21 @@ abstract class DataManager {
       body: jsonEncode({'promptID': promptID}),
     );
     if (response.statusCode == 200) {
-      debugPrint('Prompt upvoted');
+      debugPrint('Prompt saved');
       debugPrint(response.body);
     } else {
       throw Exception(
-          'Prompt upvote failed: ${response.statusCode} ${response.body} ${response.reasonPhrase}');
+          'Prompt save failed: ${response.statusCode} ${response.body} ${response.reasonPhrase}');
     }
   }
 
-  Future<void> unUpvotePrompt({required String promptID}) async {
-    debugPrint('Upvoting prompt [${AuthManager.instance.currentAuth!.id}]...');
+  Future<void> unSavePrompt({required String promptID}) async {
+    debugPrint('Unsaving prompt [${AuthManager.instance.currentAuth!.id}]...');
 
     final String token = await AuthManager.instance.getAuthToken();
 
     final response = await post(
-      Uri.https(Constants.firebaseFunctionsBaseURL, '/widgets/unUpvotePrompt'),
+      Uri.https(Constants.firebaseFunctionsBaseURL, '/widgets/unSavePrompt'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -307,11 +307,11 @@ abstract class DataManager {
       body: jsonEncode({'promptID': promptID}),
     );
     if (response.statusCode == 200) {
-      debugPrint('Prompt unUpvoted');
+      debugPrint('Prompt unsaved');
       debugPrint(response.body);
     } else {
       throw Exception(
-          'Prompt unUpvote failed: ${response.statusCode} ${response.body} ${response.reasonPhrase}');
+          'Prompt unsave failed: ${response.statusCode} ${response.body} ${response.reasonPhrase}');
     }
   }
 }

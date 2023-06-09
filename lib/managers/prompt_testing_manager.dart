@@ -8,14 +8,14 @@ class PromptTestingManager {
   String? title;
   String? description;
 
-  bool public = false;
+  bool isPublic = false;
 
   void reset() {
     prompt = null;
     testChat = null;
     title = null;
     description = null;
-    public = false;
+    isPublic = false;
   }
 
   bool validate() {
@@ -39,7 +39,7 @@ class PromptTestingManager {
       prompts: [prompt!],
       icon: 'https://picsum.photos/256',
       description: description,
-      public: public,
+      isPublic: isPublic,
     );
   }
 }

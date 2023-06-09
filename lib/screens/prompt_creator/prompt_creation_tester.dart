@@ -60,6 +60,7 @@ class _PromptCreationTesterState extends State<PromptCreationTester> {
               prompts: [promptTestingManager.prompt!],
               icon: '${Icons.construction.codePoint}',
               userID: AuthManager.instance.currentAuth!.id,
+              isPublic: false,
             )),
     );
 

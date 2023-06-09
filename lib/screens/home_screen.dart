@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -124,61 +125,70 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(height: 16),
                 const ExploreTile(),
                 const SizedBox(height: 8),
-                LayoutBuilder(builder: (context, constraints) {
-                  final int crossAxisCount;
-
-                  if (constraints.maxWidth <= 350) {
-                    crossAxisCount = 1;
-                  } else if (constraints.maxWidth <= 600) {
-                    crossAxisCount = 2;
-                  } else if (constraints.maxWidth <= 750) {
-                    crossAxisCount = 3;
-                  } else {
-                    crossAxisCount = 4;
-                  }
-
-                  return GridView.builder(
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: crossAxisCount,
+                if (DataManager.instance.currentUser!.pinnedPrompts.isEmpty)
+                  const Padding(
+                    padding: EdgeInsets.all(32),
+                    child: Center(
+                      child: CupertinoActivityIndicator(),
                     ),
-                    physics: const NeverScrollableScrollPhysics(),
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    shrinkWrap: true,
-                    itemCount:
-                        DataManager.instance.currentUser!.pinnedPrompts.length,
-                    itemBuilder: (context, index) {
-                      final Prompt? prompt =
-                          PromptManager.instance.getPromptByID(
-                        DataManager.instance.currentUser!.pinnedPrompts[index],
-                      );
-                      if (prompt == null) return const SizedBox();
-                      // final bool isComingSoon;
-                      // switch (type) {
-                      //   case ChatType.general:
-                      //   case ChatType.email:
-                      //   case ChatType.documentCode:
-                      //     isComingSoon = false;
-                      //     break;
-                      //   case ChatType.scientific:
-                      //   case ChatType.analyze:
-                      //   case ChatType.readMe:
-                      //     isComingSoon = true;
-                      //     break;
-                      // }
-                      return Padding(
-                        padding: const EdgeInsets.all(8),
-                        child: GPTCard(
-                          prompt: prompt,
-                          isComingSoon: false,
-                          onTap: () => context.go(
-                            '/chat?promptID=${prompt.id}',
-                            extra: {'from': '/home'},
+                  )
+                else
+                  LayoutBuilder(builder: (context, constraints) {
+                    final int crossAxisCount;
+
+                    if (constraints.maxWidth <= 350) {
+                      crossAxisCount = 1;
+                    } else if (constraints.maxWidth <= 600) {
+                      crossAxisCount = 2;
+                    } else if (constraints.maxWidth <= 750) {
+                      crossAxisCount = 3;
+                    } else {
+                      crossAxisCount = 4;
+                    }
+
+                    return GridView.builder(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: crossAxisCount,
+                      ),
+                      physics: const NeverScrollableScrollPhysics(),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      shrinkWrap: true,
+                      itemCount: DataManager
+                          .instance.currentUser!.pinnedPrompts.length,
+                      itemBuilder: (context, index) {
+                        final Prompt? prompt =
+                            PromptManager.instance.getPromptByID(
+                          DataManager
+                              .instance.currentUser!.pinnedPrompts[index],
+                        );
+                        if (prompt == null) return const SizedBox();
+                        // final bool isComingSoon;
+                        // switch (type) {
+                        //   case ChatType.general:
+                        //   case ChatType.email:
+                        //   case ChatType.documentCode:
+                        //     isComingSoon = false;
+                        //     break;
+                        //   case ChatType.scientific:
+                        //   case ChatType.analyze:
+                        //   case ChatType.readMe:
+                        //     isComingSoon = true;
+                        //     break;
+                        // }
+                        return Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: GPTCard(
+                            prompt: prompt,
+                            isComingSoon: false,
+                            onTap: () => context.go(
+                              '/chat?promptID=${prompt.id}',
+                              extra: {'from': '/home'},
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                  );
-                }),
+                        );
+                      },
+                    );
+                  }),
               ],
             ),
           ),

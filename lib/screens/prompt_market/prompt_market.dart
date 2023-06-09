@@ -167,6 +167,10 @@ class _GPTPromptTileState extends State<GPTPromptTile> {
   }
 
   Widget upvoteButton(BuildContext context) {
+    final bool isSaved = DataManager.instance.currentUser?.pinnedPrompts
+            .contains(widget.prompt.id) ??
+        false;
+
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: 8,
@@ -178,20 +182,25 @@ class _GPTPromptTileState extends State<GPTPromptTile> {
           color: context.colorScheme.primary,
           width: 2,
         ),
+        color: isSaved ? context.colorScheme.primary : null,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            Icons.arrow_upward,
-            color: context.colorScheme.onSurfaceVariant,
+            isSaved ? Icons.favorite : Icons.favorite_border,
+            color: isSaved
+                ? context.colorScheme.onPrimary
+                : context.colorScheme.primary,
             size: 16,
           ),
           const SizedBox(width: 4),
           Text(
-            '${widget.prompt.upvotes.length}',
+            '${widget.prompt.saves.length}',
             style: context.textTheme.labelSmall?.copyWith(
-              color: context.colorScheme.onSurfaceVariant,
+              color: isSaved
+                  ? context.colorScheme.onPrimary
+                  : context.colorScheme.onSurfaceVariant,
             ),
           ),
         ],

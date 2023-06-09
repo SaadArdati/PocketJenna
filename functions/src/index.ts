@@ -356,7 +356,7 @@ app.post("/setPrompt", async (req: Request, res: Response) => {
         title: promptTitle,
         icon: promptIcon,
         promptDescription: promptDescription,
-        public: isPublic,
+        isPublic: isPublic,
         updatedOn: new Date().getTime(),
       };
 
@@ -429,10 +429,10 @@ app.post("/setPrompt", async (req: Request, res: Response) => {
       title: promptTitle,
       icon: promptIcon,
       description: promptDescription,
-      public: isPublic,
+      isPublic: isPublic,
       updatedOn: new Date().getTime(),
       createdOn: new Date().getTime(),
-      upvotes: [],
+      saves: [],
     };
 
     const doc: FirebaseFirestore.DocumentReference =
@@ -571,7 +571,7 @@ app.post("/getPrompts", async (req: Request, res: Response) => {
   }
 });
 
-app.post("/upvotePrompt", async (req: Request, res: Response) => {
+app.post("/savePrompt", async (req: Request, res: Response) => {
   const userID = req.headers.userID;
   const promptID = req.body.promptID;
 
@@ -606,19 +606,28 @@ app.post("/upvotePrompt", async (req: Request, res: Response) => {
     promptRef.data();
   const promptModel: Prompt = promptData as Prompt;
 
-  if (promptModel.upvotes.includes(userID)) {
-    res.status(400).send("You have already upvoted this prompt");
+  if (!promptModel.isPublic && promptModel.userID !== userID) {
+    res.status(403).send("You do not have permission to save this prompt");
     return;
   }
 
-  const promptUpdate = {
-    upvotes: [...promptModel.upvotes, userID],
-  };
+  if (promptModel.saves.includes(userID)) {
+    res.status(400).send("You have already saved this prompt");
+    return;
+  }
 
-  await promptsCollection.doc(promptID).set(promptUpdate, {merge: true});
+  await userCollection.doc(userID).update({
+    pinnedPrompts: admin.firestore.FieldValue.arrayUnion(promptID),
+  });
+
+  await promptsCollection.doc(promptID).update({
+    saves: admin.firestore.FieldValue.arrayUnion(userID),
+  });
+
+  return res.status(200).send("OK");
 });
 
-app.post("/unUpvotePrompt", async (req: Request, res: Response) => {
+app.post("/unSavePrompt", async (req: Request, res: Response) => {
   const userID = req.headers.userID;
   const promptID = req.body.promptID;
 
@@ -653,16 +662,25 @@ app.post("/unUpvotePrompt", async (req: Request, res: Response) => {
     promptRef.data();
   const promptModel: Prompt = promptData as Prompt;
 
-  if (!promptModel.upvotes.includes(userID)) {
-    res.status(400).send("You have not upvoted this prompt");
+  if (!promptModel.isPublic && promptModel.userID !== userID) {
+    res.status(403).send("You do not have permission to unSave this prompt");
     return;
   }
 
-  const promptUpdate = {
-    upvotes: promptModel.upvotes.filter((id) => id !== userID),
-  };
+  if (!promptModel.saves.includes(userID)) {
+    res.status(400).send("You have not saved this prompt");
+    return;
+  }
 
-  await promptsCollection.doc(promptID).set(promptUpdate, {merge: true});
+  await userCollection.doc(userID).update({
+    pinnedPrompts: admin.firestore.FieldValue.arrayRemove(promptID),
+  });
+
+  await promptsCollection.doc(promptID).update({
+    saves: admin.firestore.FieldValue.arrayRemove(userID),
+  });
+
+  return res.status(200).send("OK");
 });
 
 app.post("/updatePinnedPrompts", async (req: Request, res: Response) => {

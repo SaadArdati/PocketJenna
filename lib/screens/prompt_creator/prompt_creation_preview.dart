@@ -101,6 +101,7 @@ class _PromptCreationPreviewState extends State<PromptCreationPreview> {
                     prompts: [promptTestingManager.prompt!],
                     icon: 'https://picsum.photos/256',
                     userID: AuthManager.instance.currentAuth!.id,
+                    isPublic: promptTestingManager.isPublic,
                   ),
                   onTap: () {},
                 ),
@@ -109,8 +110,8 @@ class _PromptCreationPreviewState extends State<PromptCreationPreview> {
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: BounceWrapper(
                     onTap: () {
-                      promptTestingManager.public =
-                          !promptTestingManager.public;
+                      promptTestingManager.isPublic =
+                          !promptTestingManager.isPublic;
                       setState(() {});
                     },
                     child: JennaTile(
@@ -119,9 +120,9 @@ class _PromptCreationPreviewState extends State<PromptCreationPreview> {
                         child: IgnorePointer(
                           ignoring: !isUploading,
                           child: CheckboxListTile(
-                            value: promptTestingManager.public,
+                            value: promptTestingManager.isPublic,
                             onChanged: (bool? value) {
-                              promptTestingManager.public = value ?? false;
+                              promptTestingManager.isPublic = value ?? false;
                               setState(() {});
                             },
                             contentPadding: const EdgeInsets.symmetric(
@@ -130,7 +131,7 @@ class _PromptCreationPreviewState extends State<PromptCreationPreview> {
                             ),
                             selectedTileColor:
                                 context.colorScheme.primaryContainer,
-                            selected: promptTestingManager.public,
+                            selected: promptTestingManager.isPublic,
                             title: Text(
                               'Publish this prompt on the prompt market.',
                               style: context.textTheme.bodyMedium?.copyWith(
