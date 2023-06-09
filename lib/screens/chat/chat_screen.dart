@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -5,7 +6,6 @@ import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
 
 import '../../constants.dart';
-import '../../managers/asset_manager.dart';
 import '../../managers/data/data_manager.dart';
 import '../../managers/gpt_manager.dart';
 import '../../models/chat_snippet.dart';
@@ -57,12 +57,32 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  bool loading = false;
+  String? error;
+
   final ScrollController scrollController = ScrollController();
 
   bool historyOpenOnWide = Hive.box(Constants.settings).get(
     Constants.openHistoryOnWideScreen,
     defaultValue: true,
   );
+
+  Future<void> unSave() async {
+    setState(() {
+      loading = true;
+      error = null;
+    });
+
+    try {
+      await DataManager.instance.unSavePrompt(promptID: widget.prompt!.id);
+    } catch (e) {
+      error = e.toString();
+    } finally {
+      setState(() {
+        loading = false;
+      });
+    }
+  }
 
   @override
   void initState() {
@@ -126,6 +146,14 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
         centerTitle: false,
         actions: [
+          ScaffoldAction(
+            tooltip: 'Unsave',
+            icon: Icons.favorite,
+            onTap: () {
+              unSave();
+              context.go('/home', extra: {'from': '/chat'});
+            },
+          ),
           if (isWide && !historyOpenOnWide)
             ScaffoldAction(
               tooltip: 'Chat History',
@@ -183,8 +211,12 @@ class _ChatScreenState extends State<ChatScreen> {
                           Expanded(
                             child: ListView(children: [
                               for (final ChatSnippet chatSnippet in DataManager
-                                  .instance.currentUser!.chatSnippets.values)
+                                  .instance.currentUser!.chatSnippets.values
+                                  .sorted((a, b) =>
+                                      b.updatedOn.compareTo(a.updatedOn))) ...[
+                                const Divider(height: 1),
                                 HistoryTile(chatSnippet: chatSnippet),
+                              ]
                             ]),
                           ),
                         ],
@@ -302,13 +334,13 @@ class _HistoryTileState extends State<HistoryTile> {
       },
       child: ListTile(
         horizontalTitleGap: 0,
-        leading: AssetManager.getPromptIcon(
-          widget.chatSnippet.promptIcon,
-          size: 20,
-          color: isActiveChat
-              ? context.colorScheme.onPrimaryContainer
-              : context.colorScheme.onBackground,
-        ),
+        // leading: AssetManager.getPromptIcon(
+        //   widget.chatSnippet.promptIcon,
+        //   size: 20,
+        //   color: isActiveChat
+        //       ? context.colorScheme.onPrimaryContainer
+        //       : context.colorScheme.onBackground,
+        // ),
         title: Text(
           widget.chatSnippet.snippet,
           maxLines: 2,

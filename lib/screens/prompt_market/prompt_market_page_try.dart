@@ -1,12 +1,17 @@
+import 'dart:async';
+
 import 'package:adaptive_theme/adaptive_theme.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../managers/data/data_manager.dart';
 import '../../managers/gpt_manager.dart';
 import '../../managers/prompt_testing_manager.dart';
 import '../../models/chat.dart';
 import '../../models/prompt.dart';
+import '../../models/user_model.dart';
 import '../../ui/bounce_button.dart';
 import '../../ui/custom_scaffold.dart';
 import '../../ui/theme_extensions.dart';
@@ -41,6 +46,11 @@ class _PromptMarketPageTrialState extends State<PromptMarketPageTrial> {
 
   late final Stream<Chat?> chatStream;
 
+  bool loading = false;
+  String? error;
+
+  StreamSubscription<UserModel?>? userStreamListener;
+
   @override
   void initState() {
     super.initState();
@@ -56,6 +66,20 @@ class _PromptMarketPageTrialState extends State<PromptMarketPageTrial> {
     );
 
     gpt.addListener(gptListener);
+
+    userStreamListener = DataManager.instance.userStream.listen(userListener);
+  }
+
+  @override
+  void dispose() {
+    userStreamListener?.cancel();
+    scrollController.dispose();
+
+    super.dispose();
+  }
+
+  void userListener(UserModel? user) {
+    setState(() {});
   }
 
   void gptListener() {
@@ -68,11 +92,38 @@ class _PromptMarketPageTrialState extends State<PromptMarketPageTrial> {
     }
   }
 
-  @override
-  void dispose() {
-    scrollController.dispose();
+  Future<void> save() async {
+    setState(() {
+      loading = true;
+      error = null;
+    });
 
-    super.dispose();
+    try {
+      await DataManager.instance.savePrompt(promptID: widget.prompt.id);
+    } catch (e) {
+      error = e.toString();
+    } finally {
+      setState(() {
+        loading = false;
+      });
+    }
+  }
+
+  Future<void> unSave() async {
+    setState(() {
+      loading = true;
+      error = null;
+    });
+
+    try {
+      await DataManager.instance.unSavePrompt(promptID: widget.prompt.id);
+    } catch (e) {
+      error = e.toString();
+    } finally {
+      setState(() {
+        loading = false;
+      });
+    }
   }
 
   @override
@@ -100,6 +151,8 @@ class _PromptMarketPageTrialState extends State<PromptMarketPageTrial> {
       title: Text(
         widget.prompt.title,
         textAlign: TextAlign.center,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
         style: context.textTheme.titleMedium?.copyWith(
           color: context.colorScheme.onPrimary,
           fontWeight: FontWeight.bold,
@@ -124,6 +177,9 @@ class _PromptMarketPageTrialState extends State<PromptMarketPageTrial> {
   }
 
   Widget buildActionContainer(BuildContext context) {
+    final bool isSaved = DataManager.instance.currentUser?.pinnedPrompts
+            .contains(widget.prompt.id) ??
+        false;
     return Align(
       alignment: Alignment.topCenter,
       child: Padding(
@@ -153,13 +209,29 @@ class _PromptMarketPageTrialState extends State<PromptMarketPageTrial> {
                   ),
                   Directionality(
                     textDirection: TextDirection.rtl,
-                    child: TextBounceButton(
-                      icon: const Icon(Icons.favorite),
-                      label: const Text('Save'),
-                      primaryColor: context.colorScheme.onSecondaryContainer,
-                      onPrimaryColor: context.colorScheme.onSecondaryContainer,
-                      onPressed: () {},
-                    ),
+                    child: isSaved
+                        ? FilledBounceButton(
+                            primaryColor: context.colorScheme.secondary,
+                            onPrimaryColor: context.colorScheme.onSecondary,
+                            onPressed: loading ? null : unSave,
+                            icon: loading
+                                ? const CupertinoActivityIndicator()
+                                : const Icon(
+                                    Icons.favorite,
+                                  ),
+                            label: const Text('Unsave'),
+                          )
+                        : OutlinedBounceButton(
+                            primaryColor: context.colorScheme.secondary,
+                            onPrimaryColor: context.colorScheme.onSecondary,
+                            onPressed: loading ? null : save,
+                            icon: loading
+                                ? const CupertinoActivityIndicator()
+                                : const Icon(
+                                    Icons.favorite_border,
+                                  ),
+                            label: const Text('Save'),
+                          ),
                   ),
                 ],
               ),

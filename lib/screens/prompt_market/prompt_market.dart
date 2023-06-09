@@ -87,8 +87,14 @@ class _PromptMarketState extends State<PromptMarket> {
 class GPTPromptTile extends StatefulWidget {
   final Prompt prompt;
   final VoidCallback onTap;
+  final bool withSavesPill;
 
-  const GPTPromptTile({super.key, required this.prompt, required this.onTap});
+  const GPTPromptTile({
+    super.key,
+    required this.prompt,
+    required this.onTap,
+    this.withSavesPill = true,
+  });
 
   @override
   State<GPTPromptTile> createState() => _GPTPromptTileState();
@@ -135,8 +141,11 @@ class _GPTPromptTileState extends State<GPTPromptTile> {
                           ),
                         ),
                       ),
-                      if (widget.prompt.description == null)
-                        upvoteButton(context),
+                      if (widget.prompt.description == null &&
+                          widget.withSavesPill) ...[
+                        const SizedBox(width: 8),
+                        savesButton(context),
+                      ],
                     ],
                   ),
                   if (widget.prompt.description != null) ...[
@@ -153,7 +162,10 @@ class _GPTPromptTileState extends State<GPTPromptTile> {
                             ),
                           ),
                         ),
-                        upvoteButton(context),
+                        if (widget.withSavesPill) ...[
+                          const SizedBox(width: 8),
+                          savesButton(context),
+                        ],
                       ],
                     ),
                   ],
@@ -166,7 +178,7 @@ class _GPTPromptTileState extends State<GPTPromptTile> {
     );
   }
 
-  Widget upvoteButton(BuildContext context) {
+  Widget savesButton(BuildContext context) {
     final bool isSaved = DataManager.instance.currentUser?.pinnedPrompts
             .contains(widget.prompt.id) ??
         false;

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive/hive.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:pocketjenna/screens/prompt_market/prompt_market.dart';
 import 'package:pub_semver/pub_semver.dart';
 import 'package:universal_io/io.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -23,6 +24,11 @@ import '../ui/theme_extensions.dart';
 
 bool didCheckForUpdates = false;
 
+enum PromptView {
+  cards,
+  list,
+}
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -32,6 +38,9 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   StreamSubscription<Map<String, Prompt>>? promptListener;
+  StreamSubscription<UserModel?>? userListener;
+
+  PromptView promptView = PromptView.cards;
 
   @override
   void initState() {
@@ -44,11 +53,22 @@ class _HomeScreenState extends State<HomeScreen> {
     promptListener = PromptManager.instance.stream.listen((prompts) {
       setState(() {});
     });
+
+    userListener = DataManager.instance.userStream.listen((user) {
+      setState(() {});
+    });
+
+    promptView = Hive.box(Constants.settings).get(Constants.promptView,
+                defaultValue: PromptView.cards.index) ==
+            PromptView.cards.index
+        ? PromptView.cards
+        : PromptView.list;
   }
 
   @override
   void dispose() {
     promptListener?.cancel();
+    userListener?.cancel();
     super.dispose();
   }
 
@@ -114,6 +134,48 @@ class _HomeScreenState extends State<HomeScreen> {
           context.go('/settings', extra: {'from': '/home'});
         },
       ),
+      actions: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: SegmentedButton<PromptView>(
+            style: ButtonStyle(
+              foregroundColor: MaterialStateProperty.resolveWith(
+                (states) {
+                  if (states.contains(MaterialState.selected)) {
+                    return context.colorScheme.onPrimary;
+                  } else {
+                    return context.colorScheme.onSurface;
+                  }
+                },
+              ),
+              backgroundColor: MaterialStateProperty.resolveWith(
+                (states) {
+                  if (states.contains(MaterialState.selected)) {
+                    return context.colorScheme.secondary;
+                  } else {
+                    return context.colorScheme.primaryContainer;
+                  }
+                },
+              ),
+            ),
+            showSelectedIcon: false,
+            segments: const [
+              ButtonSegment<PromptView>(
+                  value: PromptView.cards, icon: Icon(Icons.grid_view)),
+              ButtonSegment<PromptView>(
+                  value: PromptView.list, icon: Icon(Icons.list)),
+            ],
+            selected: {promptView},
+            onSelectionChanged: (value) {
+              setState(() {
+                promptView = value.first;
+                Hive.box(Constants.settings)
+                    .put(Constants.promptView, promptView.index);
+              });
+            },
+          ),
+        ),
+      ],
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(vertical: 16),
         child: Center(
@@ -132,7 +194,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: CupertinoActivityIndicator(),
                     ),
                   )
-                else
+                else if (promptView == PromptView.cards)
                   LayoutBuilder(builder: (context, constraints) {
                     final int crossAxisCount;
 
@@ -188,7 +250,31 @@ class _HomeScreenState extends State<HomeScreen> {
                         );
                       },
                     );
-                  }),
+                  })
+                else
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    itemCount:
+                        DataManager.instance.currentUser!.pinnedPrompts.length,
+                    clipBehavior: Clip.none,
+                    itemBuilder: (BuildContext context, int index) {
+                      final prompt = PromptManager.instance.getPromptByID(
+                        DataManager.instance.currentUser!.pinnedPrompts[index],
+                      );
+                      if (prompt == null) return const SizedBox();
+
+                      return GPTPromptTile(
+                        prompt: prompt,
+                        withSavesPill: false,
+                        onTap: () => context.go(
+                          '/chat?promptID=${prompt.id}',
+                          extra: {'from': '/home'},
+                        ),
+                      );
+                    },
+                  ),
               ],
             ),
           ),

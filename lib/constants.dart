@@ -28,6 +28,7 @@ class Constants {
   static const String history = 'history';
   static const String prompts = 'prompts';
   static const String didModifyPinnedPrompts = 'is_modified';
+  static const String promptView = 'prompt_view';
 
   /// ------- Settings
   static const String settings = 'settings';

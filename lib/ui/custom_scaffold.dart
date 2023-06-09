@@ -583,17 +583,20 @@ class CustomAppBar extends StatelessWidget {
                     mainAxisSize: MainAxisSize.max,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Expanded(
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: leadingWidget,
+                      if ((actions?.length ?? 0) > 2)
+                        leadingWidget
+                      else
+                        Flexible(
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: leadingWidget,
+                          ),
                         ),
-                      ),
                       if (title != null)
                         Expanded(flex: 2, child: title!)
                       else if (!isDesktop)
                         Expanded(flex: 2, child: appTitle),
-                      Expanded(
+                      Flexible(
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [if (actions != null) ...actions!],
