@@ -127,145 +127,148 @@ class _PromptMarketPageState extends State<PromptMarketPage> {
               );
             },
           ),
-          body: SingleChildScrollView(
-            clipBehavior: Clip.none,
-            padding: EdgeInsets.zero,
-            child: Container(
-              margin: const EdgeInsets.all(16),
-              constraints: const BoxConstraints(maxWidth: 800),
-              child: prompt == null
-                  ? const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(32),
-                        child: CupertinoActivityIndicator(),
-                      ),
-                    )
-                  : Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Expanded(
-                              child: FilledBounceButton(
-                                onPressed: loading
-                                    ? null
-                                    : () {
-                                        context.go(
-                                          '/prompt-market/${prompt.id}/try',
-                                          extra: prompt,
-                                        );
-                                      },
-                                icon: const Icon(Icons.play_arrow),
-                                label: const Text('Try out'),
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: isSaved
-                                  ? FilledBounceButton(
-                                      onPressed: loading ? null : unSave,
-                                      icon: loading
-                                          ? const CupertinoActivityIndicator()
-                                          : const Icon(
-                                              Icons.favorite,
-                                            ),
-                                      label: const Text('Unsave'),
-                                    )
-                                  : OutlinedBounceButton(
-                                      onPressed: loading ? null : save,
-                                      icon: loading
-                                          ? const CupertinoActivityIndicator()
-                                          : const Icon(
-                                              Icons.favorite_border,
-                                            ),
-                                      label: const Text('Save'),
-                                    ),
-                            ),
-                          ],
+          body: Align(
+            alignment: Alignment.topCenter,
+            child: SingleChildScrollView(
+              clipBehavior: Clip.none,
+              padding: EdgeInsets.zero,
+              child: Container(
+                margin: const EdgeInsets.all(16),
+                constraints: const BoxConstraints(maxWidth: 800),
+                child: prompt == null
+                    ? const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(32),
+                          child: CupertinoActivityIndicator(),
                         ),
-                        AnimatedAlign(
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeOutQuart,
-                          heightFactor: error == null ? 0 : 1,
-                          alignment: Alignment.topCenter,
-                          child: error == null
-                              ? const SizedBox.shrink()
-                              : Container(
-                                  margin: const EdgeInsets.only(top: 16),
-                                  padding: const EdgeInsets.all(16),
-                                  decoration: BoxDecoration(
-                                    color: context.colorScheme.error,
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      const Icon(
-                                        Icons.error_outline,
-                                        color: Colors.white,
+                      )
+                    : Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Expanded(
+                                child: FilledBounceButton(
+                                  onPressed: loading
+                                      ? null
+                                      : () {
+                                          context.go(
+                                            '/prompt-market/${prompt.id}/try',
+                                            extra: prompt,
+                                          );
+                                        },
+                                  icon: const Icon(Icons.play_arrow),
+                                  label: const Text('Try out'),
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: isSaved
+                                    ? FilledBounceButton(
+                                        onPressed: loading ? null : unSave,
+                                        icon: loading
+                                            ? const CupertinoActivityIndicator()
+                                            : const Icon(
+                                                Icons.favorite,
+                                              ),
+                                        label: const Text('Unsave'),
+                                      )
+                                    : OutlinedBounceButton(
+                                        onPressed: loading ? null : save,
+                                        icon: loading
+                                            ? const CupertinoActivityIndicator()
+                                            : const Icon(
+                                                Icons.favorite_border,
+                                              ),
+                                        label: const Text('Save'),
                                       ),
-                                      const SizedBox(width: 8),
-                                      Expanded(
-                                        child: Text(
-                                          error!,
-                                          style: context.textTheme.bodySmall
-                                              ?.copyWith(
-                                            color: Colors.white,
+                              ),
+                            ],
+                          ),
+                          AnimatedAlign(
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeOutQuart,
+                            heightFactor: error == null ? 0 : 1,
+                            alignment: Alignment.topCenter,
+                            child: error == null
+                                ? const SizedBox.shrink()
+                                : Container(
+                                    margin: const EdgeInsets.only(top: 16),
+                                    padding: const EdgeInsets.all(16),
+                                    decoration: BoxDecoration(
+                                      color: context.colorScheme.error,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Icon(
+                                          Icons.error_outline,
+                                          color: Colors.white,
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(
+                                            error!,
+                                            style: context.textTheme.bodySmall
+                                                ?.copyWith(
+                                              color: Colors.white,
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
-                                ),
-                        ),
-                        const SizedBox(height: 16),
-                        if (prompt.description != null) ...[
-                          JennaTile(
-                            title: 'Description',
-                            padding: const EdgeInsets.all(8),
-                            child: Text(prompt.description!),
                           ),
-                          const SizedBox(height: 8),
-                        ],
-                        ...prompt.prompts.mapIndexed(
-                          (index, text) => Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8),
-                            child: JennaTile(
-                              title: prompt.prompts.length == 1
-                                  ? 'Prompt'
-                                  : 'Prompt ${index + 1}',
+                          const SizedBox(height: 16),
+                          if (prompt.description != null) ...[
+                            JennaTile(
+                              title: 'Description',
                               padding: const EdgeInsets.all(8),
-                              child: SelectionArea(
-                                child: Text(
-                                  text,
-                                  style: context.textTheme.bodySmall,
+                              child: Text(prompt.description!),
+                            ),
+                            const SizedBox(height: 8),
+                          ],
+                          ...prompt.prompts.mapIndexed(
+                            (index, text) => Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              child: JennaTile(
+                                title: prompt.prompts.length == 1
+                                    ? 'Prompt'
+                                    : 'Prompt ${index + 1}',
+                                padding: const EdgeInsets.all(8),
+                                child: SelectionArea(
+                                  child: Text(
+                                    text,
+                                    style: context.textTheme.bodySmall,
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 8),
-                        DefaultTextStyle(
-                          style: context.textTheme.bodySmall!,
-                          child: JennaTile(
-                            title: 'Details',
-                            padding: const EdgeInsets.all(8),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('Author: ${prompt.userID}'),
-                                Text(
-                                  'Created On: ${prompt.createdOn.toLocal().toString().split(' ').first}',
-                                ),
-                                Text(
-                                  'Last Updated: ${prompt.updatedOn.toLocal().toString().split(' ').first}',
-                                ),
-                              ],
+                          const SizedBox(height: 8),
+                          DefaultTextStyle(
+                            style: context.textTheme.bodySmall!,
+                            child: JennaTile(
+                              title: 'Details',
+                              padding: const EdgeInsets.all(8),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('Author: ${prompt.userID}'),
+                                  Text(
+                                    'Created On: ${prompt.createdOn.toLocal().toString().split(' ').first}',
+                                  ),
+                                  Text(
+                                    'Last Updated: ${prompt.updatedOn.toLocal().toString().split(' ').first}',
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
+                        ],
+                      ),
+              ),
             ),
           ),
         );
