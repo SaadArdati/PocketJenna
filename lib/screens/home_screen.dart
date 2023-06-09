@@ -183,8 +183,8 @@ class _HomeScreenState extends State<HomeScreen> {
             constraints: const BoxConstraints(maxWidth: 800),
             child: Column(
               children: [
-                const TokensTile(),
-                const SizedBox(height: 16),
+                // const TokensTile(),
+                // const SizedBox(height: 16),
                 const ExploreTile(),
                 const SizedBox(height: 8),
                 if (DataManager.instance.currentUser!.pinnedPrompts.isEmpty)
