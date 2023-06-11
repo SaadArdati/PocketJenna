@@ -136,7 +136,7 @@ class _ChatScreenState extends State<ChatScreen> {
           },
         ),
         title: Text(
-          widget.prompt?.title ?? 'Loading...',
+          widget.prompt?.title ?? gpt.chat?.prompt.title ?? 'Loading...',
           textAlign: TextAlign.center,
           style: context.textTheme.titleMedium?.copyWith(
             color: context.colorScheme.onPrimary,
@@ -279,15 +279,17 @@ class _ChatScreenState extends State<ChatScreen> {
                               ),
                             ),
                             Expanded(
-                              child: ListView(
-                                padding: EdgeInsets.zero,
-                                children: [
-                                  for (final ChatSnippet chatSnippet
-                                      in DataManager.instance.currentUser!
-                                          .chatSnippets.values)
-                                    HistoryTile(chatSnippet: chatSnippet),
-                                ],
-                              ),
+                              child:
+                                  ListView(padding: EdgeInsets.zero, children: [
+                                for (final ChatSnippet chatSnippet
+                                    in DataManager.instance.currentUser!
+                                        .chatSnippets.values
+                                        .sorted((a, b) => b.updatedOn
+                                            .compareTo(a.updatedOn))) ...[
+                                  const Divider(height: 1),
+                                  HistoryTile(chatSnippet: chatSnippet),
+                                ]
+                              ]),
                             ),
                           ],
                         ),

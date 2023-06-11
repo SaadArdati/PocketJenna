@@ -3,12 +3,11 @@ import * as admin from "firebase-admin";
 import * as express from "express";
 import {NextFunction, Request, Response} from "express";
 import {log, warn} from "firebase-functions/logger";
-import {Chat, ChatMessage, ChatMessageRole, Prompt, UserModel} from "./models";
-import {encode} from "gpt-3-encoder";
-import {defineSecret} from "firebase-functions/params";
+import {Chat, Prompt, UserModel} from "./models";
+// import {defineSecret} from "firebase-functions/params";
 import cors = require("cors");
 
-const openAIKey = defineSecret("OPEN_AI_KEY");
+// const openAIKey = defineSecret("OPEN_AI_KEY");
 
 admin.initializeApp();
 
@@ -74,30 +73,30 @@ const db = admin.firestore();
 const userCollection = db.collection("users");
 const promptsCollection = db.collection("market");
 
-app.get("/getOpenAIKey", async (req: Request, res: Response) => {
-  const userID = req.headers.userID;
-
-  if (!userID) {
-    res.status(400).send("userID is required");
-    return;
-  }
-
-  // check if is a string.
-  if (typeof userID !== "string") {
-    res.status(400).send("userID must be a string");
-    return;
-  }
-
-  // update chatSnippets in user model.
-  const user = await userCollection.doc(userID).get();
-  const userModel = user.data() as UserModel;
-
-  if (userModel.tokens < 1) {
-    return res.status(403).send("Not enough tokens");
-  }
-
-  return res.status(200).send(openAIKey.value());
-});
+// app.get("/getOpenAIKey", async (req: Request, res: Response) => {
+//   const userID = req.headers.userID;
+//
+//   if (!userID) {
+//     res.status(400).send("userID is required");
+//     return;
+//   }
+//
+//   // check if is a string.
+//   if (typeof userID !== "string") {
+//     res.status(400).send("userID must be a string");
+//     return;
+//   }
+//
+//   // update chatSnippets in user model.
+//   const user = await userCollection.doc(userID).get();
+//   const userModel = user.data() as UserModel;
+//
+//   if (userModel.tokens < 1) {
+//     return res.status(403).send("Not enough tokens");
+//   }
+//
+//   return res.status(200).send(openAIKey.value());
+// });
 
 app.post("/updateChat", async (req: Request, res: Response) => {
   const chat = req.body as Chat;
@@ -121,24 +120,24 @@ app.post("/updateChat", async (req: Request, res: Response) => {
   log("CHAT: " + JSON.stringify(chat));
   log("USER: " + JSON.stringify(userModel));
 
-  const lastMessage: ChatMessage = chat.messages[chat.messages.length - 1];
-
-  if (userModel.tokens <= 0) {
-    return res.status(403).send("Not enough tokens");
-  }
-
-  if (lastMessage.role === ChatMessageRole.assistant) {
-    // A generated assistant message. Tokenize and subtract tokens from user.
-    const encoded = encode(lastMessage.text);
-    const tokens: number = encoded.length;
-    log("Encoded: " + encoded);
-    log("Tokens: " + tokens);
-    log("User tokens: " + userModel.tokens);
-
-    userModel.tokens -= tokens;
-
-    log("User tokens after: " + userModel.tokens);
-  }
+  // const lastMessage: ChatMessage = chat.messages[chat.messages.length - 1];
+  //
+  // if (userModel.tokens <= 0) {
+  //   return res.status(403).send("Not enough tokens");
+  // }
+  //
+  // if (lastMessage.role === ChatMessageRole.assistant) {
+  //   // A generated assistant message. Tokenize and subtract tokens from user.
+  //   const encoded = encode(lastMessage.text);
+  //   const tokens: number = encoded.length;
+  //   log("Encoded: " + encoded);
+  //   log("Tokens: " + tokens);
+  //   log("User tokens: " + userModel.tokens);
+  //
+  //   userModel.tokens -= tokens;
+  //
+  //   log("User tokens after: " + userModel.tokens);
+  // }
 
   await userCollection.doc(userID).collection("chats").doc(chat.id).set(chat);
 
