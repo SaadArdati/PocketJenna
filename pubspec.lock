@@ -173,10 +173,10 @@ packages:
     dependency: "direct dev"
     description:
       name: build_runner
-      sha256: "220ae4553e50d7c21a17c051afc7b183d28a24a420502e842f303f8e4e6edced"
+      sha256: "5e1929ad37d48bd382b124266cb8e521de5548d406a45a5ae6656c13dab73e37"
       url: "https://pub.dev"
     source: hosted
-    version: "2.4.4"
+    version: "2.4.5"
   build_runner_core:
     dependency: transitive
     description:
@@ -301,10 +301,10 @@ packages:
     dependency: transitive
     description:
       name: csslib
-      sha256: "831883fb353c8bdc1d71979e5b342c7d88acfbc643113c14ae51e2442ea0f20f"
+      sha256: "706b5707578e0c1b4b7550f64078f0a0f19dec3f50a178ffae7006b0a9ca58fb"
       url: "https://pub.dev"
     source: hosted
-    version: "0.17.3"
+    version: "1.0.0"
   dart_code_metrics:
     dependency: "direct dev"
     description:
@@ -461,10 +461,10 @@ packages:
     dependency: "direct main"
     description:
       name: firedart
-      sha256: "27b4430d1b66a3452929ac39bb57303a906af0e419eb158ccd2b26a74207662f"
+      sha256: "0484c06fc94f2b70188efcd0bfd429d280eff53feae6bdd72343138fb1e0b0d3"
       url: "https://pub.dev"
     source: hosted
-    version: "0.9.2"
+    version: "0.9.2+1"
   fixnum:
     dependency: transitive
     description:
@@ -531,10 +531,10 @@ packages:
     description:
       path: "packages/flutter_markdown"
       ref: HEAD
-      resolved-ref: b0dcd3de7eeccb95de5079955510441ec026d107
+      resolved-ref: cd7b93532e5cb605a42735e20f1de70fc00adae7
       url: "https://github.com/SaadArdati/packages.git"
     source: git
-    version: "0.6.14"
+    version: "0.6.15"
   flutter_svg:
     dependency: "direct main"
     description:
@@ -581,10 +581,10 @@ packages:
     dependency: "direct main"
     description:
       name: go_router
-      sha256: "00d1b67d6e9fa443331da229084dd3eb04407f5a2dff22940bd7bba6af5722c3"
+      sha256: "9235e40f7a917c22830b64a8b3185dd4e0e2fd558b6394fa2d93dd1feb884c5c"
       url: "https://pub.dev"
     source: hosted
-    version: "7.1.1"
+    version: "8.0.1"
   google_fonts:
     dependency: "direct main"
     description:
@@ -645,10 +645,10 @@ packages:
     dependency: transitive
     description:
       name: html
-      sha256: "58e3491f7bf0b6a4ea5110c0c688877460d1a6366731155c4a4580e7ded773e8"
+      sha256: "3a7812d5bcd2894edf53dfaf8cd640876cf6cef50a8f238745c8b8120ea74d3a"
       url: "https://pub.dev"
     source: hosted
-    version: "0.15.3"
+    version: "0.15.4"
   http:
     dependency: "direct main"
     description:
@@ -661,10 +661,10 @@ packages:
     dependency: transitive
     description:
       name: http2
-      sha256: "58805ebc6513eed3b98ee0a455a8357e61d187bf2e0fdc1e53120770f78de258"
+      sha256: "3f1286baeae57e96f4bd156cb07ab39ad96cf0d1537eed80dbc65d00447b4e0e"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.1"
+    version: "2.1.0"
   http_multi_server:
     dependency: transitive
     description:
@@ -797,10 +797,10 @@ packages:
     dependency: "direct main"
     description:
       name: msix
-      sha256: c4ac0055da46764d9dca51f2f53b488294080fc8dc2de5730866558a37c6c07a
+      sha256: bf151b9a1648985e7604672ade54c8df693566099d0731e318548c47d54676e6
       url: "https://pub.dev"
     source: hosted
-    version: "3.14.1"
+    version: "3.14.2"
   nested:
     dependency: transitive
     description:
@@ -997,10 +997,10 @@ packages:
     dependency: transitive
     description:
       name: shared_preferences
-      sha256: "16d3fb6b3692ad244a695c0183fca18cf81fd4b821664394a781de42386bf022"
+      sha256: "396f85b8afc6865182610c0a2fc470853d56499f75f7499e2a73a9f0539d23d0"
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.1"
+    version: "2.1.2"
   shared_preferences_android:
     dependency: transitive
     description:

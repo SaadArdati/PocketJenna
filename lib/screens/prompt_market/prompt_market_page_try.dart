@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -139,15 +138,6 @@ class _PromptMarketPageTrialState extends State<PromptMarketPageTrial> {
               extra: {'from': '/prompt-market/${widget.prompt.id}/try'});
         },
       ),
-      actions: [
-        ScaffoldAction(
-          onTap: () {
-            AdaptiveTheme.of(context).toggleThemeMode();
-          },
-          icon: Icons.dark_mode,
-          tooltip: 'Toggle theme',
-        )
-      ],
       title: Text(
         widget.prompt.title,
         textAlign: TextAlign.center,

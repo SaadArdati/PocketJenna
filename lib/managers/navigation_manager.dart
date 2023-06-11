@@ -85,7 +85,7 @@ class NavigationManager {
                   return CustomTransitionPage(
                     key: state.pageKey,
                     child: const OnboardingWelcome(),
-                    opaque: false,
+                    opaque: true,
                     transitionsBuilder:
                         (context, animation, secondaryAnimation, child) {
                       return pocketJennaTransition(
@@ -106,7 +106,7 @@ class NavigationManager {
                   return CustomTransitionPage(
                     key: state.pageKey,
                     child: const OpenAIKeyScreen(),
-                    opaque: false,
+                    opaque: true,
                     transitionsBuilder:
                         (context, animation, secondaryAnimation, child) {
                       return pocketJennaTransition(
@@ -128,7 +128,7 @@ class NavigationManager {
                   return CustomTransitionPage(
                     key: state.pageKey,
                     child: const OnboardingDone(),
-                    opaque: false,
+                    opaque: true,
                     transitionsBuilder:
                         (context, animation, secondaryAnimation, child) {
                       return pocketJennaTransition(
@@ -149,7 +149,7 @@ class NavigationManager {
                       return CustomTransitionPage(
                         key: state.pageKey,
                         child: const MacOSOnboarding(),
-                        opaque: false,
+                        opaque: true,
                         transitionsBuilder:
                             (context, animation, secondaryAnimation, child) {
                           return pocketJennaTransition(
@@ -197,9 +197,7 @@ class NavigationManager {
           return CustomTransitionPage(
             key: state.pageKey,
             child: const HomeScreen(),
-            opaque: false,
-            transitionDuration: const Duration(milliseconds: 600),
-            reverseTransitionDuration: const Duration(milliseconds: 600),
+            opaque: true,
             transitionsBuilder:
                 (context, animation, secondaryAnimation, child) {
               return pocketJennaTransition(
@@ -223,9 +221,7 @@ class NavigationManager {
           return CustomTransitionPage(
             key: state.pageKey,
             child: const PromptMarket(),
-            opaque: false,
-            transitionDuration: const Duration(milliseconds: 600),
-            reverseTransitionDuration: const Duration(milliseconds: 600),
+            opaque: true,
             transitionsBuilder:
                 (context, animation, secondaryAnimation, child) {
               return pocketJennaTransition(
@@ -263,9 +259,7 @@ class NavigationManager {
                 return CustomTransitionPage(
                   key: state.pageKey,
                   child: PromptMarketPage(promptID: promptID!),
-                  opaque: false,
-                  transitionDuration: const Duration(milliseconds: 600),
-                  reverseTransitionDuration: const Duration(milliseconds: 600),
+                  opaque: true,
                   transitionsBuilder:
                       (context, animation, secondaryAnimation, child) {
                     return pocketJennaTransition(
@@ -303,8 +297,7 @@ class NavigationManager {
                     return CustomTransitionPage(
                       key: state.pageKey,
                       child: PromptMarketPageTrialWrapper(prompt: prompt),
-                      opaque: false,
-                      transitionDuration: const Duration(milliseconds: 600),
+                      opaque: true,
                       reverseTransitionDuration:
                           const Duration(milliseconds: 600),
                       transitionsBuilder:
@@ -345,9 +338,7 @@ class NavigationManager {
               return CustomTransitionPage(
                 key: state.pageKey,
                 child: const PromptCreationBody(),
-                opaque: false,
-                transitionDuration: const Duration(milliseconds: 600),
-                reverseTransitionDuration: const Duration(milliseconds: 600),
+                opaque: true,
                 transitionsBuilder:
                     (context, animation, secondaryAnimation, child) {
                   return pocketJennaTransition(
@@ -384,9 +375,7 @@ class NavigationManager {
               return CustomTransitionPage(
                 key: state.pageKey,
                 child: const PromptCreationTesterWrapper(),
-                opaque: false,
-                transitionDuration: const Duration(milliseconds: 600),
-                reverseTransitionDuration: const Duration(milliseconds: 600),
+                opaque: true,
                 transitionsBuilder:
                     (context, animation, secondaryAnimation, child) {
                   return pocketJennaTransition(
@@ -424,9 +413,7 @@ class NavigationManager {
               return CustomTransitionPage(
                 key: state.pageKey,
                 child: const PromptCreationMeta(),
-                opaque: false,
-                transitionDuration: const Duration(milliseconds: 600),
-                reverseTransitionDuration: const Duration(milliseconds: 600),
+                opaque: true,
                 transitionsBuilder:
                     (context, animation, secondaryAnimation, child) {
                   return pocketJennaTransition(
@@ -464,9 +451,7 @@ class NavigationManager {
               return CustomTransitionPage(
                 key: state.pageKey,
                 child: const PromptCreationPreview(),
-                opaque: false,
-                transitionDuration: const Duration(milliseconds: 600),
-                reverseTransitionDuration: const Duration(milliseconds: 600),
+                opaque: true,
                 transitionsBuilder:
                     (context, animation, secondaryAnimation, child) {
                   return pocketJennaTransition(
@@ -517,9 +502,7 @@ class NavigationManager {
           return CustomTransitionPage(
             key: state.pageKey,
             child: child,
-            opaque: false,
-            transitionDuration: const Duration(milliseconds: 600),
-            reverseTransitionDuration: const Duration(milliseconds: 600),
+            opaque: true,
             transitionsBuilder:
                 (context, animation, secondaryAnimation, child) {
               return pocketJennaTransition(
@@ -541,9 +524,7 @@ class NavigationManager {
           return CustomTransitionPage(
             key: state.pageKey,
             child: const SettingsScreen(),
-            opaque: false,
-            transitionDuration: const Duration(milliseconds: 600),
-            reverseTransitionDuration: const Duration(milliseconds: 600),
+            opaque: true,
             transitionsBuilder:
                 (context, animation, secondaryAnimation, child) {
               return pocketJennaTransition(
@@ -565,9 +546,7 @@ class NavigationManager {
           return CustomTransitionPage(
             key: state.pageKey,
             child: const AuthScreen(),
-            opaque: false,
-            transitionDuration: const Duration(milliseconds: 600),
-            reverseTransitionDuration: const Duration(milliseconds: 600),
+            opaque: true,
             transitionsBuilder:
                 (context, animation, secondaryAnimation, child) {
               return pocketJennaTransition(

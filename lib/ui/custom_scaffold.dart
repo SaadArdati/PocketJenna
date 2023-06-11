@@ -620,14 +620,16 @@ class ScaffoldAction extends StatelessWidget {
     required this.onTap,
     required this.icon,
     required this.tooltip,
-    this.color,
+    this.foregroundColor,
+    this.backgroundColor,
     this.hoverColor,
   });
 
   final VoidCallback? onTap;
   final IconData icon;
   final String tooltip;
-  final Color? color;
+  final Color? foregroundColor;
+  final Color? backgroundColor;
   final Color? hoverColor;
 
   @override
@@ -639,7 +641,7 @@ class ScaffoldAction extends StatelessWidget {
     return Tooltip(
       message: tooltip,
       child: Material(
-        color: Colors.transparent,
+        color: backgroundColor ?? Colors.transparent,
         borderRadius: BorderRadius.circular(4),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
@@ -651,7 +653,7 @@ class ScaffoldAction extends StatelessWidget {
             child: Icon(
               icon,
               size: isDesktop ? 20 : 24,
-              color: color ?? context.colorScheme.onPrimary,
+              color: foregroundColor ?? context.colorScheme.onPrimary,
             ),
           ),
         ),

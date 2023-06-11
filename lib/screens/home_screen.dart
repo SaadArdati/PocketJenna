@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive/hive.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:pocketjenna/screens/prompt_market/prompt_market.dart';
 import 'package:pub_semver/pub_semver.dart';
 import 'package:universal_io/io.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -41,6 +41,8 @@ class _HomeScreenState extends State<HomeScreen> {
   StreamSubscription<UserModel?>? userListener;
 
   PromptView promptView = PromptView.cards;
+  bool reordering = false;
+  bool updating = false;
 
   @override
   void initState() {
@@ -125,6 +127,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final pinnedPrompts = DataManager.instance.currentUser!.pinnedPrompts;
     return CustomScaffold(
       automaticallyImplyLeading: false,
       leading: ScaffoldAction(
@@ -135,49 +138,92 @@ class _HomeScreenState extends State<HomeScreen> {
         },
       ),
       actions: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
-          child: SegmentedButton<PromptView>(
-            style: ButtonStyle(
-              foregroundColor: MaterialStateProperty.resolveWith(
-                (states) {
-                  if (states.contains(MaterialState.selected)) {
-                    return context.colorScheme.onPrimary;
-                  } else {
-                    return context.colorScheme.onSurface;
-                  }
-                },
-              ),
-              backgroundColor: MaterialStateProperty.resolveWith(
-                (states) {
-                  if (states.contains(MaterialState.selected)) {
-                    return context.colorScheme.secondary;
-                  } else {
-                    return context.colorScheme.primaryContainer;
-                  }
-                },
-              ),
-            ),
-            showSelectedIcon: false,
-            segments: const [
-              ButtonSegment<PromptView>(
-                  value: PromptView.cards, icon: Icon(Icons.grid_view)),
-              ButtonSegment<PromptView>(
-                  value: PromptView.list, icon: Icon(Icons.list)),
-            ],
-            selected: {promptView},
-            onSelectionChanged: (value) {
-              setState(() {
-                promptView = value.first;
-                Hive.box(Constants.settings)
-                    .put(Constants.promptView, promptView.index);
-              });
-            },
+        if (pinnedPrompts.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: reordering || updating
+                ? FilledBounceButton(
+                    primaryColor: context.colorScheme.onPrimary,
+                    label: Text(
+                      'Done',
+                      style: context.textTheme.labelSmall?.copyWith(
+                        color: context.colorScheme.primary,
+                      ),
+                    ),
+                    icon: updating
+                        ? CupertinoActivityIndicator(
+                            color: context.colorScheme.primary,
+                          )
+                        : Icon(
+                            Icons.check,
+                            size: 16,
+                            color: context.colorScheme.primary,
+                          ),
+                    onPressed: () {
+                      setState(() {
+                        reordering = false;
+                        updating = true;
+                      });
+                      DataManager.instance
+                          .updatePinnedPrompts()
+                          .whenComplete(() {
+                        if (mounted) {
+                          setState(() {
+                            updating = false;
+                          });
+                        }
+                      });
+                    },
+                  )
+                : ScaffoldAction(
+                    icon: Icons.reorder,
+                    onTap: () {
+                      setState(() {
+                        reordering = true;
+                        promptView = PromptView.list;
+                      });
+                    },
+                    tooltip: 'Reorder Pinned Prompts',
+                  ),
           ),
+        ScaffoldAction(
+          onTap: () {
+            setState(() {
+              promptView = PromptView.cards;
+              Hive.box(Constants.settings)
+                  .put(Constants.promptView, promptView.index);
+            });
+          },
+          icon: Icons.grid_view,
+          tooltip: 'Card View',
+          backgroundColor: promptView == PromptView.cards
+              ? context.colorScheme.primaryContainer
+              : null,
+          foregroundColor: promptView == PromptView.cards
+              ? context.colorScheme.onPrimaryContainer
+              : null,
+        ),
+        ScaffoldAction(
+          onTap: () {
+            setState(() {
+              promptView = PromptView.list;
+              Hive.box(Constants.settings)
+                  .put(Constants.promptView, promptView.index);
+            });
+          },
+          icon: Icons.list,
+          tooltip: 'List View',
+          backgroundColor: promptView == PromptView.list
+              ? context.colorScheme.primaryContainer
+              : null,
+          foregroundColor: promptView == PromptView.list
+              ? context.colorScheme.onPrimaryContainer
+              : null,
         ),
       ],
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(vertical: 16),
+        clipBehavior: Clip.none,
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 800),
@@ -187,94 +233,122 @@ class _HomeScreenState extends State<HomeScreen> {
                 // const SizedBox(height: 16),
                 const ExploreTile(),
                 const SizedBox(height: 8),
-                if (DataManager.instance.currentUser!.pinnedPrompts.isEmpty)
+                if (pinnedPrompts.isEmpty)
                   const Padding(
                     padding: EdgeInsets.all(32),
                     child: Center(
                       child: CupertinoActivityIndicator(),
                     ),
-                  )
-                else if (promptView == PromptView.cards)
-                  LayoutBuilder(builder: (context, constraints) {
-                    final int crossAxisCount;
+                  ),
+                // if (pinnedPrompts.isNotEmpty)
+                //   Row(
+                //     mainAxisAlignment: MainAxisAlignment.end,
+                //     children: [
+                //     ],
+                //   ),
+                if (pinnedPrompts.isNotEmpty)
+                  if (promptView == PromptView.cards)
+                    LayoutBuilder(builder: (context, constraints) {
+                      final int crossAxisCount;
 
-                    if (constraints.maxWidth <= 350) {
-                      crossAxisCount = 1;
-                    } else if (constraints.maxWidth <= 600) {
-                      crossAxisCount = 2;
-                    } else if (constraints.maxWidth <= 750) {
-                      crossAxisCount = 3;
-                    } else {
-                      crossAxisCount = 4;
-                    }
+                      if (constraints.maxWidth <= 350) {
+                        crossAxisCount = 1;
+                      } else if (constraints.maxWidth <= 600) {
+                        crossAxisCount = 2;
+                      } else if (constraints.maxWidth <= 750) {
+                        crossAxisCount = 3;
+                      } else {
+                        crossAxisCount = 4;
+                      }
 
-                    return GridView.builder(
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: crossAxisCount,
-                      ),
-                      physics: const NeverScrollableScrollPhysics(),
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      return GridView.builder(
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: crossAxisCount,
+                        ),
+                        physics: const NeverScrollableScrollPhysics(),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        shrinkWrap: true,
+                        itemCount: pinnedPrompts.length,
+                        itemBuilder: (context, index) {
+                          final Prompt? prompt =
+                              PromptManager.instance.getPromptByID(
+                            pinnedPrompts[index],
+                          );
+                          if (prompt == null) return const SizedBox();
+                          // final bool isComingSoon;
+                          // switch (type) {
+                          //   case ChatType.general:
+                          //   case ChatType.email:
+                          //   case ChatType.documentCode:
+                          //     isComingSoon = false;
+                          //     break;
+                          //   case ChatType.scientific:
+                          //   case ChatType.analyze:
+                          //   case ChatType.readMe:
+                          //     isComingSoon = true;
+                          //     break;
+                          // }
+                          return Padding(
+                            padding: const EdgeInsets.all(8),
+                            child: GPTCard(
+                              prompt: prompt,
+                              isComingSoon: false,
+                              onTap: () => context.go(
+                                '/chat?promptID=${prompt.id}',
+                                extra: {'from': '/home'},
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    })
+                  else
+                    ReorderableListView.builder(
                       shrinkWrap: true,
-                      itemCount: DataManager
-                          .instance.currentUser!.pinnedPrompts.length,
-                      itemBuilder: (context, index) {
-                        final Prompt? prompt =
-                            PromptManager.instance.getPromptByID(
-                          DataManager
-                              .instance.currentUser!.pinnedPrompts[index],
+                      physics: const NeverScrollableScrollPhysics(),
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      itemCount: pinnedPrompts.length,
+                      clipBehavior: Clip.none,
+                      buildDefaultDragHandles: reordering,
+                      itemBuilder: (BuildContext context, int index) {
+                        final prompt = PromptManager.instance.getPromptByID(
+                          pinnedPrompts[index],
                         );
-                        if (prompt == null) return const SizedBox();
-                        // final bool isComingSoon;
-                        // switch (type) {
-                        //   case ChatType.general:
-                        //   case ChatType.email:
-                        //   case ChatType.documentCode:
-                        //     isComingSoon = false;
-                        //     break;
-                        //   case ChatType.scientific:
-                        //   case ChatType.analyze:
-                        //   case ChatType.readMe:
-                        //     isComingSoon = true;
-                        //     break;
-                        // }
-                        return Padding(
-                          padding: const EdgeInsets.all(8),
-                          child: GPTCard(
+                        if (prompt == null) {
+                          return SizedBox(
+                            key: ValueKey('Index #$index'),
+                          );
+                        }
+
+                        return KeyedSubtree(
+                          key: ValueKey(prompt.id),
+                          child: GPTPromptTile(
                             prompt: prompt,
-                            isComingSoon: false,
+                            withSavesPill: false,
                             onTap: () => context.go(
                               '/chat?promptID=${prompt.id}',
                               extra: {'from': '/home'},
                             ),
-                          ),
+                          )
+                              .animate(delay: (50 * index).ms)
+                              .fadeIn(
+                                  duration: 300.ms, curve: Curves.easeOutBack)
+                              .moveY(
+                                  begin: 100,
+                                  end: 0,
+                                  duration: 300.ms,
+                                  curve: Curves.easeOutBack),
                         );
                       },
-                    );
-                  })
-                else
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    itemCount:
-                        DataManager.instance.currentUser!.pinnedPrompts.length,
-                    clipBehavior: Clip.none,
-                    itemBuilder: (BuildContext context, int index) {
-                      final prompt = PromptManager.instance.getPromptByID(
-                        DataManager.instance.currentUser!.pinnedPrompts[index],
-                      );
-                      if (prompt == null) return const SizedBox();
-
-                      return GPTPromptTile(
-                        prompt: prompt,
-                        withSavesPill: false,
-                        onTap: () => context.go(
-                          '/chat?promptID=${prompt.id}',
-                          extra: {'from': '/home'},
-                        ),
-                      );
-                    },
-                  ),
+                      onReorder: (int oldIndex, int newIndex) {
+                        if (oldIndex < newIndex) {
+                          // removing the item at oldIndex will shorten the list by 1.
+                          newIndex -= 1;
+                        }
+                        final String element = pinnedPrompts.removeAt(oldIndex);
+                        pinnedPrompts.insert(newIndex, element);
+                      },
+                    ),
               ],
             ),
           ),
@@ -462,6 +536,145 @@ class ExploreTile extends StatelessWidget {
                   ),
                 ),
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class GPTPromptTile extends StatefulWidget {
+  final Prompt prompt;
+  final VoidCallback onTap;
+  final bool withSavesPill;
+  final EdgeInsets margin;
+
+  const GPTPromptTile({
+    super.key,
+    required this.prompt,
+    required this.onTap,
+    this.withSavesPill = true,
+    this.margin = const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+  });
+
+  @override
+  State<GPTPromptTile> createState() => _GPTPromptTileState();
+}
+
+class _GPTPromptTileState extends State<GPTPromptTile> {
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: Material(
+        color: Colors.transparent,
+        child: BounceWrapper(
+          direction: AxisDirection.right,
+          onTap: widget.onTap,
+          child: Container(
+            margin: widget.margin,
+            decoration: BoxDecoration(
+              color: context.colorScheme.surface,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: context.colorScheme.primary,
+                width: 2,
+              ),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: Padding(
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          widget.prompt.title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: context.textTheme.labelMedium?.copyWith(
+                            color: context.colorScheme.onSurface,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      if (widget.prompt.description == null &&
+                          widget.withSavesPill) ...[
+                        const SizedBox(width: 8),
+                        savesButton(context),
+                      ],
+                    ],
+                  ),
+                  if (widget.prompt.description != null) ...[
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            widget.prompt.description!,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: context.textTheme.labelSmall?.copyWith(
+                              color: context.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ),
+                        if (widget.withSavesPill) ...[
+                          const SizedBox(width: 8),
+                          savesButton(context),
+                        ],
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget savesButton(BuildContext context) {
+    final bool isSaved = DataManager.instance.currentUser?.pinnedPrompts
+            .contains(widget.prompt.id) ??
+        false;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 8,
+        vertical: 4,
+      ),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(100),
+        border: Border.all(
+          color: context.colorScheme.primary,
+          width: 2,
+        ),
+        color: isSaved ? context.colorScheme.primary : null,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            isSaved ? Icons.favorite : Icons.favorite_border,
+            color: isSaved
+                ? context.colorScheme.onPrimary
+                : context.colorScheme.primary,
+            size: 16,
+          ),
+          const SizedBox(width: 4),
+          Text(
+            '${widget.prompt.saves.length}',
+            style: context.textTheme.labelSmall?.copyWith(
+              color: isSaved
+                  ? context.colorScheme.onPrimary
+                  : context.colorScheme.onSurfaceVariant,
             ),
           ),
         ],

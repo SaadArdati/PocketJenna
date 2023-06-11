@@ -1,4 +1,3 @@
-import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -71,15 +70,6 @@ class _PromptCreationPreviewState extends State<PromptCreationPreview> {
                 );
               },
       ),
-      actions: [
-        ScaffoldAction(
-          onTap: () {
-            AdaptiveTheme.of(context).toggleThemeMode();
-          },
-          icon: Icons.dark_mode,
-          tooltip: 'Toggle theme',
-        )
-      ],
       title: Text(
         'Prompt Creator',
         textAlign: TextAlign.center,

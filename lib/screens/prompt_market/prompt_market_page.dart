@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../managers/data/data_manager.dart';
@@ -108,15 +108,6 @@ class _PromptMarketPageState extends State<PromptMarketPage> {
             ),
           ),
           automaticallyImplyLeading: false,
-          actions: [
-            ScaffoldAction(
-              onTap: () {
-                AdaptiveTheme.of(context).toggleThemeMode();
-              },
-              icon: Icons.dark_mode,
-              tooltip: 'Toggle theme',
-            )
-          ],
           leading: ScaffoldAction(
             tooltip: 'Prompt Market',
             icon: Icons.arrow_back,
@@ -266,7 +257,14 @@ class _PromptMarketPageState extends State<PromptMarketPage> {
                               ),
                             ),
                           ),
-                        ],
+                        ]
+                            .animate(interval: 50.ms)
+                            .fadeIn(duration: 300.ms, curve: Curves.easeOutBack)
+                            .moveY(
+                                begin: 100,
+                                end: 0,
+                                duration: 300.ms,
+                                curve: Curves.easeOutBack),
                       ),
               ),
             ),

@@ -109,7 +109,7 @@ class _BounceWrapperState extends State<BounceWrapper> {
 }
 
 class FilledBounceButton extends StatefulWidget {
-  final Widget label;
+  final Widget? label;
   final Widget? icon;
   final VoidCallback? onPressed;
   final Color? primaryColor;
@@ -117,7 +117,7 @@ class FilledBounceButton extends StatefulWidget {
 
   const FilledBounceButton({
     super.key,
-    required this.label,
+    this.label,
     this.icon,
     required this.onPressed,
     this.primaryColor,
@@ -219,8 +219,9 @@ class _FilledBounceButtonState extends State<FilledBounceButton> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       if (widget.icon != null) widget.icon!,
-                      if (widget.icon != null) const SizedBox(width: 8),
-                      widget.label,
+                      if (widget.icon != null && widget.label != null)
+                        const SizedBox(width: 8),
+                      if (widget.label != null) widget.label!,
                     ],
                   ),
                 ),

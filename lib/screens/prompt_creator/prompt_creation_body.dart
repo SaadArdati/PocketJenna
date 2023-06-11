@@ -1,4 +1,3 @@
-import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -49,15 +48,6 @@ class _PromptCreationBodyState extends State<PromptCreationBody> {
           context.go('/home', extra: {'from': '/prompt-market'});
         },
       ),
-      actions: [
-        ScaffoldAction(
-          onTap: () {
-            AdaptiveTheme.of(context).toggleThemeMode();
-          },
-          icon: Icons.dark_mode,
-          tooltip: 'Toggle theme',
-        )
-      ],
       title: Text(
         'Prompt Creator',
         textAlign: TextAlign.center,

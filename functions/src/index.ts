@@ -712,11 +712,11 @@ app.post("/updatePinnedPrompts", async (req: Request, res: Response) => {
     res.status(400).send("prompts must be an array of strings");
     return;
   }
-  // Check if every string is less than 5000 but more than 20 chars.
+  // Check if every string is less than 500 but more than 20 chars.
   if (
-    !pinnedPrompts.every((prompt) => prompt.length < 5000 && prompt.length > 20)
+    !pinnedPrompts.every((prompt) => prompt.length < 500 && prompt.length > 20)
   ) {
-    res.status(400).send("Prompt must be between 20 and 5000 characters");
+    res.status(400).send("Prompt must be between 20 and 500 characters");
     return;
   }
   // Make sure the list is of unique elements.
@@ -727,7 +727,9 @@ app.post("/updatePinnedPrompts", async (req: Request, res: Response) => {
 
   const userDoc = await db.collection("users").doc(userID);
 
-  await userDoc.set({pinnedPrompts: pinnedPrompts}, {merge: true});
+  await userDoc.update({
+    pinnedPrompts: pinnedPrompts,
+  });
 });
 
 // Expose Express API as a single Cloud Function:

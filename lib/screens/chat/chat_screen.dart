@@ -264,7 +264,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                     },
                                     icon: Icons.last_page,
                                     tooltip: 'Close History',
-                                    color: context.colorScheme.onSurface,
+                                    foregroundColor:
+                                        context.colorScheme.onSurface,
                                     hoverColor: context
                                         .colorScheme.primaryContainer
                                         .withOpacity(0.25),

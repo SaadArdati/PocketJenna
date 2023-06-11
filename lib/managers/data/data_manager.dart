@@ -12,7 +12,6 @@ import '../../models/chat.dart';
 import '../../models/prompt.dart';
 import '../../models/user_model.dart';
 import '../auth/auth_manager.dart';
-import '../prompt_manager.dart';
 import 'firebase_data_manager.dart';
 import 'firedart_data_manager.dart';
 
@@ -254,12 +253,7 @@ abstract class DataManager {
         'Content-Type': 'application/json',
       },
       body: jsonEncode({
-        'pinnedPrompts': [
-          ...currentUser!.pinnedPrompts.map(
-            (promptID) =>
-                PromptManager.instance.getPromptByID(promptID)!.toJson(),
-          )
-        ],
+        'pinnedPrompts': [...currentUser!.pinnedPrompts],
       }),
     );
     if (response.statusCode == 200) {
