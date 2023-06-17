@@ -2,15 +2,14 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
 
-import '../constants.dart';
 import '../main.dart';
 import '../models/prompt.dart';
 import '../screens/auth_screen.dart';
 import '../screens/chat/chat_screen.dart';
 import '../screens/home_screen.dart';
+import '../screens/loading_screen.dart';
 import '../screens/onboarding/macos_onboarding_screen.dart';
 import '../screens/onboarding/onboarding_screen.dart';
 import '../screens/open_ai_key_screen.dart';
@@ -37,13 +36,8 @@ class NavigationManager {
 
   factory NavigationManager() => _instance;
 
-  final box = Hive.box(Constants.settings);
-
   late final router = GoRouter(
-    // initialLocation: '/onboarding',
-    initialLocation: box.get(Constants.isFirstTime, defaultValue: true)
-        ? '/onboarding'
-        : '/home',
+    initialLocation: '/loading',
     routes: [baseRoute],
   );
 
@@ -64,6 +58,10 @@ class NavigationManager {
           child: NavigationBackground(state: state, child: child));
     },
     routes: [
+      GoRoute(
+        path: '/loading',
+        builder: (state, context) => const LoadingScreen(),
+      ),
       GoRoute(
         path: '/onboarding',
         builder: (state, context) => const SizedBox.shrink(),

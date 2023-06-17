@@ -711,9 +711,9 @@ app.post("/updatePinnedPrompts", async (req: Request, res: Response) => {
     res.status(400).send("prompts must be an array of strings");
     return;
   }
-  // Check if every string is less than 500 but more than 20 chars.
+  // Check if every string is less than 500 but more than 5 chars.
   if (
-    !pinnedPrompts.every((prompt) => prompt.length < 500 && prompt.length > 20)
+    !pinnedPrompts.every((prompt) => prompt.length < 500 && prompt.length > 5)
   ) {
     res.status(400).send("Prompt must be between 20 and 500 characters");
     return;

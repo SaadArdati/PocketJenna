@@ -17,11 +17,7 @@ import 'package:url_strategy/url_strategy.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'constants.dart';
-import 'managers/asset_manager.dart';
-import 'managers/auth/auth_manager.dart';
-import 'managers/data/data_manager.dart';
 import 'managers/navigation_manager.dart';
-import 'managers/prompt_manager.dart';
 import 'managers/system_manager.dart';
 import 'ui/background_painter.dart';
 import 'ui/theme_extensions.dart';
@@ -75,12 +71,6 @@ class PocketJenna extends StatefulWidget {
     } else {
       setPathUrlStrategy();
     }
-
-    await AuthManager.instance.init();
-    await AssetManager.instance.init();
-    await DataManager.instance.init().catchError((e) {});
-    PromptManager.instance.init();
-
     return true;
   }
 

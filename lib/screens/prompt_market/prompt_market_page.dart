@@ -96,9 +96,9 @@ class _PromptMarketPageState extends State<PromptMarketPage> {
       builder: (context, snapshot) {
         final Prompt? prompt = snapshot.data;
         return CustomScaffold(
+          centerTitle: false,
           title: Text(
             prompt?.title ?? 'Loading Prompt',
-            textAlign: TextAlign.center,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: context.textTheme.titleMedium?.copyWith(

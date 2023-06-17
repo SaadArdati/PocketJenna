@@ -382,7 +382,7 @@ class CustomScaffold extends StatelessWidget {
     this.drawerEnableOpenDragGesture = true,
     this.endDrawerEnableOpenDragGesture = true,
     this.restorationId,
-    this.centerTitle = false,
+    this.centerTitle = true,
   });
 
   @override
@@ -462,6 +462,8 @@ class CustomAppBar extends StatelessWidget {
         (platform == TargetPlatform.windows ||
             platform == TargetPlatform.linux ||
             platform == TargetPlatform.macOS);
+    final bool hasNotch = !kIsWeb &&
+        (platform == TargetPlatform.iOS || platform == TargetPlatform.android);
 
     return Theme(
       data: Theme.of(context).copyWith(
@@ -515,13 +517,18 @@ class CustomAppBar extends StatelessWidget {
                           onDoubleTap: () {
                             SystemManager.instance.maximizeOrRestoreWindow();
                           },
-                          child: Padding(
-                            padding: EdgeInsets.only(
-                              left: isWindows ? 8 : 16,
-                              right: 16,
-                              top: 4,
+                          child: Align(
+                            alignment: !hasNotch
+                                ? Alignment.center
+                                : Alignment.centerLeft,
+                            child: Padding(
+                              padding: EdgeInsets.only(
+                                left: isWindows ? 8 : 16,
+                                right: 16,
+                                top: 4,
+                              ),
+                              child: appTitle,
                             ),
-                            child: appTitle,
                           ),
                         ),
                       ),
@@ -583,25 +590,25 @@ class CustomAppBar extends StatelessWidget {
                     mainAxisSize: MainAxisSize.max,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      if ((actions?.length ?? 0) > 2)
-                        leadingWidget
-                      else
-                        Flexible(
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: leadingWidget,
-                          ),
-                        ),
+                      leadingWidget,
                       if (title != null)
-                        Expanded(flex: 2, child: title!)
+                        Expanded(
+                          child: Align(
+                            alignment: centerTitle
+                                ? Alignment.center
+                                : Alignment.centerLeft,
+                            child: title!,
+                          ),
+                        )
                       else if (!isDesktop)
-                        Expanded(flex: 2, child: appTitle),
-                      Flexible(
-                        child: Row(
+                        Expanded(child: appTitle),
+                      if (actions != null)
+                        Row(
                           mainAxisAlignment: MainAxisAlignment.end,
-                          children: [if (actions != null) ...actions!],
-                        ),
-                      ),
+                          children: [...actions!],
+                        )
+                      else if (leading != null)
+                        const SizedBox(width: 36)
                     ],
                   ),
                 ),

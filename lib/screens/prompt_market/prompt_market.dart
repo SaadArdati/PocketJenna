@@ -25,13 +25,13 @@ class _PromptMarketState extends State<PromptMarket> {
       // backgroundColor: context.colorScheme.surface,
       title: Text(
         'Prompt Market',
-        textAlign: TextAlign.center,
         style: context.textTheme.titleMedium?.copyWith(
           color: context.colorScheme.onPrimary,
           fontWeight: FontWeight.bold,
           letterSpacing: 1.5,
         ),
       ),
+      centerTitle: true,
       automaticallyImplyLeading: false,
       leading: ScaffoldAction(
         tooltip: 'Home',

@@ -139,86 +139,60 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       actions: [
         if (pinnedPrompts.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: reordering || updating
-                ? FilledBounceButton(
-                    primaryColor: context.colorScheme.onPrimary,
-                    label: Text(
-                      'Done',
-                      style: context.textTheme.labelSmall?.copyWith(
-                        color: context.colorScheme.primary,
-                      ),
+          reordering || updating
+              ? FilledBounceButton(
+                  primaryColor: context.colorScheme.onPrimary,
+                  label: Text(
+                    'Done',
+                    style: context.textTheme.labelSmall?.copyWith(
+                      color: context.colorScheme.primary,
                     ),
-                    icon: updating
-                        ? CupertinoActivityIndicator(
-                            color: context.colorScheme.primary,
-                          )
-                        : Icon(
-                            Icons.check,
-                            size: 16,
-                            color: context.colorScheme.primary,
-                          ),
-                    onPressed: () {
-                      setState(() {
-                        reordering = false;
-                        updating = true;
-                      });
-                      DataManager.instance
-                          .updatePinnedPrompts()
-                          .whenComplete(() {
-                        if (mounted) {
-                          setState(() {
-                            updating = false;
-                          });
-                        }
-                      });
-                    },
-                  )
-                : ScaffoldAction(
-                    icon: Icons.reorder,
-                    onTap: () {
-                      setState(() {
-                        reordering = true;
-                        promptView = PromptView.list;
-                      });
-                    },
-                    tooltip: 'Reorder Pinned Prompts',
                   ),
-          ),
+                  icon: updating
+                      ? CupertinoActivityIndicator(
+                          color: context.colorScheme.primary,
+                        )
+                      : Icon(
+                          Icons.check,
+                          size: 16,
+                          color: context.colorScheme.primary,
+                        ),
+                  onPressed: () {
+                    setState(() {
+                      reordering = false;
+                      updating = true;
+                    });
+                    DataManager.instance.updatePinnedPrompts().whenComplete(() {
+                      if (mounted) {
+                        setState(() {
+                          updating = false;
+                        });
+                      }
+                    });
+                  },
+                )
+              : ScaffoldAction(
+                  icon: Icons.reorder,
+                  onTap: () {
+                    setState(() {
+                      reordering = true;
+                      promptView = PromptView.list;
+                    });
+                  },
+                  tooltip: 'Reorder Pinned Prompts',
+                ),
         ScaffoldAction(
           onTap: () {
             setState(() {
-              promptView = PromptView.cards;
+              promptView = promptView == PromptView.list
+                  ? PromptView.cards
+                  : PromptView.list;
               Hive.box(Constants.settings)
                   .put(Constants.promptView, promptView.index);
             });
           },
-          icon: Icons.grid_view,
-          tooltip: 'Card View',
-          backgroundColor: promptView == PromptView.cards
-              ? context.colorScheme.primaryContainer
-              : null,
-          foregroundColor: promptView == PromptView.cards
-              ? context.colorScheme.onPrimaryContainer
-              : null,
-        ),
-        ScaffoldAction(
-          onTap: () {
-            setState(() {
-              promptView = PromptView.list;
-              Hive.box(Constants.settings)
-                  .put(Constants.promptView, promptView.index);
-            });
-          },
-          icon: Icons.list,
-          tooltip: 'List View',
-          backgroundColor: promptView == PromptView.list
-              ? context.colorScheme.primaryContainer
-              : null,
-          foregroundColor: promptView == PromptView.list
-              ? context.colorScheme.onPrimaryContainer
-              : null,
+          icon: promptView == PromptView.list ? Icons.list : Icons.grid_view,
+          tooltip: '${promptView == PromptView.list ? 'List' : 'Card'} View',
         ),
       ],
       body: SingleChildScrollView(
@@ -246,6 +220,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 //     children: [
                 //     ],
                 //   ),
+                if (pinnedPrompts.isEmpty)
+                  const Center(child: CupertinoActivityIndicator()),
                 if (pinnedPrompts.isNotEmpty)
                   if (promptView == PromptView.cards)
                     LayoutBuilder(builder: (context, constraints) {
@@ -297,7 +273,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                 '/chat?promptID=${prompt.id}',
                                 extra: {'from': '/home'},
                               ),
-                            ),
+                            )
+                                .animate(delay: (50 * index).ms)
+                                .fadeIn(
+                                    duration: 300.ms, curve: Curves.easeOutBack)
+                                .moveY(
+                                    begin: 100,
+                                    end: 0,
+                                    duration: 300.ms,
+                                    curve: Curves.easeOutBack),
                           );
                         },
                       );
