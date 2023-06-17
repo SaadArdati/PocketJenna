@@ -2,8 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
 
+import '../constants.dart';
 import '../main.dart';
 import '../models/prompt.dart';
 import '../screens/auth_screen.dart';
@@ -36,6 +38,8 @@ class NavigationManager {
 
   factory NavigationManager() => _instance;
 
+  late final box = Hive.box(Constants.settings);
+
   late final router = GoRouter(
     initialLocation: '/loading',
     routes: [baseRoute],
@@ -45,6 +49,11 @@ class NavigationManager {
     if (!AuthManager.instance.isAuthenticated ||
         DataManager.instance.currentUser == null) {
       return '/auth';
+    }
+
+    final String key = box.get(Constants.openAIKey) ?? '';
+    if (key.isEmpty) {
+      return '/onboarding/openai';
     }
 
     return null;
@@ -517,7 +526,6 @@ class NavigationManager {
       ),
       GoRoute(
         path: '/settings',
-        builder: (context, state) => const SettingsScreen(),
         pageBuilder: (context, state) {
           return CustomTransitionPage(
             key: state.pageKey,
@@ -539,7 +547,6 @@ class NavigationManager {
       ),
       GoRoute(
         path: '/auth',
-        builder: (context, state) => const AuthScreen(),
         pageBuilder: (context, state) {
           return CustomTransitionPage(
             key: state.pageKey,

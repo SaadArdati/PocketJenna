@@ -172,7 +172,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   },
                 )
               : ScaffoldAction(
-                  icon: Icons.reorder,
+                  icon: Icons.sort,
                   onTap: () {
                     setState(() {
                       reordering = true;
