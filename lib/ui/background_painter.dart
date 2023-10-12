@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -18,17 +17,8 @@ class BackgroundPainter extends CustomPainter {
 
   final Random random = Random(2);
   late final List<Paint> paintShades = List.generate(shades.length, (i) {
-    final Color shade1 = shades[random.nextInt(shades.length)];
-    final Color shade2 = shades[random.nextInt(shades.length)];
-    return Paint()
-      ..shader = ui.Gradient.linear(
-        const Offset(0, 0),
-        const Offset(0, 100),
-        [shade1, shade2],
-        [0.0, 1.0],
-        TileMode.clamp,
-        Matrix4.rotationZ((random.nextInt(360) * pi / 180)).storage,
-      );
+    final Color shade1 = shades[random.nextInt(shades.length - 1)];
+    return Paint()..color = shade1;
   });
 
   BackgroundPainter({
@@ -42,8 +32,6 @@ class BackgroundPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     const double logoSize = _logoSize;
     const double halfLogoSize = logoSize / 2;
-    const double quarterLogoSize = logoSize / 4;
-    const double scaledLogo = logoSize / 2;
 
     final double maxCountX = (size.width / logoSize).ceilToDouble();
     final double maxCountY = (size.height / logoSize).ceilToDouble();
