@@ -23,7 +23,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     final bool viewingImage =
-        GoRouter.of(context).location.contains('tray_position');
+        GoRouterState.of(context).path?.contains('tray_position') ?? false;
     return CustomScaffold(
       automaticallyImplyLeading: false,
       leading: viewingImage

@@ -4,6 +4,8 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   bitsdojo_window_windows
+  cloud_firestore
+  firebase_auth
   firebase_core
   screen_retriever
   system_tray

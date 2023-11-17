@@ -236,19 +236,19 @@ class _NavigationBackgroundState extends State<NavigationBackground>
   final Random random = Random(2);
   List<Color>? colors;
 
-  bool get isHomePage => widget.state.location == '/home';
+  bool get isHomePage => widget.state.uri.toString() == '/home';
 
-  bool get isChatPage => widget.state.location.startsWith('/chat');
+  bool get isChatPage => widget.state.uri.toString().startsWith('/chat');
 
-  bool get isOnboardingPage => widget.state.location.startsWith('/onboarding');
+  bool get isOnboardingPage => widget.state.uri.toString().startsWith('/onboarding');
 
-  bool get isSettingsPage => widget.state.location == '/settings';
+  bool get isSettingsPage => widget.state.uri.toString() == '/settings';
 
   @override
   void didUpdateWidget(covariant NavigationBackground oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (widget.state.location == oldWidget.state.location &&
+    if (widget.state.uri.toString() == oldWidget.state.uri.toString() &&
         widget.state.extra == oldWidget.state.extra) return;
 
     chaosController
@@ -267,8 +267,8 @@ class _NavigationBackgroundState extends State<NavigationBackground>
     } else if (isSettingsPage) {
       rotate(10);
     } else if (isOnboardingPage) {
-      final bool isStep1 = widget.state.location == '/onboarding/one';
-      final bool isStep2 = widget.state.location == '/onboarding/two';
+      final bool isStep1 = widget.state.uri.toString() == '/onboarding/one';
+      final bool isStep2 = widget.state.uri.toString() == '/onboarding/two';
       rotate(
         isStep1
             ? 90

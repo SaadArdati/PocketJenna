@@ -71,9 +71,12 @@ class FirebaseAuthManager extends AuthManager {
   }
 
   @override
-  Future<String> getAuthToken() async =>
-      FirebaseAuth.instance.currentUser!.getIdToken().catchError(
-            (e) => throw Exception('No token: Authentication token is missing'),
+  Future<String> getAuthToken() async => FirebaseAuth.instance.currentUser!
+      .getIdToken()
+      .then((String? id) =>
+          id ?? (throw Exception('No token: Authentication token is missing')))
+      .catchError(
+        (e) => throw Exception('No token: Authentication token is missing'),
           );
 
   @override

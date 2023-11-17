@@ -75,7 +75,7 @@ class NavigationManager {
         path: '/onboarding',
         builder: (state, context) => const SizedBox.shrink(),
         redirect: (BuildContext context, GoRouterState state) {
-          if (state.location == '/onboarding') {
+          if (state.uri.toString() == '/onboarding') {
             return '/onboarding/hello';
           }
           return null;
@@ -483,8 +483,8 @@ class NavigationManager {
             return authDirect;
           }
 
-          final String? promptID = state.queryParameters['promptID'];
-          final String? chatID = state.queryParameters['chatID'];
+          final String? promptID = state.uri.queryParameters['promptID'];
+          final String? chatID = state.uri.queryParameters['chatID'];
 
           if (chatID == null && promptID == null) {
             return '/home';
@@ -496,8 +496,8 @@ class NavigationManager {
           return null;
         },
         pageBuilder: (context, GoRouterState state) {
-          final String? promptID = state.queryParameters['promptID'];
-          final String? chatID = state.queryParameters['chatID'];
+          final String? promptID = state.uri.queryParameters['promptID'];
+          final String? chatID = state.uri.queryParameters['chatID'];
 
           final Widget child = ChatScreenWrapper(
             chatID: chatID,

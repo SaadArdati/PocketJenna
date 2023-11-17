@@ -30,6 +30,8 @@ class ChatMessageBubble extends StatelessWidget {
       case OpenAIChatMessageRole.assistant:
         child = AssistantMessageBubble(message: message);
         break;
+      case OpenAIChatMessageRole.function:
+        throw Exception('Function messages are not supported');
     }
 
     return Center(
@@ -184,9 +186,9 @@ class AssistantMessageBubble extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Row(
+          const Row(
             mainAxisSize: MainAxisSize.min,
-            children: const [
+            children: [
               Icon(Icons.error_outline, size: 14),
               SizedBox(width: 4),
               Text(

@@ -496,7 +496,6 @@ class _ZoomEnterTransitionPainter extends SnapshotPainter {
     // _drawScrim(context, offset, size);
     final double fadeValue =
         _ZoomEnterTransitionState._fadeInTransition.evaluate(animation);
-    print('FADE: ${fade.value} ${fadeValue}');
     _updateScaledTransform(_transform, scale.value, size);
     _transformHandler.layer = context.pushTransform(true, offset, _transform,
         (PaintingContext context, Offset offset) {
